@@ -1,7 +1,4 @@
-extends "res://Base/Objects/TransitionZone.gd"
+extends Node2D
+#extends "res://BaseScripts/Objects.gd"
 
-func do_what_this_object_does():
-	GameData.currentLevel+=1
-	GameData.transition_state=GameEnums.TRANSISTION_STATUS.LEVEL_UP
-	.do_what_this_object_does()
 

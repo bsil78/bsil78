@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/backpack.ogg-0a08e20889612e63517a2f098c179ab8.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/player/backpack.ogg"
+dest_files=[ "res://.import/backpack.ogg-0a08e20889612e63517a2f098c179ab8.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

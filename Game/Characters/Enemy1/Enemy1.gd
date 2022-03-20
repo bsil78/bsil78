@@ -1,95 +1,112 @@
-extends "res://Game/Characters/BaseCharacter.gd"
+extends "res://Game/BaseScripts/Actor.gd"
 
-var change_dir:=true
-var actual_dir:=Vector2.ZERO
 var thinking:=false
-export(bool) var dissolving:=false
-export(float,0.0,100.0,0.1) var dissolve_amount:=0.0
-var dissolve_material:Material
+var think_dir:=NONE
+var attack:bool=true
 
-export(int,0,1000,10) var hit_points:=100
+export(AudioStream) var sproutch:AudioStream
 
-var hitEffect:=preload("res://Game/Effects/EnemyHitGreenBlood.tscn")
+const hitEffect:=preload("res://Game/Effects/EnemyHitGreenBlood.tscn")
+const explodeEffect:=preload("res://Game/Effects/EnemyExploding.tscn")
+const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 
 func _ready():
-	$Pivot/Sprite.scale=Vector2.ONE
-	$Pivot/Sprite.position=Vector2.ZERO
-	$Pivot/Sprite.self_modulate=Color.white
-	dissolving=false
-	dissolve_amount=0
-	visible=true
-	push_dissolve()
+	$UI/LifeBar.max_value=max_life_points
+	$UI/LifeBar.value=life_points
+	$UI/LifeBar.visible=false
 	
-func push_dissolve():
-	if not dissolve_material:
-		dissolve_material=$Pivot/Sprite.get_material()
-	if dissolve_material:
-		dissolve_material.set_shader_param("amount", dissolve_amount)
-		dissolve_material.set_shader_param("running", dissolving)
 
-func hit(amount):
-	playanim("Hit")
-	hit_points=(hit_points-amount)
-	if hit_points<0:
-		hit_points=0
-	use_effect(hitEffect,$FrontEffects)
+func hit(from:Node2D,amount:int=1):
+	if life_points>0:
+		_animator.trigger_anim("hit")
+		Utils.play_effect_once(hitEffect,$FrontEffects)
+		life_points=max(life_points-amount,0)
+		$UI/LifeBar.value=life_points
+		$UI/LifeBar.visible=true
+		yield(Utils.timer(0.5),"timeout")
+		$UI/LifeBar.visible=false
+		if from and from.name.matchn("Player*"):
+			if life_points>(max_life_points/3):
+				speedup()
+				var player_dir=(from.global_position-global_position).normalized()
+				if not player_dir in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
+					if Utils.chance(50):
+						player_dir.x=0
+					else:
+						player_dir.y=0
+				think_dir=player_dir
+		
+func killed():
+	_animator.trigger_anim("killed")
+	alive=false
 
-func die():
-	playanim("Killed",true)
-	remove_from_world()
-	queue_free()
 	
-func interact_with(other:Node2D):
-	if other.name=="Player":
-		playanim("Attack",true)
-		other.hit(50)
-
-func _draw():
-	if dissolving:
-		push_dissolve()
+func explode():
+	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
+	Utils.play_effect_once(explodeEffect,$FrontEffects)
 			
 func _process(_delta):
 	manage_sound_volume()
-	if hit_points<=0:
-		die()
-	if Utils.chance(50):
-		try_move()
+	if thinking: return
+	if think_dir!=NONE:
+		goto(think_dir)
 	else:
-		change_dir=false
-		actual_dir=Vector2.ZERO
-
+		if next_dir!=NONE and Utils.chance(90):return
+		if current_dir!=NONE and Utils.chance(90):  return
+		if Utils.chance(50):think_dir()
+	
 func manage_sound_volume():
-	if GameData.player and global_position:
-		var player_pos:Vector2=GameData.player.find_node("Pivot").global_position
-		$Pivot/RayCast2D.cast_to=(player_pos-global_position)
+	if GameData.current_player and global_position:
+		var player_pos:Vector2=GameData.current_player.global_position
+		$SoundRayCast.cast_to=(player_pos-global_position)
 		var volume_db=-1*global_position.distance_to(player_pos)/10
-		var collider=$Pivot/RayCast2D.get_collider()
+		var collider=$SoundRayCast.get_collider()
 		if collider and collider.name!="PlayerBody":
 				volume_db*=2
-		$SlowPitch.volume_db=volume_db
-		$NormalPitch.volume_db=volume_db
-		
-func bump()->void:
-	change_dir=true	
-	actual_dir=Vector2.ZERO
+		$Steps.volume_db=volume_db-10
+		$Voice.volume_db=volume_db
 
-func try_move():
-	if change_dir or Utils.chance(10):
-		if !thinking:
-			think_dir()
-	target_position(actual_dir)
+func on_wall_collision(wall_pos:Vector2,collider:Node2D)->bool:
+	think_dir=NONE
+	return true
+
+func on_collision(others:Dictionary)->bool:
+	if others.empty():
+		if debug: debug.error("{} colliding with nothing !",[name])
+		return true
+	
+	var actor:= others.get(GameEnums.OBJECT_TYPE.ACTOR) as Actor
+	var item:=	others.get(GameEnums.OBJECT_TYPE.ITEM) as Node2D
+	var block:=	others.get(GameEnums.OBJECT_TYPE.BLOCK) as Node2D
+	
+	if actor:
+		if actor.name.matchn("Player*"):
+			if attack and (actor as Node2D).global_position.distance_to(global_position)<40:
+				_animator.trigger_anim("attack")
+				actor.hit(self,20)
+				speeddown()
+				set_attack(false)
+				Utils.timer(1.0).connect("timeout",self,"set_attack",[true])
+			think_dir=next_dir
+			return true
+	if item:
+		return false
+	if block:
+		return true
+	return true	
+	
+		
+func set_attack(value:bool):
+	attack=value
 	
 func think_dir():
 	thinking=true
-	yield(get_tree().create_timer(0.1),"timeout")
-	var new_dir=Utils.choose(all_dirs_and_idle)
-	if new_dir.x!=0 and new_dir.y!=0:
-		if Utils.chance(50):
-			new_dir.x=0
-		else:
-			new_dir.y=0
-	actual_dir=new_dir
-	change_dir=false
+	yield(Utils.timer(0.1),"timeout")
+	var all_dirs_and_idle=[Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN,Vector2.ZERO]
+	think_dir=Utils.choose(all_dirs_and_idle)
+	#$ObjectDebug.message="new dir :\n{nd}".format({"nd":new_dir})
+	
 	thinking=false
+	#$ObjectDebug.message=""
 
 

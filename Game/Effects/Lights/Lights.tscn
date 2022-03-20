@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Game/Assets/Images/fow2.png" type="Texture" id=1]
+[ext_resource path="res://Game/Assets/Images/ligth2.png" type="Texture" id=2]
+[ext_resource path="res://Game/Assets/Images/fow.png" type="Texture" id=3]
+[ext_resource path="res://Game/Effects/Lights/Lights.gd" type="Script" id=4]
+
+[sub_resource type="OccluderPolygon2D" id=1]
+polygon = PoolVector2Array( -56, 16, -56, -16, -40, -40, -16, -56, 16, -56, 40, -40, 56, -16, 56, 16, 40, 40, 16, 56, -16, 56, -40, 40 )
+
+[node name="Lights" type="Node2D"]
+script = ExtResource( 4 )
+
+[node name="LightLimit" type="LightOccluder2D" parent="."]
+light_mask = 3
+position = Vector2( 1, 0 )
+scale = Vector2( 1.7, 1.7 )
+occluder = SubResource( 1 )
+light_mask = 3
+
+[node name="TorchOff" type="Light2D" parent="."]
+visible = false
+light_mask = 3
+texture = ExtResource( 3 )
+energy = 1.26
+mode = 2
+range_z_min = 0
+range_z_max = 0
+range_item_cull_mask = 3
+shadow_color = Color( 0, 0, 0, 1 )
+shadow_buffer_size = 128
+shadow_gradient_length = 400.0
+shadow_filter = 5
+shadow_item_cull_mask = 3
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="TorchOn" type="Node2D" parent="."]
+
+[node name="Light" type="Light2D" parent="TorchOn"]
+texture = ExtResource( 2 )
+color = Color( 1, 0.819608, 0, 0.537255 )
+energy = 3.0
+range_z_min = 0
+range_z_max = 0
+shadow_enabled = true
+shadow_color = Color( 0, 0, 0, 1 )
+shadow_buffer_size = 256
+shadow_gradient_length = 8.0
+shadow_filter = 5
+shadow_filter_smooth = 2.0
+shadow_item_cull_mask = 2
+__meta__ = {
+"_edit_group_": true,
+"_edit_lock_": true,
+"_editor_description_": ""
+}
+
+[node name="FoW_Near" type="Light2D" parent="TorchOn"]
+light_mask = 0
+texture = ExtResource( 1 )
+energy = 2.0
+mode = 2
+range_z_min = 0
+range_z_max = 0
+range_item_cull_mask = 3
+shadow_color = Color( 0, 0, 0, 1 )
+shadow_buffer_size = 128
+shadow_gradient_length = 400.0
+shadow_filter = 5
+shadow_item_cull_mask = 3
+__meta__ = {
+"_editor_description_": ""
+}

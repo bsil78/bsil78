@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Game/Characters/Players/ObjectDebug.gd" type="Script" id=1]
+
+[sub_resource type="DynamicFontData" id=1]
+font_path = "res://Game/Assets/Fonts/PressStart2P.ttf"
+
+[sub_resource type="DynamicFont" id=2]
+size = 8
+font_data = SubResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
+bg_color = Color( 0, 0, 0, 0.203922 )
+border_width_left = 1
+border_color = Color( 1, 0.882353, 0, 1 )
+border_blend = true
+corner_detail = 2
+
+[sub_resource type="DynamicFont" id=4]
+size = 8
+font_data = SubResource( 1 )
+
+[node name="ObjectDebug" type="Control"]
+margin_left = -16.0
+margin_top = -32.0
+margin_right = 16.0
+margin_bottom = -16.0
+hint_tooltip = "Debug player"
+mouse_default_cursor_shape = 16
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+font = SubResource( 2 )
+
+[node name="Label" type="Label" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_bottom = -9.53674e-07
+grow_vertical = 0
+custom_styles/normal = SubResource( 3 )
+custom_fonts/font = SubResource( 4 )
+custom_colors/font_color = Color( 1, 0.996078, 0.996078, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}

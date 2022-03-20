@@ -11,5 +11,5 @@ dest_files=[ "res://.import/scavengers_soda2.ogg-23fc624a786e03d4afa2a6eede48b2e
 
 [params]
 
-loop=true
+loop=false
 loop_offset=0

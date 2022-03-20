@@ -1,8 +1,9 @@
 [gd_scene load_steps=2 format=2]
 
-[ext_resource path="res://Game/Assets/Audio/ogg/scavengers_music.ogg" type="AudioStream" id=1]
+[ext_resource path="res://Game/Assets/Audio/music/scavengers_music.ogg" type="AudioStream" id=1]
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer"]
 stream = ExtResource( 1 )
-volume_db = -40.0
+volume_db = -30.0
 autoplay = true
+mix_target = 2

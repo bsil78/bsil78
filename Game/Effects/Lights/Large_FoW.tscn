@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Game/Effects/Lights/Large_FoW.gd" type="Script" id=1]
+[ext_resource path="res://Game/Assets/Images/fow.png" type="Texture" id=2]
+
+[node name="FoW_FAR" type="Sprite"]
+light_mask = 0
+position = Vector2( 320, 320 )
+texture = ExtResource( 2 )
+script = ExtResource( 1 )

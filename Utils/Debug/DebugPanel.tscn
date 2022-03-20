@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Utils/Debug/DebugPanel.gd" type="Script" id=1]
+
+[sub_resource type="StyleBoxEmpty" id=1]
+
+[sub_resource type="DynamicFontData" id=2]
+antialiased = false
+font_path = "res://Game/Assets/Fonts/Hack-Bold.ttf"
+
+[sub_resource type="DynamicFont" id=3]
+outline_size = 1
+outline_color = Color( 0.5, 0.5, 0.5, 1 )
+font_data = SubResource( 2 )
+
+[node name="DebugPanel" type="Panel"]
+pause_mode = 2
+light_mask = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+custom_styles/panel = SubResource( 1 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+aFont = SubResource( 3 )
