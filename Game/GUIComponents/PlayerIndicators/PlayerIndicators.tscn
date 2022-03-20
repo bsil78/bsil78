@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=15 format=2]
 
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/LifeBar.gd" type="Script" id=1]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/FoodBar.gd" type="Script" id=2]
@@ -7,6 +7,8 @@
 [ext_resource path="res://Game/Assets/Images/torch_off.png" type="Texture" id=5]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/TorchIndicator.gd" type="Script" id=6]
 [ext_resource path="res://Game/Assets/Fonts/Pixeled.ttf" type="DynamicFontData" id=7]
+[ext_resource path="res://Game/Assets/Images/UI/GodSign.png" type="Texture" id=8]
+[ext_resource path="res://Game/GUIComponents/PlayerIndicators/GodSignCounter.gd" type="Script" id=9]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.180392, 0.490196, 0.466667, 1 )
@@ -69,9 +71,9 @@ shadow_color = Color( 0.541176, 0.215686, 0.439216, 0.596078 )
 shadow_size = 10
 
 [sub_resource type="DynamicFont" id=5]
-size = 6
-outline_size = 1
+size = 8
 outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
 use_filter = true
 extra_spacing_top = -2
 extra_spacing_char = 1
@@ -196,6 +198,35 @@ margin_right = 64.0
 margin_bottom = 64.0
 custom_fonts/font = SubResource( 5 )
 text = "300 s"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="GodSign" type="TextureRect" parent="."]
+margin_left = 576.0
+margin_right = 640.0
+margin_bottom = 64.0
+texture = ExtResource( 8 )
+script = ExtResource( 9 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Count" type="Label" parent="GodSign"]
+light_mask = 0
+anchor_left = 0.048
+anchor_top = 0.625
+anchor_right = 0.238
+anchor_bottom = 1.125
+margin_left = -3.072
+margin_top = 8.0
+margin_right = 48.768
+margin_bottom = -8.0
+custom_fonts/font = SubResource( 5 )
+text = "0/30"
 align = 1
 valign = 1
 __meta__ = {

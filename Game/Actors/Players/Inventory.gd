@@ -1,9 +1,10 @@
 extends Node2D
 	
-var sodas:int=0
-var food:int=0
-var medkit:int=0
-var torch:int=1
+var sodas:=0
+var food:=0
+var medkit:=0
+var torch:=1
+var god_signs:=0
 var maps:={}
 
 export(AudioStream) var backpack
@@ -11,6 +12,9 @@ export(AudioStream) var backpack
 func store(item:int,item_node:Node2D):
 	backpack_sound()
 	match item:
+		GameEnums.ITEMS.GOD_SIGN_GOOD:
+			god_signs+=1
+			return
 		GameEnums.ITEMS.SODA:
 			sodas+=1
 			return

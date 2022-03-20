@@ -9,9 +9,9 @@
 bg_color = Color( 0.239216, 0.184314, 0.133333, 1 )
 
 [sub_resource type="DynamicFont" id=2]
-size = 6
-outline_size = 1
+size = 7
 outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
 use_filter = true
 extra_spacing_top = -2
 extra_spacing_char = 1
@@ -135,13 +135,13 @@ __meta__ = {
 [node name="MedkitCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.048
-anchor_top = 0.625
+anchor_top = 0.539
 anchor_right = 0.238
-anchor_bottom = 1.125
+anchor_bottom = 1.0
 margin_left = -0.0640001
 margin_top = -0.625
 margin_right = 0.0159988
-margin_bottom = -1.125
+margin_bottom = 2.375
 custom_fonts/font = SubResource( 2 )
 text = "10"
 align = 1
@@ -154,7 +154,7 @@ __meta__ = {
 [node name="TorchCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.286
-anchor_top = 0.625
+anchor_top = 0.539
 anchor_right = 0.476
 anchor_bottom = 1.125
 margin_left = -0.0480042
@@ -173,7 +173,7 @@ __meta__ = {
 [node name="FoodCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.524
-anchor_top = 0.625
+anchor_top = 0.539
 anchor_right = 0.714
 anchor_bottom = 1.125
 margin_left = -0.0320053
@@ -192,7 +192,7 @@ __meta__ = {
 [node name="SodasCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.718
-anchor_top = 0.625
+anchor_top = 0.539
 anchor_right = 0.952
 anchor_bottom = 1.125
 margin_left = 7.37599

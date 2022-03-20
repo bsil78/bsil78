@@ -5,12 +5,17 @@ var pushdir:=Vector2.UP
 export(bool) var one_step_only:=false
 export(bool) var always_running:=false
 export(bool) var walk_on_push:=true
+export(String,"Up","Right","Down","Left") var initial_dir:String="Up"
 
 func _ready():
+	for dir in GameEnums.DIRS_MAP:
+		if GameEnums.DIRS_MAP[dir]==initial_dir:
+			pushdir=dir
+			break
 	if always_running: 
 		speedup()
 
-func push_to(pdir:Vector2):
+func push_to(who:Node2D,pdir:Vector2)->bool:
 	if is_something(next_pos(pdir)): return false
 	if pushdir!=pdir:
 		pushdir=pdir
@@ -18,18 +23,18 @@ func push_to(pdir:Vector2):
 	on_pushed()
 	return true
 	
-func on_moved(from,to):
+func on_moved(_from,_to):
 	if one_step_only:
 		idle()
 	elif pushdir!=Vector2.ZERO:	
-		push_to(pushdir)
+		push_to(self,pushdir)
 
 func on_moving(from:Vector2,to:Vector2):
-	if global_position.distance_to(to)<(grid_size-2):
-		if GameFuncs.level_objects(from).has(GameEnums.OBJECT_TYPE.ACTOR):
-			if GameFuncs.level_objects(from)[GameEnums.OBJECT_TYPE.ACTOR]==self:
-				var _done=GameFuncs.remove_level_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
-				if !_done: printerr("Cannot remove Actor from game map at %s\n%d" % [from, GameFuncs.dump(GameData.level_objects)])
+	if global_position.distance_to(to)<(cell_size-2):
+		if GameData.world.level.objects_at(from).has(GameEnums.OBJECT_TYPE.ACTOR):
+			if GameData.world.level.objects_at(from)[GameEnums.OBJECT_TYPE.ACTOR]==self:
+				var _done=GameData.world.level.remove_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
+				if !_done: printerr("Cannot remove Actor from game map at %s\n%d" % [from, GameFuncs.dump(GameData.world.level.objects)])
 				
 func on_collision(objects:Dictionary)->bool:
 	var collide=objects.has(GameEnums.OBJECT_TYPE.ACTOR) or objects.has(GameEnums.OBJECT_TYPE.BLOCK)

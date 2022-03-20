@@ -72,7 +72,6 @@ states/start/position = Vector2( 237, 63 )
 states/walk/node = SubResource( 7 )
 states/walk/position = Vector2( 478, -57 )
 transitions = [ "idle", "hit", SubResource( 8 ), "hit", "idle", SubResource( 9 ), "idle", "attack", SubResource( 10 ), "attack", "idle", SubResource( 11 ), "idle", "walk", SubResource( 12 ), "walk", "idle", SubResource( 13 ), "idle", "killed", SubResource( 14 ), "start", "idle", SubResource( 15 ), "killed", "end", SubResource( 16 ) ]
-start_node = "start"
 end_node = "end"
 graph_offset = Vector2( -213, -127 )
 
@@ -470,12 +469,13 @@ offset = Vector2( 0, -2 )
 flip_h = true
 vframes = 10
 hframes = 8
-frame = 9
+frame = 8
 
 [node name="Animator" parent="Animation" instance=ExtResource( 9 )]
 animTree = NodePath("../AnimationTree")
 visual = NodePath("../Sprite")
 animPlayer = NodePath("../AnimationPlayer")
+looping_anims = PoolStringArray( "idle" )
 
 [node name="EnemyBody" type="CollisionShape2D" parent="."]
 light_mask = 0
@@ -503,6 +503,7 @@ attenuation = 0.25
 
 [node name="Voice" type="AudioStreamPlayer2D" parent="."]
 stream = ExtResource( 8 )
+pitch_scale = 0.76
 max_distance = 128.0
 attenuation = 1.93187
 

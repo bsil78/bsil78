@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlock.gd" type="Script" id=1]
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=2]
+
+[node name="GodSignBlockBad" type="Node2D"]
+script = ExtResource( 1 )
+hit_points = 50
+is_good = false
+damaged_frame = 32
+sprite_node = NodePath("Block")
+
+[node name="Block" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+vframes = 10
+hframes = 10
+frame = 31
+region_rect = Rect2( 128.501, 127.864, 0.499268, 0.136368 )

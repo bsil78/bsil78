@@ -55,12 +55,13 @@ states/start/node = SubResource( 7 )
 states/start/position = Vector2( 488, 298 )
 transitions = [ "start", "GoingLeft", SubResource( 8 ), "GoingLeft", "start", SubResource( 9 ), "start", "GoingUp", SubResource( 10 ), "start", "GoingDown", SubResource( 11 ), "GoingDown", "start", SubResource( 12 ), "GoingUp", "start", SubResource( 13 ), "start", "GoingRight", SubResource( 14 ), "GoingRight", "start", SubResource( 15 ) ]
 start_node = "start"
+graph_offset = Vector2( -33, 111 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=17]
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=18]
 
-[sub_resource type="Animation" id=21]
+[sub_resource type="Animation" id=19]
 resource_name = "SlideDown"
 loop = true
 tracks/0/type = "value"
@@ -124,8 +125,7 @@ tracks/4/keys = {
 "values": [ 16 ]
 }
 
-[sub_resource type="Animation" id=19]
-resource_name = "SlideLeft"
+[sub_resource type="Animation" id=20]
 loop = true
 tracks/0/type = "value"
 tracks/0/path = NodePath("CrusherBlockSprite:frame")
@@ -188,7 +188,7 @@ tracks/4/keys = {
 "values": [ 11 ]
 }
 
-[sub_resource type="Animation" id=22]
+[sub_resource type="Animation" id=21]
 resource_name = "SlideRight"
 loop = true
 tracks/0/type = "value"
@@ -252,8 +252,7 @@ tracks/4/keys = {
 "values": [ 16 ]
 }
 
-[sub_resource type="Animation" id=20]
-resource_name = "SlideUp"
+[sub_resource type="Animation" id=22]
 loop = true
 tracks/0/type = "value"
 tracks/0/path = NodePath("CrusherBlockSprite:frame")
@@ -327,7 +326,6 @@ onLeftFlip = 0
 animator = NodePath("Animation/Animator")
 raycast = NodePath("RayCast2D")
 one_step_only = true
-running_dir = "Up"
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="."]
 light_mask = 3
@@ -351,30 +349,28 @@ parameters/playback = SubResource( 17 )
 parameters/start/playback = SubResource( 18 )
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Animation"]
-anims/SlideDown = SubResource( 21 )
-anims/SlideLeft = SubResource( 19 )
-anims/SlideRight = SubResource( 22 )
-anims/SlideUp = SubResource( 20 )
+anims/SlideDown = SubResource( 19 )
+anims/SlideLeft = SubResource( 20 )
+anims/SlideRight = SubResource( 21 )
+anims/SlideUp = SubResource( 22 )
 
 [node name="Animator" parent="Animation" instance=ExtResource( 2 )]
 animTree = NodePath("../AnimationTree")
 visual = NodePath("../CrusherBlockSprite")
-animPlayer = NodePath("../AnimationPlayer")
+looping_anims = PoolStringArray( "GoingUp", "GoingDown", "GoingRight", "GoingLeft" )
 
 [node name="CrusherBlockSprite" type="Sprite" parent="Animation"]
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 10
-frame = 12
+frame = 14
 
 [node name="Arrow" type="Sprite" parent="Animation"]
-self_modulate = Color( 1, 1, 1, 0.317473 )
-rotation = -1.5708
 texture = ExtResource( 1 )
 flip_h = true
 vframes = 10
 hframes = 10
-frame = 11
+frame = 16
 
 [node name="ObjectDebug" parent="." instance=ExtResource( 3 )]
 visible = false
@@ -382,4 +378,3 @@ margin_top = -48.0
 margin_right = 48.0
 grow_vertical = 0
 rect_min_size = Vector2( 64, 32 )
-hide_me = false

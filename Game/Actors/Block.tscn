@@ -48,6 +48,7 @@ states/start/node = SubResource( 5 )
 states/start/position = Vector2( 488, 298 )
 transitions = [ "start", "GoingRight", SubResource( 6 ), "GoingRight", "start", SubResource( 7 ), "GoingUp", "start", SubResource( 8 ), "start", "GoingUp", SubResource( 9 ), "start", "GoingLeft", SubResource( 10 ), "GoingLeft", "start", SubResource( 11 ), "start", "GoingDown", SubResource( 12 ), "GoingDown", "start", SubResource( 13 ) ]
 start_node = "start"
+graph_offset = Vector2( -111, 162 )
 
 [sub_resource type="AnimationNodeStateMachinePlayback" id=15]
 

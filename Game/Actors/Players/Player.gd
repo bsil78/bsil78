@@ -3,7 +3,9 @@ extends "res://Game/BaseScripts/Actor.gd"
 #exposed values
 export(int,0,1000,10) var max_food_points:=100
 export(int,0,1000,10) var food_points:=100
-
+export(int) var ENERGY_LOSED_ON_CHOP:=5
+export(int) var ENERGY_LOSED_ON_RUN:=3
+export(int) var ENERGY_LOSED_ON_TIME:=1
 
 export(AudioStream) var soda1
 export(AudioStream) var soda2
@@ -21,6 +23,8 @@ var _mask_light_on:Sprite
 var _mask_light_off:Sprite
 var hum_occuring:=false
 var _torch:Node2D
+var god_signs_count:=0
+var taken_exit:String
 
 const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 const LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn")
@@ -38,9 +42,8 @@ func _ready():
 
 
 func _physics_process(_delta):
-	if alive:
+	if !Thing.freezed and is_alive():
 		if food_points<=0:
-			alive=false
 			_animator.trigger_anim("dying_no_energy")
 			return
 		if food_points<=max_food_points/3 or life_points<=max_life_points/3:
@@ -48,20 +51,32 @@ func _physics_process(_delta):
 			Utils.timer(delay).connect("timeout",self,"hum",[delay*-5])
 
 
-func init_camera():
-	$Camera2D.current=false
-	$Camera2D.limit_left=-9*grid_size
-	$Camera2D.limit_top=-9*grid_size
-	$Camera2D.limit_right=(level_size+9)*grid_size
-	$Camera2D.limit_bottom=(level_size+9)*grid_size
+func inventory()->Node2D:
+	return $Inventory as Node2D
 
-func on_level_entered():
+func init_camera():
+	var marge=9
+	$Camera2D.current=false
+	$Camera2D.limit_left=-marge*cell_size
+	$Camera2D.limit_top=-marge*cell_size
+	$Camera2D.limit_right=(GameData.world.level.size+marge)*cell_size
+	$Camera2D.limit_bottom=(GameData.world.level.size+marge)*cell_size
+
+func on_entering_level():
+	init_camera()
+	taken_exit=""
+	if GameData.current_level>1: _animator.restart()
+	alive()
 	hum()
 	idle()
-	desactivate()
-	#next_dir=NONE
-	alive=true
 	unfreeze()
+	desactivate()
+	
+func on_exiting_level():
+	GameFuncs.exit_player(self,taken_exit)
+	
+func gather_god_sign():
+	$Inventory.god_signs+=1
 
 func freeze():
 	.freeze()
@@ -106,11 +121,13 @@ func use_torch():
 		_torch.visible=true
 		_torch.flamme_it()
 		
-func hit(from:Node2D,amount:int=1):
-	if life_points>0:
+func hit(from:Node2D,amount:int=1)->bool:
+	if .hit(from,amount):
 		_animator.trigger_anim("hit")
-		life_points=max(life_points-amount,0)
 		Utils.play_effect_once(hitEffect,$FrontEffects,global_position)
+		return true
+	else:
+		return false
 
 func fliph(flip:bool):
 	if $Animation/AnimatedSprite.flip_h!=flip:
@@ -118,15 +135,12 @@ func fliph(flip:bool):
 		$Animation/AnimatedSprite.flip_h=flip
 		_torch.flip(flip)
 	
-func loseEnergy(amount:int=1):
-	if in_game():
-		food_points=max(food_points-amount,0)		
+func loseEnergy(amount:int=ENERGY_LOSED_ON_TIME):
+	if is_alive():food_points=max(food_points-amount,0)		
 
-func in_game():
-	return GameData.players.has(name)
 	
 func on_move(from,to):
-	if max_speed==run_speed:loseEnergy(2)
+	if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
 	.on_move(from,to)
 	_animator.trigger_anim("walk")
 
@@ -138,7 +152,7 @@ func on_collision(others:Dictionary)->bool:
 	if others.empty():
 		if debug: debug.error("{} colliding with nothing !",[name])
 		return true
-		
+	
 	var actor:= others.get(GameEnums.OBJECT_TYPE.ACTOR) as Actor
 	var item_node:=	others.get(GameEnums.OBJECT_TYPE.ITEM) as Node2D
 	var block:=	others.get(GameEnums.OBJECT_TYPE.BLOCK) as Node2D
@@ -147,10 +161,10 @@ func on_collision(others:Dictionary)->bool:
 			if GameFuncs.are_in_hit_distance(self,actor):
 				actor.hit(self,5)
 				_animator.trigger_anim("chop")
-				loseEnergy(10)
+				loseEnergy(ENERGY_LOSED_ON_CHOP)
 			return true
 		if actor.name.matchn("CrusherBlock*") or actor.name.matchn("Block*") or actor.name.matchn("Scarab*"):
-			if actor.push_to(current_dir):
+			if actor.push_to(self,current_dir):
 				Utils.timer(0.1).connect("timeout",self,"goto",[next_dir])
 			return true
 	if item_node:
@@ -161,13 +175,14 @@ func on_collision(others:Dictionary)->bool:
 				break
 		if !item:
 			printerr("Item unknown in GameEnums : %s" % item_node.name)
-		if item_node.has_method("try_use_with"):
-			var result:int=item_node.try_use_with(self)
-			if result==GameEnums.ITEM_USE_RESULT.STORE:
-				$Inventory.store(item,item_node)
-			return false
+		if item_node.has_method("capabilities"):
+			if item_node.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
+				if item_node.use_in_place(self):return true
+			if item_node.capabilities().has(GameEnums.CAPABILITIES.PICKUP):
+				item_node.pickup(self)
+				return false
 		if item_node.name.matchn("Medkit*") :
-			GameFuncs.remove_from_world(item_node)
+			GameData.world.detroy_object(item_node)
 			$Inventory.store(item,item_node)
 			if life_points<10:
 				use_medkit()
@@ -175,12 +190,12 @@ func on_collision(others:Dictionary)->bool:
 				$Inventory.backpack_sound()
 			return false
 		if item_node.name.matchn("Torch*") :
-			GameFuncs.remove_from_world(item_node)
+			GameData.world.detroy_object(item_node)
 			$Inventory.store(item,item_node)
 			$Inventory.backpack_sound()
 			return false
 		if item_node.name.matchn("Food*") :
-			GameFuncs.remove_from_world(item_node)
+			GameData.world.detroy_object(item_node)
 			$Inventory.store(item,item_node)
 			if food_points<10:
 				consume_food()
@@ -188,7 +203,7 @@ func on_collision(others:Dictionary)->bool:
 				$Inventory.backpack_sound()
 			return false
 		if item_node.name.matchn("Soda*") :
-			GameFuncs.remove_from_world(item_node)
+			GameData.world.detroy_object(item_node)
 			$Inventory.store(item,item_node)
 			if life_points<50 and food_points<50:
 				consume_soda()
@@ -197,19 +212,35 @@ func on_collision(others:Dictionary)->bool:
 			return false
 		if item_node.name.matchn("Map*") :
 			Utils.play_sound($Voice,mhm,-10)
-			GameFuncs.remove_from_world(item_node)
+			GameData.world.detroy_object(item_node)
 			$Inventory.store(item,item_node)
 			return false
 	if block:
+		if block.is_block(GameEnums.BLOCKS.ANY_BREAKABLE):
+			if block.capabilities().has(GameEnums.CAPABILITIES.HIT):
+				if GameFuncs.are_in_hit_distance(self,block):
+					block.hit(self,5)
+					_animator.trigger_anim("chop")
+					loseEnergy(ENERGY_LOSED_ON_CHOP)
 		
-		if block.name.matchn("Exit*"):
-			if GameData.players.size()==1 and GameData.current_level==GameData.max_levels:
-				GameData.transition_state=GameEnums.TRANSITION_STATUS.WIN_GAME
-				GameFuncs.transition()
-			else:
-				GameFuncs.exit_player(self,block.name)
-			return false
+		if block.is_block(GameEnums.BLOCKS.EXIT):
+			if block.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
+				block.use_in_place(self)
+			elif block.capabilities().has(GameEnums.CAPABILITIES.STEP_ON):
+				print("%s taken exit %s" % [name,block.name])
+				taken_exit=block.name
+				position=fixedgrid()
+				_animator.trigger_anim("ExitLevel",false,true)	
+				return false
 	return true
+
+func is_actor(actor:int=-1)->bool:
+	return ( .is_actor(actor) 
+			or GameEnums.ACTORS.ANY_PLAYER==actor
+			or ( GameEnums.ACTORS.PLAYER_ONE==actor and "PlayerOne"==name )
+			or ( GameEnums.ACTORS.PLAYER_TWO==actor and "PlayerTwo"==name ) )
+
+
 
 func use_medkit():
 	if $Inventory.use(GameEnums.ITEMS.MEDKIT):
@@ -246,27 +277,27 @@ func consume_soda():
 		refill_life(50)
 	
 func killed():
-	if alive:
-		alive=false
-		_animator.trigger_anim("killed")
+	if is_alive():
+		Thing.dead()
+		_animator.trigger_anim("killed",false,true)
 	
 func dead():
-	var items_layers:Node2D=get_tree().root.get_node("World").get_node("LevelPlaceholder").find_node("ItemsLayer",true,false)
+	var items_layers:Node2D=GameData.world.level.find_node("ItemsLayer",true,false)
 	GameFuncs.spawn(self.global_position,remains,items_layers)
 	GameFuncs.player_died(self)
 	
 func chop(what:Node2D=null):
-	if alive:
-		_animator.trigger_anim("chop")
+	if is_alive():
+		_animator.trigger_anim("chop",false,true)
 		if what and what.has_method("hit"):
 			what.hit(50)
 
 func goto(dir:Vector2):
-	if alive:
-		_animator.trigger_anim("walk")
+	if is_alive():
+		if !taken_exit.empty():_animator.trigger_anim("walk")
 		.goto(dir)
 
 func idle():
-	if alive:
+	if is_alive():
 		_animator.trigger_anim("idle")
 		.idle()

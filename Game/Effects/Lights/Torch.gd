@@ -41,16 +41,18 @@ func unfreeze():
 	if torch_timer:
 		torch_timer.start()
 
-func shutdown(timer:Timer):
-	if(torch_timer==timer):
+func shutdown(timer:Timer=null):
+	var aTimer:Timer=timer
+	if aTimer==null:aTimer=torch_timer
+	if(torch_timer==aTimer):
 		flamming=false
 		visible=false
 		$Light.visible=false		
 		$Flammes.emitting=false
 		torch_timer=null
-	if timer:
-		timer.stop()
-		timer.queue_free()	
+	if aTimer:
+		aTimer.stop()
+		aTimer.queue_free()	
 
 func flamme_it():
 	if torch_timer: 

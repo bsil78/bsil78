@@ -1,8 +1,7 @@
 extends KinematicBody2D
 
 #GameData managed values :
-var level_size:=40
-var grid_size:=10
+var cell_size:=10
 var ground_friction:=0.5
 
 
@@ -21,9 +20,10 @@ export(GameEnums.FLIP) var onIdleFlip:=GameEnums.FLIP.NONE
 export(NodePath) var animator
 export(NodePath) var raycast
 
+
 #protected values
 const NONE:=Vector2.ZERO
-
+var Thing:=preload("res://Game/BaseScripts/Thing.gd").new(self)
 var speed:=0
 var max_speed:=walk_speed
 var target_pos:=NONE
@@ -34,33 +34,32 @@ var last_pos:Vector2
 var _animator:Node2D
 
 var _raycast:RayCast2D
-var alive:=true
 
 var debug:=DEBUG.ON
 
 func _ready():
 	#init GameData managed values
-	grid_size=GameData.grid_size
+	cell_size=GameData.cell_size
 	ground_friction=GameData.ground_friction
-	level_size=GameData.level_size
 	_animator=get_node(animator)
 	_raycast=get_node(raycast)
-	_animator.trigger_anim("start",true)
 
 func _physics_process(delta):
-	if alive:
-		if !check_kill_condition():
+	if $ObjectDebug: $ObjectDebug.message="LP: %s\n" % life_points
+	if !Thing.freezed and is_alive():
+		if !was_killed():
 			if !manage_movement(delta):
-				check_idle_condition()
+				idle_if_possible()
 		
-
-func check_kill_condition()->bool:
+func was_killed()->bool:
+	if $ObjectDebug: $ObjectDebug.message+="testing if was killed"
 	if life_points<=0:
+		print("%s killed" % name)
 		killed()
 		return true
 	return false
 
-func check_idle_condition():
+func idle_if_possible():
 	if next_dir==NONE and current_dir==NONE:idle()
 
 func manage_movement(delta)->bool:
@@ -74,17 +73,20 @@ func manage_movement(delta)->bool:
 	else:
 		return false	
 
-func hit(from:Node2D,amount:int=1):
-	if(debug):debug.push("{} was hit by {} for {} points",[name,from.name,amount])
-	life_points=clamp(life_points-amount,0,max_life_points)
+func hit(from:Node2D,amount:int=1)->bool:
+	if Thing.hit(from,amount):
+		if life_points>0:
+			life_points=max(life_points-amount,0)
+			return true
+	return false
 
 func dead():
-	if(debug):debug.push("{} is dying and alive is {}",[name,alive])
+	Thing.dead()
+	if(debug):debug.push("{} is dying and alive is {}",[name,is_alive()])
 	remove_from_world()
 
 func killed():
-	alive=false
-	if(debug):debug.push("{} killed",[name])
+	if(debug):debug.push("%s killed" % name)
 	dead()
 	
 func idle():
@@ -92,34 +94,35 @@ func idle():
 	target_pos=NONE
 	current_dir=NONE
 	next_dir=NONE
-	
+
+func is_actor(actor:int=-1)->bool:
+	return actor==-1
+
+func is_item(item:int)->bool:
+	return false
+
+func is_block(block:int)->bool:
+	return false
 
 func freeze():
-	set_physics_process(false)
-	set_process(false)
+	Thing.freeze()
 
 func unfreeze():
-	set_physics_process(true)
-	set_process(true)
+	Thing.unfreeze()
 
 func remove_from_world():
-	remove_from_level_objects()
-	position=Vector2(-999,-999)
-	freeze()
-	var parent=get_parent()
-	if parent: parent.remove_child(self)
-	remove_from_game()
+	Thing.remove_from_world()
 
 func remove_from_game():
-	Utils.timer(0.5).connect("timeout",self,"queue_free")
+	Thing.remove_from_game()
 	
 func move(delta):
-	if (!alive or speed==0): return
+	if (!is_alive() or speed==0): return
 	var path=target_pos-position
 	var distance=path.length()
 	var delta_move:Vector2=path.normalized()*(speed*delta) 
 	var delta_len=delta_move.length()
-	if( delta_len>grid_size 
+	if( delta_len>cell_size 
 		or delta_len>distance
 		or distance<1.0		
 		):
@@ -136,8 +139,6 @@ func move(delta):
 	else:
 		on_moving(last_pos,target_pos)
 	
-	
-
 func adjust_facing(dir:Vector2=NONE,with_moving:bool=true):
 	if with_moving:
 		if dir!=NONE:current_dir=dir
@@ -189,6 +190,8 @@ func find_target_pos():
 		current_dir=NONE
 		return
 
+
+
 func can_go(next_pos:Vector2)->bool:
 	if is_something(next_pos):return false
 	last_pos=fixedgrid()
@@ -200,42 +203,57 @@ func on_move(from:Vector2,to:Vector2):
 	add_as_blocker(to)
 	
 func next_pos(dir:Vector2)->Vector2:
-	return position+dir*grid_size
+	return position+dir*cell_size
 	
 func next_pos_from(pos:Vector2,dir:Vector2)->Vector2:
-	var next_pos=pos+dir*grid_size	
+	var next_pos=pos+dir*cell_size	
 	#print("next pos to %s from %s is %s" % [dir,pos,next_pos])
 	return next_pos
 		
 # warning-ignore:unused_argument
 func on_moving(from:Vector2,to:Vector2):
-	if global_position.distance_to(to)<(grid_size/2):
-		if GameFuncs.level_objects(from).has(GameEnums.OBJECT_TYPE.ACTOR):
-			if GameFuncs.level_objects(from)[GameEnums.OBJECT_TYPE.ACTOR]==self:
-				GameFuncs.remove_level_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
+	if global_position.distance_to(to)<(cell_size/2):
+		if GameData.world.level.objects_at(from).has(GameEnums.OBJECT_TYPE.ACTOR):
+			if GameData.world.level.objects_at(from)[GameEnums.OBJECT_TYPE.ACTOR]==self:
+				GameData.world.level.remove_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
 
 func on_moved(from:Vector2,to:Vector2):
-	if remove_from_level_objects():
-		if not GameFuncs.add_level_object(self):
+	if Thing.remove_from_level_objects():
+		if not GameData.world.level.add_object(self):
 			if(debug):
 				debug.error("{} cannot add itself to {}",[name,GameFuncs.grid_pos(position)])
-				print_debug(GameData.level_objects)
+				print_debug(GameData.world.level.objects)
 	elif(debug):
 		debug.error("{} cannot be removed from {}",[name,GameFuncs.grid_pos(position)])
-		print_debug(GameData.level_objects)
+		print_debug(GameData.world.level.objects)
 	current_dir=NONE
 	target_pos=NONE
 	last_pos=position
 
-func push_to(dir:Vector2)->bool:
-	return false
+func push_to(who:Node2D,dir:Vector2)->bool:
+	return Thing.push_to(who,dir)
+
+func use_in_place(who:Node2D)->bool:
+	return Thing.use_in_place(who)
+	
+func pickup(who:Node2D)->bool:
+	return Thing.pickup(who)
+	
+func capabilities()->Array:
+	var capas=Thing.capabilities()
+	capas.append(GameEnums.CAPABILITIES.HIT)
+	return capas
 
 func add_as_blocker(pos:Vector2):
-	if not GameFuncs.add_level_object_at(self,pos):
+	if not GameData.world.level.add_object_at(self,pos):
 		if(debug):debug.error("{} cannot block pos {}",[name,GameFuncs.grid_pos(pos)])
 
-func remove_from_level_objects()->bool:
-	return !GameFuncs.remove_level_object(self).empty() 
+func is_alive()->bool:
+	return Thing.is_alive()
+
+
+func alive():
+	Thing.alive()
 
 func on_wall_collision(wall_pos:Vector2,collider:Node2D)->bool:
 	return true
@@ -248,7 +266,7 @@ func is_something(at:Vector2)->bool:
 	
 func detect_things(at:Vector2)->bool:
 	var answer:=false
-	var objects:=GameFuncs.level_objects(at)
+	var objects:Dictionary=GameData.world.level.objects_at(at)
 	if !objects.empty():
 		answer=  on_collision(objects)
 	return answer
@@ -264,7 +282,7 @@ func detect_walls(at:Vector2)->bool:
 		return on_wall_collision(at,collider)
 	
 func fixedgrid():
-	return Vector2(16+round((position.x-16)/grid_size)*grid_size,16+round((position.y-16)/grid_size)*grid_size)
+	return Vector2(16+round((position.x-16)/cell_size)*cell_size,16+round((position.y-16)/cell_size)*cell_size)
 
 func adjust_speed():
 	if current_dir==NONE:
@@ -277,7 +295,7 @@ func adjust_speed():
 		if abs(speed-max_speed)<1.0:speed=max_speed
 		
 func goto(dir:Vector2):
-	if $ObjectDebug: $ObjectDebug.message="Going to :\n{dir}".format({"dir":dir})
+	#if $ObjectDebug: $ObjectDebug.message="Going to :\n{dir}".format({"dir":dir})
 	next_dir=dir
 	
 func stop():

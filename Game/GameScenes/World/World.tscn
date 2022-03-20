@@ -3,12 +3,12 @@
 [ext_resource path="res://Game/GameScenes/World/World.gd" type="Script" id=1]
 [ext_resource path="res://Game/GUIComponents/InputButtons/InputButtons.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits.png" type="Texture" id=4]
-[ext_resource path="res://Game/GameScenes/Levels/ContextOfLevels.tscn" type="PackedScene" id=5]
+[ext_resource path="res://Game/Assets/Images/wind-rose-letters.png" type="Texture" id=5]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits-LightOff.png" type="Texture" id=6]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/PlayerIndicators.tscn" type="PackedScene" id=7]
 [ext_resource path="res://Game/Assets/Images/fow_largehole.png" type="Texture" id=8]
 [ext_resource path="res://Game/Assets/Images/fow_smallhole.png" type="Texture" id=10]
-[ext_resource path="res://Game/GameScenes/World/FogOfWar.gd" type="Script" id=11]
+[ext_resource path="res://Game/GameScenes/World/MaskLayer.gd" type="Script" id=11]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -26,95 +26,21 @@ void fragment(){
 shader = SubResource( 1 )
 
 [sub_resource type="ViewportTexture" id=3]
-viewport_path = NodePath("FogOfWar/Viewport")
+viewport_path = NodePath("MaskLayer/FogOfWar/Viewport")
 
 [node name="World" type="Node2D"]
 process_priority = 1
 script = ExtResource( 1 )
 
-[node name="FogOfWar" type="ViewportContainer" parent="."]
-margin_left = 1536.0
-margin_top = 1472.0
-margin_right = 3008.0
-margin_bottom = 2944.0
-rect_min_size = Vector2( 1472, 1472 )
-mouse_filter = 2
-script = ExtResource( 11 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Viewport" type="Viewport" parent="FogOfWar"]
-size = Vector2( 1472, 1472 )
-handle_input_locally = false
-hdr = false
-usage = 0
-render_target_update_mode = 3
-
-[node name="FoW_BlackZone" type="ColorRect" parent="FogOfWar/Viewport"]
-light_mask = 0
+[node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_right = -640.0
-margin_bottom = -640.0
-mouse_filter = 2
+margin_right = 640.0
+margin_bottom = 640.0
 color = Color( 0, 0, 0, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="PlayerOne_FoW" type="Node2D" parent="FogOfWar/Viewport"]
-light_mask = 0
-position = Vector2( 216, 216 )
-
-[node name="Large_FoWHole" type="TextureRect" parent="FogOfWar/Viewport/PlayerOne_FoW"]
-light_mask = 0
-margin_right = 256.0
-margin_bottom = 256.0
-texture = ExtResource( 8 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Small_FoWHole" type="TextureRect" parent="FogOfWar/Viewport/PlayerOne_FoW"]
-visible = false
-light_mask = 0
-margin_right = 256.0
-margin_bottom = 256.0
-texture = ExtResource( 10 )
-stretch_mode = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="PlayerTwo_FoW" type="Node2D" parent="FogOfWar/Viewport"]
-visible = false
-light_mask = 0
-position = Vector2( 216, 216 )
-
-[node name="Large_FoWHole" type="TextureRect" parent="FogOfWar/Viewport/PlayerTwo_FoW"]
-visible = false
-light_mask = 0
-margin_right = 256.0
-margin_bottom = 256.0
-texture = ExtResource( 8 )
-stretch_mode = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Small_FoWHole" type="TextureRect" parent="FogOfWar/Viewport/PlayerTwo_FoW"]
-visible = false
-light_mask = 0
-margin_right = 256.0
-margin_bottom = 256.0
-texture = ExtResource( 10 )
-stretch_mode = 3
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="ContextOfLevels" parent="." instance=ExtResource( 5 )]
 
 [node name="LevelPlaceholder" type="Node2D" parent="."]
 __meta__ = {
@@ -124,15 +50,83 @@ __meta__ = {
 [node name="PlayersPlaceholder" type="Node2D" parent="."]
 
 [node name="MaskLayer" type="CanvasLayer" parent="."]
+script = ExtResource( 11 )
 
-[node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
+[node name="FogOfWar" type="ViewportContainer" parent="MaskLayer"]
+margin_left = -1088.0
+margin_top = -128.0
+margin_right = -192.0
+margin_bottom = 768.0
+rect_min_size = Vector2( 896, 896 )
+mouse_filter = 2
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="MaskLayer/FogOfWar"]
+size = Vector2( 896, 896 )
+transparent_bg = true
+handle_input_locally = false
+hdr = false
+usage = 0
+render_target_update_mode = 3
+
+[node name="FoW_BlackZone" type="ColorRect" parent="MaskLayer/FogOfWar/Viewport"]
+light_mask = 0
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color( 0, 0, 0, 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Active_FoW" type="Node2D" parent="MaskLayer/FogOfWar/Viewport"]
+light_mask = 0
+position = Vector2( 248, 248 )
+
+[node name="Large_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Active_FoW"]
+light_mask = 0
+margin_right = 256.0
+margin_bottom = 256.0
+texture = ExtResource( 8 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Small_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Active_FoW"]
+light_mask = 0
+margin_right = 256.0
+margin_bottom = 256.0
+texture = ExtResource( 10 )
+stretch_mode = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Inactive_FoW" type="Node2D" parent="MaskLayer/FogOfWar/Viewport"]
 visible = false
 light_mask = 0
+position = Vector2( 248, 248 )
+
+[node name="Large_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Inactive_FoW"]
+visible = false
+light_mask = 0
+margin_right = 256.0
+margin_bottom = 256.0
+texture = ExtResource( 8 )
+stretch_mode = 3
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
+light_mask = 0
 material = SubResource( 2 )
-margin_left = -96.0
-margin_top = -96.0
-margin_right = 1376.0
-margin_bottom = 1376.0
+margin_left = -128.0
+margin_top = -128.0
+margin_right = 768.0
+margin_bottom = 768.0
 mouse_filter = 2
 texture = SubResource( 3 )
 stretch_mode = 3
@@ -150,6 +144,11 @@ texture = ExtResource( 4 )
 visible = false
 position = Vector2( 320, 320.56 )
 texture = ExtResource( 6 )
+
+[node name="Letters" type="Sprite" parent="MaskLayer"]
+visible = false
+position = Vector2( 320, 320.56 )
+texture = ExtResource( 5 )
 
 [node name="InputButtons" parent="." instance=ExtResource( 2 )]
 

@@ -13,11 +13,11 @@ func _process(_delta):
 	var animator:=owner.find_node("Animator",true,false)
 	var anim:=""
 	if animator:anim=animator.getanim()
-	$Label.text="{}\nglobal pos:{}\ngrid pos:{}\nanim:{},\n{}".format([
+	$Label.text=("%s\nglobal pos:%s\ngrid pos:%s\nanim:%s,\n%s" % [
 									owner.name,
 									owner.global_position,
 									GameFuncs.grid_pos(owner.global_position),
 									anim,
 									message
-								],"{}").c_unescape()
+								]).c_unescape()
 

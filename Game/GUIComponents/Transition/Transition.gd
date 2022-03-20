@@ -20,7 +20,7 @@ func _ready():
 		GameEnums.TRANSITION_STATUS.LEVEL_UP:
 			text.text_to_use = "Jour %s" % GameData.current_level
 		GameEnums.TRANSITION_STATUS.DEAD_HUNGRY:
-			text.text_to_use = gameOverPattern % [ "de faim ou de fatigue", GameData.current_level, pluralDays]
+			text.text_to_use = gameOverPattern % [ "épuisé", GameData.current_level, pluralDays]
 		GameEnums.TRANSITION_STATUS.DEAD_TIRED:
 			text.text_to_use = gameOverPattern % ["de blessures",GameData.current_level, pluralDays]
 	text.center_text()

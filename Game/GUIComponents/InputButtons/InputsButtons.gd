@@ -66,6 +66,7 @@ func speeddown():
 
 func goto(dir:Vector2):
 	if connected_player:
+		
 		connected_player.goto(dir)
 		return true
 	return false
