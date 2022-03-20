@@ -1,9 +1,14 @@
 extends "res://Game/BaseScripts/Actor.gd"
+class_name Player
+
+
+#signals
+signal light_changed
 
 #exposed values
-export(int,0,1000,10) var max_food_points:=100
-export(int,0,1000,10) var food_points:=100
-export(int) var ENERGY_LOSED_ON_CHOP:=5
+export(int,0,1000,10) var max_energy:=100
+export(int,0,1000,10) var energy:=100
+export(int) var ENERGY_LOSED_ON_CHOP:=4
 export(int) var ENERGY_LOSED_ON_RUN:=3
 export(int) var ENERGY_LOSED_ON_TIME:=1
 
@@ -25,15 +30,16 @@ var hum_occuring:=false
 var _torch:Node2D
 var god_signs_count:=0
 var taken_exit:String
-
+var _mask_layer:Node
+var torch_should_be_visible:=true
 
 
 const Actor:=preload("res://Game/BaseScripts/Actor.gd")
-const LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn")
-const FoodGainEffect:=preload("res://Game/Effects/PlayerFoodGain.tscn")
-const hitEffect:=preload("res://Game/Effects/PlayerHitBlood.tscn")
 const remains:=preload("res://Game/Items/PlayerRemains.tscn")
-const explodeEffect:=preload("res://Game/Effects/PlayerDying.tscn")
+var LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn").instance()
+var FoodGainEffect:=preload("res://Game/Effects/PlayerFoodGain.tscn").instance()
+var hitEffect:=preload("res://Game/Effects/PlayerHitBlood.tscn").instance()
+var explodeEffect:=preload("res://Game/Effects/PlayerDying.tscn").instance()
 
 
 func _ready():
@@ -41,20 +47,21 @@ func _ready():
 	_mask_light_on=get_parent().get_parent().get_node("MaskLayer/FixedMask")
 	_mask_light_off=get_parent().get_parent().get_node("MaskLayer/FixedMask_LightOff")
 	_torch=$Animation/Torch
+	
 
 
 func _physics_process(_delta):
-	if !Thing.freezed and is_alive():
-		if food_points<=0:
+	if !Thing.frozen and is_alive():
+		if energy<=0:
 			_animator.trigger_anim("dying_no_energy")
 			return
-		if food_points<=max_food_points/3 or life_points<=max_life_points/3:
-			var delay:=min(food_points,life_points)/10
+		if energy<=max_energy/3 or life_points<=max_life_points/3:
+			var delay:=min(energy,life_points)/10
 			Utils.timer(delay).connect("timeout",self,"hum",[delay*-5])
 
 
-func inventory()->Node2D:
-	return $Inventory as Node2D
+func inventory()->Inventory:
+	return $Inventory as Inventory
 
 func init_camera():
 	var marge=9
@@ -65,7 +72,12 @@ func init_camera():
 	$Camera2D.limit_bottom=(GameData.world.level.size+marge)*cell_size
 
 func on_entering_level():
+	dbgmsg("entering level")
 	init_camera()
+	_mask_layer=GameData.world.get_node("MaskLayer")
+	_mask_layer.update()
+	self.connect("has_moved",_mask_layer,"update")
+	self.connect("light_changed",_mask_layer,"update")
 	taken_exit=""
 	if GameData.current_level>1: _animator.restart()
 	alive()
@@ -100,28 +112,40 @@ func hum(db_volume:int=-40):
 func activate():
 	$Camera2D.make_current()
 	active=true
-	
-func torch():
-	return _torch
-
-func get_camera():
-	return $Camera2D
+	emit_signal("has_moved")
 
 func desactivate():
 	$Camera2D.current=false
 	active=false
 
+func get_camera():
+	return $Camera2D
+
+func torch():
+	return _torch
+
+func manage_torch_visibility():
+	if torch_should_be_visible:
+		_torch.visuals_visible()
+	else:
+		_torch.visuals_hidden()
+
+
 func lose_torch():
 	_torch.shutdown()
+	emit_signal("light_changed")
 	_torch.visible=false
 
 func remove_from_game():
+	self.disconnect("has_moved",_mask_layer,"update")
+	self.disconnect("light_changed",_mask_layer,"update")	
 	GameData.players.erase(name)
 	
 func use_torch():
 	if $Inventory.use(GameEnums.ITEMS.TORCH):
 		_torch.visible=true
 		_torch.flamme_it()
+		emit_signal("light_changed")
 		
 func hit(from:Node2D,amount:int=1)->bool:
 	if .hit(from,amount):
@@ -138,22 +162,41 @@ func fliph(flip:bool):
 		_torch.flip(flip)
 	
 func loseEnergy(amount:int=ENERGY_LOSED_ON_TIME):
-	if is_alive():food_points=max(food_points-amount,0)		
-
+	if is_alive():energy=max(energy-amount,0)		
 	
 func on_move(from,to)->bool:
 	if .on_move(from,to):
+		torch_should_be_visible=should_torch_be_visible_at(to)
+		manage_torch_visibility()
 		if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
 		_animator.trigger_anim("walk")
 		return true
 	else:
 		return false
 		
+func should_torch_be_visible_at(to):
+	var things=detect_things(to)
+	print("detected %s"%GameFuncs.dump(things))
+	var need_to_hide_torch=things.has(GameEnums.OBJECT_TYPE.BLOCK) and things[GameEnums.OBJECT_TYPE.BLOCK].is_block(GameEnums.BLOCKS.FAKE_WALL)
+	return torch().is_flammed() and !need_to_hide_torch 
+		
 func explode():
 	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
-	Utils.play_effect_once(explodeEffect,get_parent(),global_position)	
+	Utils.play_effect_once(explodeEffect,GameData.world.effects_node(),global_position)	
 	
+	
+#func on_collision(others:Dictionary)->bool:
+#	return .on_collision(others)
+
 func collide_block(block:Node2D)->bool:
+	if block.is_block(GameEnums.BLOCKS.FORCE_FIELD):
+		if GameEnums.CAPABILITIES.STEP_ON in block.capabilities():
+			var should_stop=!block.step_on(self)
+			print("should hide torch : %s"%(!should_stop and block.is_block(GameEnums.BLOCKS.FAKE_WALL)))
+			if !should_stop and block.is_block(GameEnums.BLOCKS.FAKE_WALL):
+				torch_should_be_visible=false
+				manage_torch_visibility()
+			return should_stop
 	if block.is_block(GameEnums.BLOCKS.ANY_BREAKABLE):
 		if block.capabilities().has(GameEnums.CAPABILITIES.HIT):
 			if !cool_down and GameFuncs.are_in_hit_distance(self,block):
@@ -173,7 +216,7 @@ func collide_block(block:Node2D)->bool:
 			position=snapped_pos()
 			_animator.trigger_anim("ExitLevel",false,true)
 			return false
-	return true
+	return .collide_block(block)
 	
 func collide_item(item:Node2D)->bool:
 	var item_id
@@ -206,7 +249,7 @@ func collide_item(item:Node2D)->bool:
 	if item.name.matchn("Food*") :
 		GameData.world.detroy_object(item)
 		$Inventory.store(item_id,item)
-		if food_points<10:
+		if energy<10:
 			consume_food()
 		else:
 			$Inventory.backpack_sound()
@@ -214,7 +257,7 @@ func collide_item(item:Node2D)->bool:
 	if item.name.matchn("Soda*") :
 		GameData.world.detroy_object(item)
 		$Inventory.store(item_id,item)
-		if life_points<50 and food_points<50:
+		if life_points<50 and energy<50:
 			consume_soda()
 		else:
 			$Inventory.backpack_sound()
@@ -224,7 +267,7 @@ func collide_item(item:Node2D)->bool:
 		GameData.world.detroy_object(item)
 		$Inventory.store(item_id,item)
 		return false
-	return true
+	return .collide_item(item)
 
 func collide_actor(actor:Node2D)->bool:
 	if pushed_thing==actor:return false
@@ -245,7 +288,7 @@ func collide_actor(actor:Node2D)->bool:
 			if pushspeed>run_speed:
 				Utils.timer(0.1).connect("timeout",self,"goto",[position,current_dir])
 			else:
-				forced_speed=pushspeed*0.8
+				forced_speed=pushspeed*0.95
 				Utils.timer(0.2).connect("timeout",self,"goto",[position,current_dir,forced_speed])
 		return true
 	return false
@@ -280,9 +323,9 @@ func refill_life(amount:int=-1,silently:bool=false):
 	
 func refill_energy(amount:int=-1,silently:bool=false):
 	if amount<1:
-		food_points=max_food_points
+		energy=max_energy
 	else:
-		food_points=min(max_food_points,food_points+50)
+		energy=min(max_energy,energy+50)
 	if !silently:
 		Utils.play_effect_once(FoodGainEffect,$FrontEffects,global_position)
 		Utils.play_sound($Voice,lifegain)
@@ -291,7 +334,7 @@ func consume_food():
 	if $Inventory.use(GameEnums.ITEMS.FOOD):
 		Utils.play_sound($Voice,[food1,food2])
 		refill_energy(-1)
-		
+
 
 func consume_soda():
 	if $Inventory.use(GameEnums.ITEMS.SODA):
@@ -317,9 +360,11 @@ func chop(what:Node2D=null):
 
 func goto(from:Vector2,dir:Vector2,fspeed:int=-1):
 	#dbgmsg("asked to go %s"%dir)
-	if !is_alive():return
-	if !taken_exit.empty(): return
+	if !(is_alive() and taken_exit.empty()):return
 	if GameFuncs.grid_pos(from)!=GameFuncs.grid_pos(position):return
+	if pushed_thing:
+		var calc_dir= GameFuncs.grid_pos(pushed_thing.position)-GameFuncs.grid_pos(from)
+		if calc_dir!=dir: return
 	if fspeed>0:forced_speed=fspeed
 	.goto(from,dir)
 

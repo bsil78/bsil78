@@ -1,6 +1,5 @@
 extends "res://Game/BaseScripts/RunningActor.gd"
 
-
 func _ready():
 	if _animator.is_processing():start()
 	
@@ -16,5 +15,5 @@ func flipv(_flip):
 	pass
 	
 func idle():
-	_animator.trigger_anim("Idle%s" % GameEnums.DIRS_MAP[pushdir],false)
+	_animator.trigger_anim("Idle%s" % GameEnums.DIRS_MAP[last_pushdir],false)
 	.idle()

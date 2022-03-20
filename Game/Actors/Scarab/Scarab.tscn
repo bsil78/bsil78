@@ -714,7 +714,6 @@ collision_mask = 11
 collision/safe_margin = 2.0
 script = ExtResource( 10 )
 run_speed = 192
-walk_speed = 64
 onLeftFlip = 0
 animator = NodePath("Animation/Animator")
 always_running = true

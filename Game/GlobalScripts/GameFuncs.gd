@@ -2,6 +2,10 @@ extends Node
 
 var music=preload("res://Game/Effects/Music.tscn")
 var players_locker:Object=null
+var switch_of_player_disabled:=false
+var spawned_count:=0
+
+signal players_switched
 
 func _ready():
 	CommonUI.add_child(music.instance())
@@ -10,7 +14,6 @@ func _process(_delta):
 	if Input.action_press("ui_quit"):
 		Utils.quit(0)
 	
-
 func load_next_level():
 	GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 	GameData.current_level=GameData.current_level+1
@@ -26,7 +29,6 @@ func init_new_game():
 	GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 	GameData.current_level=GameData.startLevel
 	transition()
-
 
 func object_type_of(obj:Node2D):
 	if is_block(obj): return GameEnums.OBJECT_TYPE.BLOCK
@@ -81,6 +83,7 @@ func instanciate_player(pname:String)->Node2D:
 	return player
 
 func change_active_player()->bool:
+	if switch_of_player_disabled:return false
 	DEBUG.push("Switching players")
 	var next_player
 	for pname in GameData.players:
@@ -94,6 +97,7 @@ func change_active_player()->bool:
 		GameData.current_player=next_player
 		next_player.activate()
 		changed=true
+	if changed: emit_signal("players_switched")
 	return changed
 
 func exit_player(player:Node2D,exit_name:String):	
@@ -101,6 +105,7 @@ func exit_player(player:Node2D,exit_name:String):
 	if !exit_name.begins_with("Exit"):
 		printerr("%s is not an exit !" % exit_name)
 		return
+	switch_of_player_disabled=true
 	var slotval=exit_name
 	slotval.erase(0,len("Exit"))
 	var slot:=clamp(int(slotval),1,2)
@@ -121,6 +126,7 @@ func exit_player(player:Node2D,exit_name:String):
 		player.remove_from_world()
 		#GameData.world.set_process(true)
 		#GameData.world.set_physics_process(true)
+		switch_of_player_disabled=false
 		Utils.timer(1.0).connect("timeout",self,"change_active_player")
 		
 		
@@ -142,9 +148,11 @@ func end_world(with_change_level:bool=false):
 				p.freeze()
 	GameData.world=null
 	if with_change_level:GameData.current_level+=1
+	switch_of_player_disabled=false
 	transition()
 
 func player_died(player:Node2D):
+	switch_of_player_disabled=true
 	DEBUG.push("%s died" % player.name)
 	var tired:bool=(player.life_points<=0)
 	GameData.world.set_process(false)
@@ -159,6 +167,7 @@ func player_died(player:Node2D):
 	else:
 		take_over_playercam(player)
 		player.remove_from_world()
+		switch_of_player_disabled=false
 		Utils.timer(1.0).connect("timeout",self,"change_active_player")
 		
 func dump(objects)->String:
@@ -193,7 +202,7 @@ func rotl(dir:Vector2):
 	
 	
 func take_over_playercam(player:Node2D):
-	if !GameData.world: return
+	if !GameData.world or GameData.current_player!=player: return
 	DEBUG.push("World camera is taking %s camera over"%player.name)
 	var worldcam:=(GameData.world.get_node(NodePath("Camera2D")) as Camera2D)
 	var playercam:=(player.get_node(NodePath("Camera2D")) as Camera2D)
@@ -206,6 +215,8 @@ func take_over_playercam(player:Node2D):
 	
 func spawn(spawn_point:Vector2, subject:PackedScene, spawn_placeholder:Node, direction:Vector2=Vector2.ZERO)->Node2D:
 	var node:Node2D=subject.instance()
+	spawned_count+=1
+	node.name="%s-SP[%s]"%[node.name,spawned_count]
 	spawn_placeholder.add_child(node)
 	node.position=node.to_local(spawn_point)
 	if node.has_method("adjust_facing"):

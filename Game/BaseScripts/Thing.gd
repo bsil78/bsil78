@@ -2,15 +2,12 @@ extends Node2D
 
 var itself:Node2D=self
 var alive=true
-var debug=DEBUG.ON
-var freezed:=false
+var debug=null
+var frozen:=false
 
 func _init(itself:Node2D=self):
 	self.itself=itself
-	if itself.debug:
-		debug=DEBUG.ON
-	else:
-		debug=DEBUG.OFF
+	if itself.debug:debug=DEBUG.ON
 
 func is_alive()->bool:
 	return alive
@@ -22,14 +19,14 @@ func dead():
 	alive=false
 
 func freeze():
-	if(debug):debug.push("%s freezed" % itself.name)
-	freezed=true
+	if(debug):debug.push("%s frozen" % itself.name)
+	frozen=true
 	itself.set_physics_process(false)
 	itself.set_process(false)
 
 func unfreeze():
-	freezed=false
-	if(debug):debug.push("%s unfreezed" % itself.name)
+	frozen=false
+	if(debug):debug.push("%s not frozen" % itself.name)
 	itself.set_physics_process(true)
 	itself.set_process(true)
 	

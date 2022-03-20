@@ -12,8 +12,9 @@ func _ready():
 	$FixedMask.hide()
 	$Letters.hide()
 	$FieldOfView.show()	
+	update()
 
-func _process(_delta):
+func update():
 	var activep=GameData.current_player
 	if is_instance_valid(activep):
 		show_active_fow(activep)

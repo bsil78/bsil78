@@ -1,14 +1,15 @@
 extends Node
 
+var played_effects:={}
 
-func pressed(event,action):
+static func pressed(event,action):
 	if not event is InputEventKey: return
 	if event.is_action_pressed(action):
 		#DEBUG.push("Pressed "+event.as_text())
 		return true
 	return false
 	
-func released(event,action):
+static func released(event,action):
 	if not event is InputEventKey: return
 	if event.is_action_released(action):
 		#DEBUG.push("Released "+event.as_text())
@@ -18,12 +19,12 @@ func released(event,action):
 func quit(exit_code:int=0):
 	get_tree().quit(exit_code)
 
-func choose(choices:Array):
+static func choose(choices:Array):
 	randomize()
 	var choice = min(int(randf()*len(choices)),len(choices)-1)
 	return choices[choice]
 	
-func chance(percent:int)->bool:
+static func chance(percent:int)->bool:
 	if(percent<0 or percent>100):
 		DEBUG.error("Percent must be between 0 and 100 : %s"%percent)
 		Utils.quit(-1)
@@ -49,18 +50,25 @@ func play_sound(channel,sounds,volume_db:int=-999):
 		channel.play()
 		channel.volume_db=volume
 	
-func play_effect_once(effect:PackedScene,effect_node:Node2D,global_pos:Vector2):
-	var newEffect:=effect.instance() as Particles2D
-	var effect_duration=newEffect.lifetime+newEffect.randomness
-	effect_node.add_child(newEffect)
-	newEffect.position=newEffect.to_local(global_pos) 
-	newEffect.visible=true
-	newEffect.emitting=true
-	yield(Utils.timer(effect_duration),"timeout")
-	if is_instance_valid(effect_node) and is_instance_valid(newEffect):
-		effect_node.remove_child(newEffect)
-		newEffect.queue_free()
-	
+func play_effect_once(effect,effect_node:Node2D,global_pos:Vector2):
+	var effect_duration
+	var effect_to_play=effect
+	if effect is Particles2D:
+		print("playing %s"%effect.name)
+		effect_duration=effect.lifetime+effect.randomness
+		if effect_node.find_node(effect.name,true,false):
+			effect_to_play=effect.duplicate()
+		effect_node.add_child(effect_to_play)
+		effect_to_play.position=effect_node.to_local(global_pos) 
+		effect_to_play.visible=true
+		effect_to_play.emitting=true
+		played_effects[effect_to_play]=effect_node
+	Utils.timer(effect_duration).connect("timeout",self,"remove_effect",[effect_to_play,true if effect!=effect_to_play else false])
+
+func remove_effect(effect:Node2D,queue:bool):
+	if(is_instance_valid(effect)):
+		played_effects[effect].remove_child(effect)
+	if queue:effect.free()
 		
 func rand_animation_track(animPlayer:AnimationPlayer,anim:String,tracks:Dictionary):
 	var chosen:String

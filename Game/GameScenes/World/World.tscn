@@ -49,6 +49,9 @@ __meta__ = {
 
 [node name="PlayersPlaceholder" type="Node2D" parent="."]
 
+[node name="EffectsLayer" type="Node2D" parent="."]
+light_mask = 0
+
 [node name="MaskLayer" type="CanvasLayer" parent="."]
 script = ExtResource( 11 )
 

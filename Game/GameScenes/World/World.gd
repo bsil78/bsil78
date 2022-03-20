@@ -1,16 +1,31 @@
 extends Node2D
 
+signal level_ready
+signal player_gained_coin
+
 var level:Node2D
+
+func _init() -> void:
+	GameData.world=self
 
 func _ready():
 	if GameData.current_level<1:
 		printerr("Current level must be at least 1")
 		Utils.quit(1)
-	GameData.world=self
 	init_level()
 	place_players()
 	GameData.players_slots={}
 	GameData.players_saves.clear()
+	$InputButtons.connect_to_world(self)
+	GameFuncs.connect("players_switched",self,"update_indicators")
+	emit_signal("level_ready")
+	update_indicators()
+
+func update_indicators():
+	$PlayerIndicators.update_indicators(self,GameData.current_player)
+
+func play_coin_gain_for(player):
+	emit_signal("player_gained_coin",player)
 
 func init_level():
 	var level_path="res://Game/GameScenes/Levels/Level%s.tscn" % GameData.current_level
@@ -31,8 +46,17 @@ func detroy_object(object:Node2D):
 	level.remove_object(object)
 	object.get_parent().remove_child(object)
 	object.queue_free()
+
+func effects_node():
+	return $EffectsLayer
+
 		
 func place_players():
+	var slots=[]
+	var level_children:Array=$LevelPlaceholder.get_child(0).get_children()
+	for node in level_children:
+		if node is Node2D and (node as Node2D).name.matchn("Position*"):
+			slots.append(node as Position2D)
 	if GameData.players_slots.empty(): 
 		GameData.transition_state=GameEnums.TRANSITION_STATUS.MENU
 		GameFuncs.transition() 
@@ -40,7 +64,14 @@ func place_players():
 		if GameData.players_slots.has(pname):
 			var slot=GameData.players_slots[pname]
 			if slot==null: continue
-			var player_pos=$LevelPlaceholder.find_node("Position%s*" % slot,true,false) as Position2D
+			var found_slot_idx=0
+			if(len(slots)>1):
+				for slot_idx in range(len(slots)):
+					if(slots[slot_idx].name.matchn("Position%s*"%slot)):
+						found_slot_idx=slot_idx
+						break
+			var player_pos=slots[found_slot_idx]						
+			slots.remove(found_slot_idx)
 			if player_pos==null: continue
 			var player
 			if GameData.players_saves.has(pname):player=GameData.players_saves[pname]

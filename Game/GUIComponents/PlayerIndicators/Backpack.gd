@@ -53,9 +53,6 @@ func _ready():
 	_labels[ITEMS.SODA]=_bpviewport.get_node("Items/SodasCount")
 	
 func _process(_delta):
-	if GameData.current_player and is_instance_valid(self):
-		for item in range(1,5):
-			_labels[item].text=str(player_item_count(item))
 	
 	if Input.is_action_just_pressed("ui_inventory"):
 		if _bp_open.visible:
@@ -128,6 +125,11 @@ func show_help_item(item):
 	else:
 		_bphelp.text=help_text[item][false]
 	selected_item=item
+
+func update_items():
+	if GameData.current_player and is_instance_valid(self):
+		for item in range(1,5):
+			_labels[item].text=str(player_item_count(item))
 
 func player_item_count(item):
 	if GameData.current_player:

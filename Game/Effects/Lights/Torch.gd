@@ -1,73 +1,59 @@
 tool
 extends Node2D
 
-var torch_timer:Timer
 export(bool) var flamming:=false setget set_flamming
 export(int) var TORCH_DELAY_SEC:=120
 var max_delay:float=TORCH_DELAY_SEC
 
 func _ready():
-	if !flamming:
-		shutdown(torch_timer)
+	shutdown()
 
 func set_flamming(value:bool):
 	if is_instance_valid($Light):
 		if value:
 			flamme_it()
 		else:
-			shutdown(torch_timer)
+			shutdown()
 
 func is_flammed()->bool:
 	return flamming
 
 func remaing_time()->float:
-	if torch_timer:
-		return torch_timer.time_left
-	else:
-		return 0.0
+	return $Timer.time_left
 
 func max_delay()->float:
 	return max_delay
 
 func queue_free():
-	shutdown(torch_timer)
+	$Timer.stop()
+	shutdown()
 	.queue_free()
 
 func freeze():
-	if torch_timer:
-		torch_timer.stop()
+	$Timer.paused=true
 
 func unfreeze():
-	if torch_timer:
-		torch_timer.start()
+	$Timer.paused=false
 
-func shutdown(timer:Timer=null):
-	var aTimer:Timer=timer
-	if aTimer==null:aTimer=torch_timer
-	if(torch_timer==aTimer):
-		flamming=false
-		visible=false
-		$Light.visible=false		
-		$Flammes.emitting=false
-		torch_timer=null
-	if aTimer:
-		aTimer.stop()
-		aTimer.queue_free()	
+func shutdown():
+	flamming=false
+	hide()
+	$Light.hide()		
+	$Flammes.emitting=false
+	$Timer.stop()
 
 func flamme_it():
-	if torch_timer: 
+	if !$Timer.is_stopped():
 		DEBUG.error("Torch already flamming !")
 		return
+	$Timer.paused=false
 	flamming=true
-	visible=true
-	$Light.visible=true		
+	show()
+	$Light.show()	
 	$Flammes.emitting=true
 	var delay=TORCH_DELAY_SEC
 	max_delay*=randfpct(20)
-	torch_timer=Timer.new()
-	add_child(torch_timer)
-	torch_timer.connect("timeout",self,"shutdown",[torch_timer])
-	torch_timer.start(max_delay)
+	$Timer.start(max_delay)
 
 func randfpct(pct:int=50)->float:
 	var marge=(pct/2.0)/100.0
@@ -83,9 +69,9 @@ func flip(flip:bool):
 	$Flammes.position.x=abs($Flammes.position.x)*posfact
 
 func visuals_hidden():
-	$Wand.visible=false
-	$Flammes.visible=false
+	$Wand.hide()
+	$Flammes.hide()
 	
 func visuals_visible():
-	$Wand.visible=true
-	$Flammes.visible=true
+	$Wand.show()
+	$Flammes.show()

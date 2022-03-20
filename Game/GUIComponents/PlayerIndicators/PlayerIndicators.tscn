@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=18 format=2]
 
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/LifeBar.gd" type="Script" id=1]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/FoodBar.gd" type="Script" id=2]
@@ -9,6 +9,9 @@
 [ext_resource path="res://Game/Assets/Fonts/Pixeled.ttf" type="DynamicFontData" id=7]
 [ext_resource path="res://Game/Assets/Images/UI/GodSign.png" type="Texture" id=8]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/GodSignCounter.gd" type="Script" id=9]
+[ext_resource path="res://Game/GUIComponents/PlayerIndicators/PlayerGodSignCounter.gd" type="Script" id=10]
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=11]
+[ext_resource path="res://Game/GUIComponents/PlayerIndicators/PlayerIndicators.gd" type="Script" id=12]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.180392, 0.490196, 0.466667, 1 )
@@ -81,6 +84,7 @@ font_data = ExtResource( 7 )
 
 [node name="PlayerIndicators" type="CanvasLayer"]
 layer = 126
+script = ExtResource( 12 )
 
 [node name="FoodBarContainer" type="CenterContainer" parent="."]
 light_mask = 0
@@ -226,10 +230,47 @@ margin_top = 8.0
 margin_right = 48.768
 margin_bottom = -8.0
 custom_fonts/font = SubResource( 5 )
-text = "0/30"
+text = "0 +[0]"
 align = 1
 valign = 1
 __meta__ = {
 "_edit_use_anchors_": false,
 "_editor_description_": ""
 }
+
+[node name="PlayerGodSign" type="TextureRect" parent="."]
+margin_top = 504.0
+margin_right = 64.0
+margin_bottom = 568.0
+texture = ExtResource( 8 )
+script = ExtResource( 10 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Count" type="Label" parent="PlayerGodSign"]
+light_mask = 0
+anchor_left = 0.048
+anchor_top = 0.625
+anchor_right = 0.238
+anchor_bottom = 1.125
+margin_left = -3.072
+margin_top = 8.0
+margin_right = 48.768
+margin_bottom = -8.0
+custom_fonts/font = SubResource( 5 )
+text = "0"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="Coin" type="Sprite" parent="."]
+visible = false
+position = Vector2( 320, 328 )
+texture = ExtResource( 11 )
+vframes = 10
+hframes = 10
+frame = 23

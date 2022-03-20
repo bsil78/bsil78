@@ -16,15 +16,17 @@ func _ready():
 	sprite=get_node(sprite_node) as Sprite
 	assert(sprite!=null)
 
-func hit(who:Node2D,amount:int=1):
-	if who.name.matchn(GameEnums.ACTORS_MAP[GameEnums.ACTORS.ANY_PLAYER]):
-		.hit(who,amount)
+func hit(from,amount:int=1):
+	if GameFuncs.is_actor(from,[GameEnums.ACTORS.ANY_PLAYER]):
+		.hit(from,amount)
 		if !alive:
 			var item:=BAD
 			if is_good: item=GOOD
 			var item_node=GameFuncs.spawn(global_position,godsign_items[item],GameData.world.level.items_node())	
 			GameData.world.level.add_object(item_node)
 			remove_from_world()
+			if is_good:
+				GameData.world.update_indicators()
 	
 func is_block(block:int=-1)->bool:
 	return ( .is_block(block) 

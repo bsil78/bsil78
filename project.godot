@@ -8,9 +8,26 @@
 
 config_version=4
 
-_global_script_classes=[  ]
+_global_script_classes=[ {
+"base": "KinematicBody2D",
+"class": "Actor",
+"language": "GDScript",
+"path": "res://Game/BaseScripts/Actor.gd"
+}, {
+"base": "Node2D",
+"class": "Inventory",
+"language": "GDScript",
+"path": "res://Game/Actors/Players/Inventory.gd"
+}, {
+"base": "KinematicBody2D",
+"class": "Player",
+"language": "GDScript",
+"path": "res://Game/Actors/Players/Player.gd"
+} ]
 _global_script_class_icons={
-
+"Actor": "",
+"Inventory": "",
+"Player": ""
 }
 
 [application]
@@ -37,6 +54,9 @@ DEBUG="*res://Utils/Debug/DEBUG.gd"
 window/size/width=640
 window/size/height=640
 window/size/resizable=false
+window/size/always_on_top=true
+window/vsync/vsync_via_compositor=true
+window/stretch/aspect="keep"
 
 [input]
 
@@ -122,8 +142,14 @@ ui_switch={
 2d_physics/layer_5="sfx"
 2d_physics/layer_6="gui"
 
+[logging]
+
+file_logging/enable_file_logging=true
+
 [rendering]
 
+quality/intended_usage/framebuffer_allocation=0
+quality/intended_usage/framebuffer_allocation.mobile=0
 quality/2d/use_pixel_snap=true
 threads/thread_model=2
 quality/shadows/filter_mode=2

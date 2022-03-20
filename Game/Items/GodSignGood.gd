@@ -4,6 +4,8 @@ func pickup(who:Node2D)->bool:
 	if who.is_actor(GameEnums.ACTORS.ANY_PLAYER):
 		who.inventory().store(GameEnums.ITEMS.GOD_SIGN_GOOD,self)
 		remove_from_world()
+		GameData.world.update_indicators()
+		GameData.world.play_coin_gain_for(who)
 		return true
 	else:
 		return false

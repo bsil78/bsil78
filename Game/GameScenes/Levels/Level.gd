@@ -1,12 +1,29 @@
 extends Node2D
 
 export(int,10,40,1) var size:=40
+
 var objects:={}
 var grid_lock:=Mutex.new()
+var exits:=[]
+
 
 func _ready():
 	$ContextOfLevels.fill(size)
 	scan_objects()
+	for node in $BlocksLayer.get_children():
+		if !node.has_method("is_block"):continue
+		if node.is_block(GameEnums.BLOCKS.EXIT):
+			node.connect("exit_fullfilled",self,"check_exits")
+			exits.append(node)
+
+
+func check_exits():
+	# if one has not been fullfilled : cannot exit yet
+	for exit in exits:
+		if !exit.is_fullfilled():return
+	# else : open all exits at once !
+	for exit in exits:
+		exit.open()
 
 func lock_grid():
 	while grid_lock.try_lock()==ERR_BUSY:
@@ -130,16 +147,20 @@ func remove_object(object:Node2D)->bool:
 	unlock_grid()
 	return true
 	
-func remaining_good_godsigns()->int:
+func remaining_good_godsigns_items()->int:
 	var remaining:=0
 	for node in $ItemsLayer.get_children():
 		if !node.has_method("is_item"):continue
 		if node.is_item(GameEnums.ITEMS.GOD_SIGN_GOOD):remaining+=1
+	return remaining
+
+func remaining_good_godsigns_blocks()->int:
+	var remaining:=0
 	for node in $BlocksLayer.get_children():
 		if !node.has_method("is_block"):continue
 		if node.is_block(GameEnums.BLOCKS.GOD_SIGN_BLOCK_GOOD):remaining+=1
 	return remaining
-	
+
 func items_node():
 	return get_node("ItemsLayer")
 

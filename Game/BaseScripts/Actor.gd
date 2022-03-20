@@ -1,13 +1,17 @@
 extends KinematicBody2D
+class_name Actor
+
+#signals
+signal has_moved
 
 #GameData managed values :
-var cell_size:=10
+var cell_size:=32
 var ground_friction:=0.5
 
 
 #exposed values
-export(int,8,256,8) var run_speed:=128
-export(int,8,128,8) var walk_speed:=32
+export(int,8,256,8) var run_speed:int
+export(int,8,128,8) var walk_speed:int
 export(int,0,1000,10) var max_life_points:=100
 export(int,0,1000,10) var life_points:=100
 
@@ -18,20 +22,21 @@ export(GameEnums.FLIP) var onDownFlip:=GameEnums.FLIP.NONE
 export(GameEnums.FLIP) var onIdleFlip:=GameEnums.FLIP.NONE
 
 export(NodePath) var animator
-
-
+export(NodePath) var tween
 
 #protected values
 const NONE:=Vector2.ZERO
 var Thing:=preload("res://Game/BaseScripts/Thing.gd").new(self)
 var speed:=0
-var max_speed:=walk_speed
+var max_speed:int
 var forced_speed:int=0
 var target_pos:=NONE
 var next_dir:=NONE
 var current_dir:=NONE
+export(Vector2) var facing:=Vector2.RIGHT
 var last_pos:Vector2
 var _animator:Node2D
+var _tween:Tween
 var pushed_thing:Node2D
 var last_collision
 var cool_down:=false
@@ -45,7 +50,24 @@ func _ready():
 	#init GameData managed values
 	cell_size=GameData.cell_size
 	ground_friction=GameData.ground_friction
-	_animator=get_node(animator)
+	_animator=get_node(animator) as Node2D
+	max_speed=walk_speed
+	#_tween=get_node(tween) as Tween
+
+func knockback(hitdir:Vector2):
+	match hitdir:
+		Vector2.RIGHT:
+			_animator.get_visual().position.x+=5
+		Vector2.LEFT:
+			_animator.get_visual().position.x-=5
+		Vector2.DOWN:
+			_animator.get_visual().position.y+=5
+		Vector2.UP:
+			_animator.get_visual().position.y-=5
+	yield(Utils.timer(0.2),"timeout")
+	_animator.get_visual().position.x=0
+	_animator.get_visual().position.y=0
+		
 
 func _draw():
 	if debug and last_collision:
@@ -66,7 +88,7 @@ func state_str()->String:
 
 func _physics_process(delta):
 	if debug:update()
-	if !Thing.freezed and is_alive():
+	if !Thing.frozen and is_alive():
 		if !was_killed():
 			if !manage_movement(delta):
 				idle_if_possible()
@@ -94,17 +116,22 @@ func manage_movement(delta)->bool:
 	adjust_current_dir()
 	adjust_facing()
 	find_target_pos()
-	if (target_pos!=NONE):
+	if (target_pos):
+#		move_to(target_pos)
 		adjust_speed()
 		move(delta)
 		return true
 	else:
 		return false	
 
+func move_to(_pos=NONE):
+	pass
+
 func hit(from:Node2D,amount:int=1)->bool:
 	if Thing.hit(from,amount):
 		if life_points>0:
 			life_points=max(life_points-amount,0)
+			knockback(GameFuncs.grid_pos(global_position)-GameFuncs.grid_pos(from.global_position))
 			return true
 	return false
 
@@ -114,7 +141,7 @@ func dead():
 	remove_from_world()
 
 func killed():
-	if(debug):DEBUG.push("%s killed" % name)
+	dbgmsg("killed (base)")
 	dead()
 	
 func idle():
@@ -146,7 +173,9 @@ func remove_from_game():
 	Thing.remove_from_game()
 	
 func move(delta):
-	if (!is_alive() or speed==0 or current_dir==NONE): return
+	if (!is_alive() or speed==0 or current_dir==NONE): 
+		dbgmsg("not able to move ! %s/%s/%s"%[is_alive(),speed,current_dir])
+		return
 	var path=target_pos-position
 	var distance=path.length()
 	if(distance>cell_size):dbgmsg("distance move too big : %s"%distance,ERROR)
@@ -159,27 +188,33 @@ func move(delta):
 		):
 		delta_move=Vector2(floor(path.x),floor(path.y))
 		position=snapped_pos() #jump precisely
+		emit_signal("has_moved")
 		target_pos=NONE #should find new target
 		current_dir=NONE #and a new current dir
 		speed=0
 		forced_speed=0
 	
 	if target_pos!=NONE:
-		var _collision=move_and_collide(delta_move,false,true,true)
-		var collider:Node2D
-		if _collision:collider=_collision.collider as Node2D
-		if !_collision or GameFuncs.is_item(collider):
-			move_and_collide(delta_move,true,true,false)
-		else: # wall or block or actor
-			dbgmsg("colliding %s at speed %s"%[collider.name,speed])
-			move_and_collide(_collision.remainder,true,true,false)
-			#check if we have to stop right now
-			if collider_stop_me(collider):
-				position=snapped_pos()
-				target_pos=NONE #should find new target
-				current_dir=NONE #and a new current dir
-				speed=0
-				forced_speed=0 
+		move_and_collide(delta_move,true,true,false)
+		emit_signal("has_moved")
+		
+#		var _collision=move_and_collide(delta_move,false,true,true)
+#		var collider:Node2D
+#		if _collision:collider=_collision.collider as Node2D
+#		if !_collision or GameFuncs.is_item(collider):
+#			move_and_collide(delta_move,true,true,false)
+#			emit_signal("has_moved")
+#		else: # wall or block or actor
+#			dbgmsg("colliding %s at speed %s"%[collider.name,speed])
+#			move_and_collide(_collision.remainder,true,true,false)
+#			#check if we have to stop right now
+#			if collider_stop_me(collider):
+#				position=snapped_pos()
+#				target_pos=NONE #should find new target
+#				current_dir=NONE #and a new current dir
+#				speed=0
+#				forced_speed=0 
+#			emit_signal("has_moved")
 			
 	if current_dir==NONE:
 		on_moved(last_pos,position)
@@ -191,15 +226,11 @@ func collider_stop_me(collider):
 	return not let_me_continue
 	
 func adjust_facing(dir:Vector2=NONE,with_moving:bool=true):
-	if with_moving:
-		if dir!=NONE:current_dir=dir
-		if current_dir!=NONE or onIdleFlip!=GameEnums.FLIP.KEEP:
-			fliph(flip(current_dir,GameEnums.FLIP.H))
-			flipv(flip(current_dir,GameEnums.FLIP.V))
-	else:
-		fliph(flip(dir,GameEnums.FLIP.H))
-		flipv(flip(dir,GameEnums.FLIP.V))
-
+	if with_moving and dir!=NONE:current_dir=dir
+	if current_dir!=NONE or onIdleFlip!=GameEnums.FLIP.KEEP: facing=current_dir
+	fliph(flip(facing,GameEnums.FLIP.H))
+	flipv(flip(facing,GameEnums.FLIP.V))
+		
 func fliph(flip:bool):
 	if _animator.get_visual().flip_h!=flip:
 		_animator.get_visual().flip_h = flip
@@ -356,11 +387,12 @@ func detect_obstacles(at:Vector2)->Dictionary:
 	
 func detect_things(at:Vector2)->Dictionary:
 	var objects:Dictionary=GameData.world.level.objects_at(at)
-	if objects.values().has(self): 
-		dbgmsg("%s detected itself"%name,ERROR)
-		if debug:print(GameData.world.level.dump_grid_pos_and_neighbors(GameFuncs.grid_pos(position)))
-		return {}
-	return objects
+	var things:={}
+	for type in objects:
+		if objects[type]==self: continue
+		things[type]=objects[type]
+	return things
+	
 
 func detect_walls(at:Vector2)->bool:
 	var wallcollision:=false
@@ -394,6 +426,7 @@ func adjust_speed():
 		if pushed_thing and forced_speed>0:
 			dbgmsg("set its target speed to %s"%forced_speed)
 			target_speed=forced_speed
+		dbgmsg("adjusting it speed to %s, from %s (max:%s,forced:%s)"%[target_speed,speed,max_speed,forced_speed])
 		if speed!=target_speed:
 			speed=lerp(speed,target_speed,ground_friction)
 		if abs(speed-target_speed)<1.0:speed=target_speed

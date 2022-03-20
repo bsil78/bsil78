@@ -1,0 +1,145 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Game/Blocks/FakeWallField/FakeWallField.gd" type="Script" id=1]
+[ext_resource path="res://Game/Assets/Images/Environment/tilesmap.png" type="Texture" id=2]
+
+[sub_resource type="Shader" id=1]
+code = "shader_type canvas_item;
+render_mode blend_mix;
+
+
+//uniform vec2 SCALEV = vec2(1.0);
+uniform float SCALEI = 1.0;
+uniform vec2 DECAL = vec2(2.0);
+uniform float OFFSET = 0.0;
+uniform float blur_radius = 3.0;
+uniform bool sided=false;
+uniform bool horizontal=false;
+uniform bool add_distord_color=true;
+uniform float min_alpha=0.0;
+uniform float max_alpha=1.0;
+uniform float FLASH_SCALE=1.0;
+uniform float min_color_dist=0.0;
+uniform float max_color_dist=1.0;
+uniform float FLASH_OFFSET=0;
+
+
+float rand(vec2 coords){
+	return fract(sin(dot(coords, vec2(12.9898,78.233)))*43758.5453123);
+}
+
+
+float noise(vec2 coords){
+	vec2 i = floor(coords);
+	vec2 f = fract(coords);
+	
+	float a = rand(i);
+	float b = rand(i+vec2(1.0,0.0));
+	float c = rand(i+vec2(0.0,1.0));
+	float d = rand(i+vec2(1.0,1.0));
+	
+	vec2 cubic = f * f * (3.0-2.0*f);
+	
+	return mix(a,b, cubic.x) + (c-a) * cubic.y * (1.0 - cubic.x) + (d-b) * cubic.x * cubic.y;
+}
+
+vec4 pixel(vec4 orig){
+	vec4 pixel=orig;
+	if(pixel.rgb==vec3(1.0)){
+		pixel=vec4(0.3,0.3,0.2,0.8);
+//		pixel=vec4(1,0,0,1);
+	}
+	return pixel;
+}
+
+vec2 blur_coords(vec2 uv,vec2 distord, vec2 offset){
+//	return uv+offset;
+//	return clamp( (uv+vec2(0.003))/1.06 +distord+ offset,vec2(0,0),vec2(0.1,0.1));
+	return clamp( ((uv+vec2(0.003))/1.006)+distord+ offset,vec2(0,0),vec2(0.1,0.1));
+}
+
+void fragment() {
+	vec2 ps = TEXTURE_PIXEL_SIZE;
+	
+	vec2 noisecoord1 = UV *  SCALEI;
+	vec2 noisecoord2 = UV *  SCALEI + OFFSET;
+	
+	vec2 motion1 = vec2(TIME * 0.2, TIME * -0.2);
+	vec2 motion2 = vec2(TIME * 0.2, TIME * 0.2);
+	
+	vec2 distord1 = vec2(noise(noisecoord1+motion1),noise(noisecoord2+motion1))-DECAL;
+	vec2 distord2 = vec2(noise(noisecoord1+motion2),noise(noisecoord2+motion2))-DECAL;
+	
+	vec2 distord_sum = (distord1+distord2)/60.0;
+	
+	vec4 colorig = pixel(texture(TEXTURE, (UV+vec2(0.003))/1.006))*2.0;
+
+	vec4 blur=colorig;
+	blur += pixel(texture(TEXTURE, blur_coords(UV,distord_sum, vec2(0.0, -blur_radius) * ps)));
+	blur += pixel(texture(TEXTURE, blur_coords(UV,distord_sum, vec2(0.0, blur_radius) * ps)));
+	blur += pixel(texture(TEXTURE, blur_coords(UV,distord_sum, vec2(-blur_radius, 0.0) * ps)));
+	blur += pixel(texture(TEXTURE, blur_coords(UV,distord_sum, vec2(blur_radius, 0.0) * ps)));
+	blur /= 5.0;
+	
+	vec4 col=blur;
+	blur.a=1.0;
+	
+	if(col.rgb==vec3(1.0)){
+		col.a=max_alpha;	
+	}else{
+		if(add_distord_color){
+			float distl=clamp(length(distord_sum)*60.0,0.0,1.0);
+			col.rgb=mix(vec3(clamp(0.5-distl,min_color_dist,max_color_dist)),col.rgb,1.7);
+			col.a=clamp(distl*(1.0+sin(TIME+FLASH_OFFSET)*FLASH_SCALE),min_alpha,max_alpha);
+		}
+	}
+	
+	if(sided){
+		if(horizontal){
+			if(UV.y<0.01){
+				col.a=clamp(UV.y*50.0,0.0,col.a);
+			}
+			if(UV.y>0.09){
+				col.a=clamp((0.1-UV.y)*50.0,0.0,col.a);
+			}
+		}else{
+			if(UV.x<0.01){
+				col.a=clamp(UV.x*50.0,0.0,col.a);
+			}
+			if(UV.x>0.09){
+				col.a=clamp((0.1-UV.x)*50.0,0.0,col.a);
+			}
+		}
+	}
+	
+	COLOR = col;
+}
+"
+
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
+shader_param/SCALEI = 31.0
+shader_param/DECAL = Vector2( 0.5, 0.7 )
+shader_param/OFFSET = 10.0
+shader_param/blur_radius = 1.0
+shader_param/sided = false
+shader_param/horizontal = true
+shader_param/add_distord_color = true
+shader_param/min_alpha = 0.3
+shader_param/max_alpha = 0.8
+shader_param/FLASH_SCALE = 1.0
+shader_param/min_color_dist = 0.6
+shader_param/max_color_dist = 1.0
+shader_param/FLASH_OFFSET = 0.0
+
+[node name="FakeWallField" type="Node2D"]
+script = ExtResource( 1 )
+
+[node name="Wall" type="Sprite" parent="."]
+material = SubResource( 2 )
+z_index = 100
+z_as_relative = false
+texture = ExtResource( 2 )
+vframes = 10
+hframes = 10
+frame = 6

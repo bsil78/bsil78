@@ -89,3 +89,5 @@ process_material = SubResource( 9 )
 __meta__ = {
 "_edit_lock_": true
 }
+
+[node name="Timer" type="Timer" parent="."]

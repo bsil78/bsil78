@@ -35,6 +35,7 @@ auto_advance = true
 auto_advance = true
 
 [sub_resource type="AnimationNodeStateMachine" id=14]
+resource_local_to_scene = true
 states/GoingDown/node = SubResource( 1 )
 states/GoingDown/position = Vector2( 488, 405 )
 states/GoingLeft/node = SubResource( 2 )

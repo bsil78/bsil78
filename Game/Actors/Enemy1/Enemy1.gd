@@ -3,13 +3,13 @@ extends "res://Game/BaseScripts/Actor.gd"
 var thinking:=false
 var think_dir:=NONE
 var attack:=false
-var pause_attack:=false
+var can_attack:=true
 
 export(AudioStream) var sproutch:AudioStream
 export(int) var ATTACK_POWER:=20
 
-const hitEffect:=preload("res://Game/Effects/EnemyHitGreenBlood.tscn")
-const explodeEffect:=preload("res://Game/Effects/EnemyExploding.tscn")
+var hitEffect:=preload("res://Game/Effects/EnemyHitGreenBlood.tscn").instance()
+var explodeEffect:=preload("res://Game/Effects/EnemyExploding.tscn").instance()
 const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 
 func _ready():
@@ -18,7 +18,7 @@ func _ready():
 	$UI/LifeBar.visible=false
 	
 func _physics_process(_delta):
-	if !Thing.freezed and is_alive():
+	if !Thing.frozen and is_alive():
 		manage_sound_volume()
 		if thinking: return
 		if think_dir!=NONE and current_dir==NONE:
@@ -44,12 +44,12 @@ func on_move(from,to)->bool:
 		
 func hit(from:Node2D,amount:int=1):
 	if .hit(from,amount):
-		#print("hit by %s" % from.name)
+		dbgmsg("hit by %s" % from.name)
 		_animator.trigger_anim("hit",false,true)
 		Utils.play_effect_once(hitEffect,$FrontEffects,global_position)
 		$UI/LifeBar.value=life_points
 		$UI/LifeBar.visible=true
-		Utils.timer(0.5).connect("timeout",$UI/LifeBar,"hide")
+		$UI/LifeBar/HideTimer.start(0.5)
 		if from and from.is_actor(GameEnums.ACTORS.ANY_PLAYER):
 			var player_dir=(from.global_position-global_position).normalized()
 			if not player_dir in [Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN]:
@@ -60,7 +60,7 @@ func hit(from:Node2D,amount:int=1):
 			if life_points>(max_life_points/3):
 				set_attack(true)
 				think_dir=player_dir
-				Utils.timer(2.0).connect("timeout",self,"set_attack",[false])
+				$CalmDownTimer.start()
 			else:
 				set_attack(false)
 				think_dir=-1*player_dir
@@ -72,7 +72,7 @@ func killed():
 	
 func explode():
 	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
-	Utils.play_effect_once(explodeEffect,get_parent(),global_position)
+	Utils.play_effect_once(explodeEffect,GameData.world.effects_node(),global_position)
 			
 
 
@@ -95,29 +95,32 @@ func manage_sound_volume():
 
 func on_wall_collision(_wall_pos:Vector2)->bool:
 	dbgmsg("colliding wall")
-	think_dir=NONE
+	reset_think_dir()
 	idle()
 	return true
 
+func reset_think_dir():
+	think_dir=NONE
+
 func collide_actor(actor:Node2D)->bool:
 	if actor.is_actor(GameEnums.ACTORS.ANY_PLAYER):
-		if !pause_attack and (actor as Node2D).global_position.distance_to(global_position)<40:
+		if !can_attack and (actor as Node2D).global_position.distance_to(global_position)<40:
 			_animator.trigger_anim("attack")
 			actor.hit(self,ATTACK_POWER)
 			set_attack(true)
-			pause_attack=true
-			Utils.timer(1.0).connect("timeout",self,"set_pause_attack",[false])
+			can_attack=false
+			$CoolDownTimer.start(1.0)
 		think_dir=next_dir
 		return true
-	think_dir=NONE
+	reset_think_dir()
 	return true
 
 func collide_block(block:Node2D)->bool:
-	think_dir=NONE
+	reset_think_dir()
 	return true
 
-func set_pause_attack(value:bool):
-	pause_attack=value	
+func set_can_attack(value:bool):
+	can_attack=value	
 		
 func set_attack(value:bool):
 	attack=value
@@ -156,5 +159,6 @@ func is_something(at:Vector2)->bool:
 			return true
 	return false
 			
-		
 
+func hide_life_bar() -> void:
+	$UI/LifeBar.hide()

@@ -1,0 +1,155 @@
+[gd_scene load_steps=20 format=2]
+
+[ext_resource path="res://Game/Assets/Images/arrow.png" type="Texture" id=2]
+[ext_resource path="res://Game/Assets/Images/Explosion.png" type="Texture" id=3]
+[ext_resource path="res://Game/Effects/BigExplosion.gd" type="Script" id=4]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0, 0.09375, 0.227679, 1 )
+colors = PoolColorArray( 0.986333, 1, 0.59, 1, 1, 0.410156, 0, 1, 1, 0, 0, 1, 0.333333, 0.0862745, 0, 0 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[sub_resource type="Curve" id=3]
+min_value = -1.0
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=4]
+curve = SubResource( 3 )
+
+[sub_resource type="Curve" id=5]
+_data = [ Vector2( 0.00404859, 0.852273 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), -4.45081, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=6]
+curve = SubResource( 5 )
+
+[sub_resource type="ParticlesMaterial" id=7]
+lifetime_randomness = 1.0
+emission_shape = 2
+emission_box_extents = Vector3( 0, 12, 0 )
+flag_align_y = true
+flag_disable_z = true
+spread = 0.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 145.8
+initial_velocity_random = 0.88
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+scale = 1.5
+scale_random = 0.4
+scale_curve = SubResource( 6 )
+color_ramp = SubResource( 2 )
+hue_variation_curve = SubResource( 4 )
+
+[sub_resource type="Gradient" id=8]
+offsets = PoolRealArray( 0, 0.160714, 0.5, 0.651786, 0.910714, 1 )
+colors = PoolColorArray( 0.42, 0.613333, 1, 1, 1, 0.9905, 0.81, 1, 0.988729, 0.738891, 0, 1, 0.99108, 0.208556, 0.208556, 1, 0, 0, 0, 1, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=9]
+gradient = SubResource( 8 )
+
+[sub_resource type="Curve" id=10]
+min_value = -200.0
+max_value = 200.0
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 0.238866, 84.6622 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=11]
+curve = SubResource( 10 )
+
+[sub_resource type="Curve" id=12]
+min_value = -500.0
+max_value = 500.0
+_data = [ Vector2( 0, -463.636 ), 0.0, 7094.34, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=13]
+curve = SubResource( 12 )
+
+[sub_resource type="Curve" id=14]
+_data = [ Vector2( 0, 0 ), 0.0, 8.55236, 0, 0, Vector2( 1, 0.00681818 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=15]
+curve = SubResource( 14 )
+
+[sub_resource type="ParticlesMaterial" id=16]
+emission_shape = 1
+emission_sphere_radius = 4.0
+flag_align_y = true
+flag_disable_z = true
+direction = Vector3( 0, 0, 0 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 48.0
+orbit_velocity = -5.0
+orbit_velocity_random = 0.0
+orbit_velocity_curve = SubResource( 13 )
+linear_accel_curve = SubResource( 11 )
+radial_accel = 5.0
+scale_curve = SubResource( 15 )
+color_ramp = SubResource( 9 )
+
+[node name="BigExplosion" type="Node2D"]
+script = ExtResource( 4 )
+vertical = false
+horizontal = false
+
+[node name="ToRight" type="Particles2D" parent="."]
+emitting = false
+amount = 200
+lifetime = 0.4
+randomness = 1.0
+fixed_fps = 30
+fract_delta = false
+visibility_rect = Rect2( -48, -16, 96, 32 )
+process_material = SubResource( 7 )
+texture = ExtResource( 2 )
+
+[node name="ToUp" type="Particles2D" parent="."]
+rotation = -1.5708
+emitting = false
+amount = 200
+lifetime = 0.4
+randomness = 1.0
+fixed_fps = 30
+fract_delta = false
+visibility_rect = Rect2( -48, -16, 96, 32 )
+process_material = SubResource( 7 )
+texture = ExtResource( 2 )
+
+[node name="ToDown" type="Particles2D" parent="."]
+rotation = 1.5708
+emitting = false
+amount = 200
+lifetime = 0.4
+randomness = 1.0
+fixed_fps = 30
+fract_delta = false
+visibility_rect = Rect2( -48, -16, 96, 32 )
+process_material = SubResource( 7 )
+texture = ExtResource( 2 )
+
+[node name="ToLeft" type="Particles2D" parent="."]
+rotation = 3.14159
+emitting = false
+amount = 200
+lifetime = 0.4
+randomness = 1.0
+fixed_fps = 30
+fract_delta = false
+visibility_rect = Rect2( -48, -16, 96, 32 )
+process_material = SubResource( 7 )
+texture = ExtResource( 2 )
+
+[node name="Center" type="Particles2D" parent="."]
+emitting = false
+amount = 30
+lifetime = 1.5
+explosiveness = 1.0
+fixed_fps = 30
+fract_delta = false
+visibility_rect = Rect2( -32, -32, 64, 64 )
+process_material = SubResource( 16 )
+texture = ExtResource( 3 )
+
+[node name="Camera2D" type="Camera2D" parent="."]
+visible = false
