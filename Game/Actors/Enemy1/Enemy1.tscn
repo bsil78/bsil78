@@ -1,6 +1,5 @@
-[gd_scene load_steps=39 format=2]
+[gd_scene load_steps=38 format=2]
 
-[ext_resource path="res://Utils/Debug/ObjectDebug.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Game/Assets/Audio/ogg/enemies/scavengers_footstep2.ogg" type="AudioStream" id=3]
 [ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=4]
 [ext_resource path="res://Game/Assets/Audio/ogg/enemies/scavengers_footstep1.ogg" type="AudioStream" id=5]
@@ -440,7 +439,6 @@ onUpFlip = 4
 onDownFlip = 4
 onIdleFlip = 4
 animator = NodePath("Animation/Animator")
-raycast = NodePath("CollisionRayCast")
 sproutch = ExtResource( 10 )
 
 [node name="Animation" type="Node2D" parent="."]
@@ -474,17 +472,11 @@ frame = 8
 [node name="Animator" parent="Animation" instance=ExtResource( 9 )]
 animTree = NodePath("../AnimationTree")
 visual = NodePath("../Sprite")
-animPlayer = NodePath("../AnimationPlayer")
 looping_anims = PoolStringArray( "idle" )
 
 [node name="EnemyBody" type="CollisionShape2D" parent="."]
 light_mask = 0
 shape = SubResource( 27 )
-
-[node name="CollisionRayCast" type="RayCast2D" parent="."]
-enabled = true
-cast_to = Vector2( 32, 0 )
-collision_mask = 3
 
 [node name="SoundRayCast" type="RayCast2D" parent="."]
 enabled = true
@@ -506,10 +498,6 @@ stream = ExtResource( 8 )
 pitch_scale = 0.76
 max_distance = 128.0
 attenuation = 1.93187
-
-[node name="ObjectDebug" parent="." instance=ExtResource( 2 )]
-visible = false
-hide_me = false
 
 [node name="UI" type="Control" parent="."]
 margin_left = -10.0

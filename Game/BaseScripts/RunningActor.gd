@@ -16,7 +16,7 @@ func _ready():
 		speedup()
 
 func push_to(who:Node2D,pdir:Vector2)->bool:
-	if is_something(next_pos(pdir)): return false
+	if was_stopped(next_pos(pdir)): return false
 	if pushdir!=pdir:
 		pushdir=pdir
 		return false
@@ -40,13 +40,14 @@ func on_collision(objects:Dictionary)->bool:
 	var collide=objects.has(GameEnums.OBJECT_TYPE.ACTOR) or objects.has(GameEnums.OBJECT_TYPE.BLOCK)
 	return collide
 
-func on_move(from,to):
-	.on_move(from,to)
-	play_move_anim(current_dir)
+func on_move(from,to)->bool:
+	var move_ok=.on_move(from,to)
+	if move_ok:play_move_anim(current_dir)
+	return move_ok
 	
 func on_pushed():
 	if walk_on_push: speeddown()
-	goto(pushdir)
+	goto(position,pushdir)
 
 func play_move_anim(dir:Vector2,forced:bool=true):
 	match dir:
@@ -60,3 +61,6 @@ func play_move_anim(dir:Vector2,forced:bool=true):
 			_animator.trigger_anim("GoingLeft",forced)
 		_:
 			printerr("Cannot manage dir {}".format([current_dir],"{}"))
+
+func is_actor(actor:int=-1):
+	return ( .is_actor(actor) or GameEnums.ACTORS.ANY_RUNNER==actor )

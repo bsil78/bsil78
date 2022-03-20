@@ -26,6 +26,8 @@ var _torch:Node2D
 var god_signs_count:=0
 var taken_exit:String
 
+
+
 const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 const LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn")
 const FoodGainEffect:=preload("res://Game/Effects/PlayerFoodGain.tscn")
@@ -139,100 +141,121 @@ func loseEnergy(amount:int=ENERGY_LOSED_ON_TIME):
 	if is_alive():food_points=max(food_points-amount,0)		
 
 	
-func on_move(from,to):
-	if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
-	.on_move(from,to)
-	_animator.trigger_anim("walk")
-
+func on_move(from,to)->bool:
+	if .on_move(from,to):
+		if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
+		_animator.trigger_anim("walk")
+		return true
+	else:
+		return false
+		
 func explode():
 	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
 	Utils.play_effect_once(explodeEffect,get_parent(),global_position)	
 	
-func on_collision(others:Dictionary)->bool:
-	if others.empty():
-		if debug: debug.error("{} colliding with nothing !",[name])
-		return true
-	
-	var actor:= others.get(GameEnums.OBJECT_TYPE.ACTOR) as Actor
-	var item_node:=	others.get(GameEnums.OBJECT_TYPE.ITEM) as Node2D
-	var block:=	others.get(GameEnums.OBJECT_TYPE.BLOCK) as Node2D
-	if actor:
-		if actor.name.matchn("Enemy*"):
-			if GameFuncs.are_in_hit_distance(self,actor):
-				actor.hit(self,5)
-				_animator.trigger_anim("chop")
+func collide_block(block:Node2D)->bool:
+	if block.is_block(GameEnums.BLOCKS.ANY_BREAKABLE):
+		if block.capabilities().has(GameEnums.CAPABILITIES.HIT):
+			if !cool_down and GameFuncs.are_in_hit_distance(self,block):
+				dbgmsg("chop to %s"%block.name)
+				_animator.trigger_anim("chop",false,true)
+				Utils.timer(0.3).connect("timeout",block,"hit",[self,5])
 				loseEnergy(ENERGY_LOSED_ON_CHOP)
-			return true
-		if actor.name.matchn("CrusherBlock*") or actor.name.matchn("Block*") or actor.name.matchn("Scarab*"):
-			if actor.push_to(self,current_dir):
-				Utils.timer(0.1).connect("timeout",self,"goto",[next_dir])
-			return true
-	if item_node:
-		var item
-		for key in GameEnums.ITEMS_MAP:
-			if item_node.name.matchn(GameEnums.ITEMS_MAP[key]):
-				item=key
-				break
-		if !item:
-			printerr("Item unknown in GameEnums : %s" % item_node.name)
-		if item_node.has_method("capabilities"):
-			if item_node.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
-				if item_node.use_in_place(self):return true
-			if item_node.capabilities().has(GameEnums.CAPABILITIES.PICKUP):
-				item_node.pickup(self)
-				return false
-		if item_node.name.matchn("Medkit*") :
-			GameData.world.detroy_object(item_node)
-			$Inventory.store(item,item_node)
-			if life_points<10:
-				use_medkit()
-			else:
-				$Inventory.backpack_sound()
+				start_cool_down(0.5)
+	if block.is_block(GameEnums.BLOCKS.EXIT):
+		dbgmsg("detected Exit %s"%block.name)
+		if block.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
+			block.use_in_place(self)
+			start_cool_down(0.2)
+		elif !cool_down and block.capabilities().has(GameEnums.CAPABILITIES.STEP_ON):
+			print("%s taken exit %s" % [name,block.name])
+			taken_exit=block.name
+			position=snapped_pos()
+			_animator.trigger_anim("ExitLevel",false,true)
 			return false
-		if item_node.name.matchn("Torch*") :
-			GameData.world.detroy_object(item_node)
-			$Inventory.store(item,item_node)
-			$Inventory.backpack_sound()
-			return false
-		if item_node.name.matchn("Food*") :
-			GameData.world.detroy_object(item_node)
-			$Inventory.store(item,item_node)
-			if food_points<10:
-				consume_food()
-			else:
-				$Inventory.backpack_sound()
-			return false
-		if item_node.name.matchn("Soda*") :
-			GameData.world.detroy_object(item_node)
-			$Inventory.store(item,item_node)
-			if life_points<50 and food_points<50:
-				consume_soda()
-			else:
-				$Inventory.backpack_sound()
-			return false
-		if item_node.name.matchn("Map*") :
-			Utils.play_sound($Voice,mhm,-10)
-			GameData.world.detroy_object(item_node)
-			$Inventory.store(item,item_node)
-			return false
-	if block:
-		if block.is_block(GameEnums.BLOCKS.ANY_BREAKABLE):
-			if block.capabilities().has(GameEnums.CAPABILITIES.HIT):
-				if GameFuncs.are_in_hit_distance(self,block):
-					block.hit(self,5)
-					_animator.trigger_anim("chop")
-					loseEnergy(ENERGY_LOSED_ON_CHOP)
-		
-		if block.is_block(GameEnums.BLOCKS.EXIT):
-			if block.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
-				block.use_in_place(self)
-			elif block.capabilities().has(GameEnums.CAPABILITIES.STEP_ON):
-				print("%s taken exit %s" % [name,block.name])
-				taken_exit=block.name
-				position=fixedgrid()
-				_animator.trigger_anim("ExitLevel",false,true)	
-				return false
 	return true
+	
+func collide_item(item:Node2D)->bool:
+	var item_id
+	for key in GameEnums.ITEMS_MAP:
+		if item.name.matchn(GameEnums.ITEMS_MAP[key]):
+			item_id=key
+			break
+	if !item_id:
+		dbgmsg("Item unknown in GameEnums : %s" % item.name,ERROR)
+		return true
+	if item.has_method("capabilities"):
+		if item.capabilities().has(GameEnums.CAPABILITIES.USE_IN_PLACE):
+			if item.use_in_place(self):return true
+		if item.capabilities().has(GameEnums.CAPABILITIES.PICKUP):
+			item.pickup(self)
+			return false
+	if item.name.matchn("Medkit*") :
+		GameData.world.detroy_object(item)
+		$Inventory.store(item_id,item)
+		if life_points<10:
+			use_medkit()
+		else:
+			$Inventory.backpack_sound()
+		return false
+	if item.name.matchn("Torch*") :
+		GameData.world.detroy_object(item)
+		$Inventory.store(item_id,item)
+		$Inventory.backpack_sound()
+		return false
+	if item.name.matchn("Food*") :
+		GameData.world.detroy_object(item)
+		$Inventory.store(item_id,item)
+		if food_points<10:
+			consume_food()
+		else:
+			$Inventory.backpack_sound()
+		return false
+	if item.name.matchn("Soda*") :
+		GameData.world.detroy_object(item)
+		$Inventory.store(item_id,item)
+		if life_points<50 and food_points<50:
+			consume_soda()
+		else:
+			$Inventory.backpack_sound()
+		return false
+	if item.name.matchn("Map*") :
+		Utils.play_sound($Voice,mhm,-10)
+		GameData.world.detroy_object(item)
+		$Inventory.store(item_id,item)
+		return false
+	return true
+
+func collide_actor(actor:Node2D)->bool:
+	if pushed_thing==actor:return false
+	if actor.name.matchn("Enemy*"):
+		if !cool_down and GameFuncs.are_in_hit_distance(self,actor):
+			_animator.trigger_anim("chop")
+			Utils.timer(0.5).connect("timeout",actor,"hit",[self,5])
+			loseEnergy(ENERGY_LOSED_ON_CHOP)
+			start_cool_down(0.5)
+		return true
+	if  ( actor.is_actor(GameEnums.ACTORS.ANY_RUNNER) ):
+		if actor.speed!=0:
+			return actor.current_dir!=current_dir
+		if actor.push_to(self,current_dir):
+			pushed_thing=actor
+			var pushspeed=actor.run_speed
+			if actor.walk_on_push:pushspeed=actor.walk_speed
+			if pushspeed>run_speed:
+				Utils.timer(0.1).connect("timeout",self,"goto",[position,current_dir])
+			else:
+				forced_speed=pushspeed*0.8
+				Utils.timer(0.2).connect("timeout",self,"goto",[position,current_dir,forced_speed])
+		return true
+	return false
+
+func start_cool_down(delay):
+	cool_down=true
+	Utils.timer(delay).connect("timeout",self,"reset_cool_down")
+
+func reset_cool_down():
+	cool_down=false
 
 func is_actor(actor:int=-1)->bool:
 	return ( .is_actor(actor) 
@@ -292,10 +315,13 @@ func chop(what:Node2D=null):
 		if what and what.has_method("hit"):
 			what.hit(50)
 
-func goto(dir:Vector2):
-	if is_alive():
-		if !taken_exit.empty():_animator.trigger_anim("walk")
-		.goto(dir)
+func goto(from:Vector2,dir:Vector2,fspeed:int=-1):
+	#dbgmsg("asked to go %s"%dir)
+	if !is_alive():return
+	if !taken_exit.empty(): return
+	if GameFuncs.grid_pos(from)!=GameFuncs.grid_pos(position):return
+	if fspeed>0:forced_speed=fspeed
+	.goto(from,dir)
 
 func idle():
 	if is_alive():

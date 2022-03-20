@@ -33,22 +33,20 @@ func add_scanned_objects(level_node:Node2D):
 				
 
 func add_object(object:Node2D)->bool:
-	var type:int=GameFuncs.object_type_of(object)
-	if type==GameEnums.OBJECT_TYPE.UNKNOWN: 
-		DEBUG.error("{} is of unknown type",[object.name])
-		return false
 	return add_object_at(object,object.position)
 		
 func add_object_at(object:Node2D,pos:Vector2)->bool:
 	var type:int=GameFuncs.object_type_of(object)
-	if type==GameEnums.OBJECT_TYPE.UNKNOWN: return false
+	if type==GameEnums.OBJECT_TYPE.UNKNOWN: 
+		DEBUG.error("%s is of unknown type" % object.name)
+		return false
 	lock_grid()
 	var grid_pos=GameFuncs.grid_pos(pos)
 	var result=true
 	if objects.has(grid_pos):
 		var dic:Dictionary=objects[grid_pos]
 		if dic.has(type):
-			DEBUG.error("{} has already object {} cannot add {}",[grid_pos,(dic[type] as Node2D).name,object.name])
+			#DEBUG.error("%s has already object %s cannot add %s"%[grid_pos,(dic[type] as Node2D).name,object.name])
 			result=false
 		else:
 			dic[type]=object
@@ -56,6 +54,24 @@ func add_object_at(object:Node2D,pos:Vector2)->bool:
 		objects[grid_pos]={type:object}
 	unlock_grid()
 	return result
+	
+func dump_grid_pos_and_neighbors(pos:Vector2)->String:
+	return GameFuncs.dump([
+		sub_grid(pos,Vector2.ZERO),
+		sub_grid(pos,Vector2.RIGHT),
+		sub_grid(pos,Vector2.DOWN),
+		sub_grid(pos,Vector2.LEFT),
+		sub_grid(pos,Vector2.UP),
+	])
+	
+	
+func sub_grid(pos:Vector2,dir:Vector2)->Dictionary:
+	var new_pos:=pos+dir
+	var value=objects.get(new_pos)
+	if !value:
+		return {dir:{}}
+	else:
+		return {dir:value}
 	
 func remove_object_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->bool:
 	lock_grid()
@@ -70,45 +86,49 @@ func remove_object_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)
 	return done
 	
 
-func ifmatch_remove_object(mask:String,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->Vector2:
-	var found_pos:Vector2
-	if object_type!=GameEnums.OBJECT_TYPE.UNKNOWN: 
-		lock_grid()
-		var pos_to_remove:Vector2
-		var done:=false
-		for grid_pos in objects:
-			var dic:Dictionary=objects[grid_pos] as Dictionary
-			var types_to_remove:=[]
-			if not dic.has(object_type):continue
-			var object:=dic[object_type] as Node2D
-			if object and object.name.matchn(mask):
-				done=dic.erase(object_type)
-				if len(dic)==0:pos_to_remove=grid_pos
-				found_pos=grid_pos as Vector2
-		if pos_to_remove:objects.erase(pos_to_remove)
-		unlock_grid()
-	return found_pos
+#func ifmatch_remove_object(mask:String,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->Vector2:
+#	var found_pos:Vector2
+#	if object_type!=GameEnums.OBJECT_TYPE.UNKNOWN: 
+#		lock_grid()
+#		var pos_to_remove:Vector2
+#		var done:=false
+#		for grid_pos in objects:
+#			var dic:Dictionary=objects[grid_pos] as Dictionary
+#			var types_to_remove:=[]
+#			if not dic.has(object_type):continue
+#			var object:=dic[object_type] as Node2D
+#			if object and object.name.matchn(mask):
+#				done=dic.erase(object_type)
+#				if len(dic)==0:pos_to_remove=grid_pos
+#				found_pos=grid_pos as Vector2
+#		if pos_to_remove:objects.erase(pos_to_remove)
+#		unlock_grid()
+#	return found_pos
 	
-func remove_object(object:Node2D)->Array:
-	var found_pos:=[]
-	var pos_to_remove:=[]
+func remove_object(object:Node2D)->bool:
 	lock_grid()
-	var done:=true
+	var new_dics:={}
+	var to_remove:=[]
 	for grid_pos in objects:
 		var dic:Dictionary=objects[grid_pos] as Dictionary
-		var types_to_remove:=[]
+		var new_dic:={}
 		for key in dic:
-			if object==dic[key]:
-				types_to_remove.push_back(key)
-				if len(dic)==0:pos_to_remove.push_back(grid_pos)
-				found_pos.push_back(grid_pos as Vector2)
-		done=true
-		for key in types_to_remove:
-			done=done and dic.erase(key)
-	for pos in pos_to_remove:
+			if object!=dic[key]: new_dic[key]=dic[key]
+		if new_dic.empty():
+			to_remove.push_back(grid_pos)
+		else:
+			new_dics[grid_pos]=new_dic
+	for pos in new_dics:
+		objects[pos]=new_dics[pos]
+	for pos in to_remove:
 		objects.erase(pos)
+	#check
+#	for grid_pos in objects:
+#		var dic:Dictionary=objects[grid_pos] as Dictionary
+#		for key in dic:
+#			if object==dic[key]: printerr("Remove object failed")
 	unlock_grid()
-	return found_pos
+	return true
 	
 func remaining_good_godsigns()->int:
 	var remaining:=0

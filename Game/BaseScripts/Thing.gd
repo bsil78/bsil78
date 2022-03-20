@@ -2,11 +2,15 @@ extends Node2D
 
 var itself:Node2D=self
 var alive=true
-var debug:=DEBUG.ON
+var debug=DEBUG.ON
 var freezed:=false
 
 func _init(itself:Node2D=self):
 	self.itself=itself
+	if itself.debug:
+		debug=DEBUG.ON
+	else:
+		debug=DEBUG.OFF
 
 func is_alive()->bool:
 	return alive
@@ -18,26 +22,26 @@ func dead():
 	alive=false
 
 func freeze():
-	print("%s freezed" % itself.name)
+	if(debug):debug.push("%s freezed" % itself.name)
 	freezed=true
 	itself.set_physics_process(false)
 	itself.set_process(false)
 
 func unfreeze():
 	freezed=false
-	print("%s unfreezed" % itself.name)
+	if(debug):debug.push("%s unfreezed" % itself.name)
 	itself.set_physics_process(true)
 	itself.set_process(true)
 	
-func remove_from_level_objects()->bool:
-	return !GameData.world.level.remove_object(itself).empty() 
+func remove_from_level_objects():
+	GameData.world.level.remove_object(itself)
 
 func push_to(who:Node2D,dir:Vector2)->bool:
 	return false
 	
 func hit(from:Node2D,amount:int)->bool:
 	if alive:
-		if(debug):debug.push("{} was hit by {} for {} points",[itself.name,from.name,amount])
+		if(debug):debug.push("%s was hit by %s for %s points"%[itself.name,from.name,amount])
 		return true
 	else:
 		return false
@@ -64,7 +68,7 @@ func is_block(block:int=-1)->bool:
 	return false
 
 func remove_from_world():
-	print("removing %s from world" % itself.name)
+	if(debug):debug.push("removing %s from world" % itself.name)
 	var parent=itself.get_parent()
 	alive=false
 	freeze()	

@@ -18,7 +18,7 @@ export(GameEnums.FLIP) var onDownFlip:=GameEnums.FLIP.NONE
 export(GameEnums.FLIP) var onIdleFlip:=GameEnums.FLIP.NONE
 
 export(NodePath) var animator
-export(NodePath) var raycast
+
 
 
 #protected values
@@ -26,35 +26,63 @@ const NONE:=Vector2.ZERO
 var Thing:=preload("res://Game/BaseScripts/Thing.gd").new(self)
 var speed:=0
 var max_speed:=walk_speed
+var forced_speed:int=0
 var target_pos:=NONE
 var next_dir:=NONE
 var current_dir:=NONE
 var last_pos:Vector2
-
 var _animator:Node2D
+var pushed_thing:Node2D
+var last_collision
+var cool_down:=false
 
-var _raycast:RayCast2D
+const ERROR:=true
 
-var debug:=DEBUG.ON
+export(bool) var debug:=false
+var messages:=[]
 
 func _ready():
 	#init GameData managed values
 	cell_size=GameData.cell_size
 	ground_friction=GameData.ground_friction
 	_animator=get_node(animator)
-	_raycast=get_node(raycast)
+
+func _draw():
+	if debug and last_collision:
+		draw_string(CommonUI.get_node("DebugPanel/ObjectDebug").font,to_local(last_collision.position)+Vector2(0,-16),last_collision.collider.name,Color.white)
+		draw_line(Vector2(),to_local(last_collision.position),Color.red,1.0)
+
+func state_str()->String:
+	return ("%s\nglobal pos:%s\ngrid pos:%s\nanim:%s\nLP: %s\nCD:%s\nND:%s\n%s" % [
+									name,
+									global_position,
+									GameFuncs.grid_pos(global_position),
+									_animator.getanim(),
+									life_points,
+									current_dir,
+									next_dir,
+									GameFuncs.dump(messages)
+									])
 
 func _physics_process(delta):
-	if $ObjectDebug: $ObjectDebug.message="LP: %s\n" % life_points
+	if debug:update()
 	if !Thing.freezed and is_alive():
 		if !was_killed():
 			if !manage_movement(delta):
 				idle_if_possible()
+	
+func dbgmsg(msg,error:bool=false):
+	if(debug):
+		messages.push_back(msg)
+		if messages.size()>10: messages.pop_front()
+		if error:
+			DEBUG.error("%s %s" % [name,msg])
+		else:
+			DEBUG.push("%s %s" % [name,msg])
 		
 func was_killed()->bool:
-	if $ObjectDebug: $ObjectDebug.message+="testing if was killed"
 	if life_points<=0:
-		print("%s killed" % name)
+		dbgmsg("killed")
 		killed()
 		return true
 	return false
@@ -82,14 +110,15 @@ func hit(from:Node2D,amount:int=1)->bool:
 
 func dead():
 	Thing.dead()
-	if(debug):debug.push("{} is dying and alive is {}",[name,is_alive()])
+	dbgmsg("is dying and alive is %s"%is_alive())
 	remove_from_world()
 
 func killed():
-	if(debug):debug.push("%s killed" % name)
+	if(debug):DEBUG.push("%s killed" % name)
 	dead()
 	
 func idle():
+	forced_speed=0
 	speed=0
 	target_pos=NONE
 	current_dir=NONE
@@ -98,10 +127,10 @@ func idle():
 func is_actor(actor:int=-1)->bool:
 	return actor==-1
 
-func is_item(item:int)->bool:
+func is_item(item:int=-1)->bool:
 	return false
 
-func is_block(block:int)->bool:
+func is_block(block:int=-1)->bool:
 	return false
 
 func freeze():
@@ -117,27 +146,49 @@ func remove_from_game():
 	Thing.remove_from_game()
 	
 func move(delta):
-	if (!is_alive() or speed==0): return
+	if (!is_alive() or speed==0 or current_dir==NONE): return
 	var path=target_pos-position
 	var distance=path.length()
+	if(distance>cell_size):dbgmsg("distance move too big : %s"%distance,ERROR)
 	var delta_move:Vector2=path.normalized()*(speed*delta) 
 	var delta_len=delta_move.length()
+	#dbgmsg("moving with speed : %s"%speed)
 	if( delta_len>cell_size 
 		or delta_len>distance
 		or distance<1.0		
 		):
-		delta_move=Vector2(round(path.x),round(path.y))
-		position=target_pos #jump precisely
+		delta_move=Vector2(floor(path.x),floor(path.y))
+		position=snapped_pos() #jump precisely
 		target_pos=NONE #should find new target
 		current_dir=NONE #and a new current dir
 		speed=0
-		
-	var _collision=move_and_collide(delta_move)
+		forced_speed=0
 	
+	if target_pos!=NONE:
+		var _collision=move_and_collide(delta_move,false,true,true)
+		var collider:Node2D
+		if _collision:collider=_collision.collider as Node2D
+		if !_collision or GameFuncs.is_item(collider):
+			move_and_collide(delta_move,true,true,false)
+		else: # wall or block or actor
+			dbgmsg("colliding %s at speed %s"%[collider.name,speed])
+			move_and_collide(_collision.remainder,true,true,false)
+			#check if we have to stop right now
+			if collider_stop_me(collider):
+				position=snapped_pos()
+				target_pos=NONE #should find new target
+				current_dir=NONE #and a new current dir
+				speed=0
+				forced_speed=0 
+			
 	if current_dir==NONE:
 		on_moved(last_pos,position)
 	else:
 		on_moving(last_pos,target_pos)
+	
+func collider_stop_me(collider):
+	var let_me_continue=( GameFuncs.is_actor(collider) and collider.current_dir==current_dir )
+	return not let_me_continue
 	
 func adjust_facing(dir:Vector2=NONE,with_moving:bool=true):
 	if with_moving:
@@ -159,7 +210,7 @@ func flipv(flip:bool):
 	
 func flip(dir:Vector2,flip_type:int)->bool:
 	if flip_type!=GameEnums.FLIP.H and flip_type!=GameEnums.FLIP.V:
-		if(debug):debug.error("flip type not supported")
+		dbgmsg("flip type not supported",ERROR)
 		return false
 	var flipProp=onIdleFlip
 	match dir:
@@ -181,36 +232,37 @@ func flip(dir:Vector2,flip_type:int)->bool:
 func adjust_current_dir():
 	if next_dir!=NONE and current_dir==NONE:
 		current_dir=next_dir
+		next_dir=NONE
 
 func find_target_pos():
 	if target_pos!=NONE: return
-	if current_dir!=NONE and target_pos==NONE and !can_go(next_pos_from(fixedgrid(),current_dir)) :
+	if current_dir!=NONE and target_pos==NONE and !can_go(next_pos_from(snapped_pos(),current_dir)) :
+		dbgmsg("Cannot go, then rest")
 		target_pos=NONE
 		next_dir=NONE
 		current_dir=NONE
 		return
 
-
-
-func can_go(next_pos:Vector2)->bool:
-	if is_something(next_pos):return false
-	last_pos=fixedgrid()
-	on_move(last_pos,next_pos)
-	target_pos=next_pos
+func can_go(my_next_pos:Vector2)->bool:
+	if was_stopped(my_next_pos):return false
+	last_pos=snapped_pos()
+	if !on_move(last_pos,my_next_pos):return false
+	target_pos=my_next_pos
 	return true
+	
 
-func on_move(from:Vector2,to:Vector2):
-	add_as_blocker(to)
+func on_move(from:Vector2,to:Vector2)->bool:
+	dbgmsg("move from %s to %s"%[GameFuncs.grid_pos(from),GameFuncs.grid_pos(to)])
+	return add_as_blocker(to)
 	
 func next_pos(dir:Vector2)->Vector2:
 	return position+dir*cell_size
 	
 func next_pos_from(pos:Vector2,dir:Vector2)->Vector2:
-	var next_pos=pos+dir*cell_size	
-	#print("next pos to %s from %s is %s" % [dir,pos,next_pos])
-	return next_pos
+	var my_next_pos=pos+dir*cell_size	
+	#print("next pos to %s from %s is %s" % [dir,pos,my_next_pos])
+	return my_next_pos
 		
-# warning-ignore:unused_argument
 func on_moving(from:Vector2,to:Vector2):
 	if global_position.distance_to(to)<(cell_size/2):
 		if GameData.world.level.objects_at(from).has(GameEnums.OBJECT_TYPE.ACTOR):
@@ -218,14 +270,16 @@ func on_moving(from:Vector2,to:Vector2):
 				GameData.world.level.remove_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
 
 func on_moved(from:Vector2,to:Vector2):
-	if Thing.remove_from_level_objects():
-		if not GameData.world.level.add_object(self):
-			if(debug):
-				debug.error("{} cannot add itself to {}",[name,GameFuncs.grid_pos(position)])
-				print_debug(GameData.world.level.objects)
-	elif(debug):
-		debug.error("{} cannot be removed from {}",[name,GameFuncs.grid_pos(position)])
-		print_debug(GameData.world.level.objects)
+	dbgmsg("Ended move")
+	Thing.remove_from_level_objects()
+	if not GameData.world.level.add_object(self):
+		dbgmsg("cannot add itself to %s"%GameFuncs.grid_pos(position),ERROR)
+		if debug:print(GameData.world.level.dump_grid_pos_and_neighbors(GameFuncs.grid_pos(position)))
+	else:
+		dbgmsg("added itself to %s"%GameFuncs.grid_pos(position))
+	if pushed_thing:pushed_thing=null
+	forced_speed=0
+	speed=0
 	current_dir=NONE
 	target_pos=NONE
 	last_pos=position
@@ -244,9 +298,16 @@ func capabilities()->Array:
 	capas.append(GameEnums.CAPABILITIES.HIT)
 	return capas
 
-func add_as_blocker(pos:Vector2):
-	if not GameData.world.level.add_object_at(self,pos):
-		if(debug):debug.error("{} cannot block pos {}",[name,GameFuncs.grid_pos(pos)])
+func add_as_blocker(pos:Vector2)->bool:
+	var added:bool=GameData.world.level.add_object_at(self,pos)
+	var grid_pos:=GameFuncs.grid_pos(pos)
+	if not added:
+		dbgmsg("not able to add blocker at %s"%grid_pos,ERROR)
+		GameData.world.level.dump_grid_pos_and_neighbors(grid_pos)
+		return false
+	else:
+		dbgmsg("added blocker to %s"%grid_pos)
+		return true
 
 func is_alive()->bool:
 	return Thing.is_alive()
@@ -255,34 +316,73 @@ func is_alive()->bool:
 func alive():
 	Thing.alive()
 
-func on_wall_collision(wall_pos:Vector2,collider:Node2D)->bool:
+func on_wall_collision(wall_pos:Vector2)->bool:
 	return true
 
-func on_collision(other:Dictionary)->bool:
-	return true
+func on_collision(others:Dictionary)->bool:
+	if others.empty():
+		dbgmsg("colliding with nothing !",ERROR)
+		return false
+	var actor:= others.get(GameEnums.OBJECT_TYPE.ACTOR) as Node2D
+	var item:=	others.get(GameEnums.OBJECT_TYPE.ITEM) as Node2D
+	var block:=	others.get(GameEnums.OBJECT_TYPE.BLOCK) as Node2D
+	if block and collide_block(block): return true
+	if actor and collide_actor(actor): return true
+	if item and collide_item(item): return true
+	return false
 
-func is_something(at:Vector2)->bool:
-	return detect_walls(at) or detect_things(at) 
+func collide_actor(actor:Node2D)->bool:
+	return true
 	
-func detect_things(at:Vector2)->bool:
-	var answer:=false
+func collide_item(item:Node2D)->bool:
+	return false
+	
+func collide_block(block:Node2D)->bool:
+	return true	
+
+func was_stopped(at:Vector2)->bool:
+	var obstacles:=detect_obstacles(at)
+	if obstacles.empty():return false
+	if obstacles.has("WALL"):return on_wall_collision(at)	
+	return on_collision(obstacles)
+
+func detect_obstacles(at:Vector2)->Dictionary:
+	var objects:={}
+	var is_wall:=detect_walls(at)
+	if is_wall:
+		objects["WALL"]="YES"
+		return objects
+	return detect_things(at)
+	
+func detect_things(at:Vector2)->Dictionary:
 	var objects:Dictionary=GameData.world.level.objects_at(at)
-	if !objects.empty():
-		answer=  on_collision(objects)
-	return answer
+	if objects.values().has(self): 
+		dbgmsg("%s detected itself"%name,ERROR)
+		if debug:print(GameData.world.level.dump_grid_pos_and_neighbors(GameFuncs.grid_pos(position)))
+		return {}
+	return objects
 
 func detect_walls(at:Vector2)->bool:
-	_raycast.cast_to=to_local(at)
-	_raycast.force_raycast_update()
-	var collider=_raycast.get_collider() as Node2D
-	var wallcollision = collider and collider.name.matchn("*wall*")
-	if !wallcollision:
-		return false
-	else:
-		return on_wall_collision(at,collider)
+	var wallcollision:=false
+	last_collision=null
+	var space_state:Physics2DDirectSpaceState = GameData.world.get_world_2d().direct_space_state
+	var result = space_state.intersect_ray(global_position,at,[self],collision_mask,true,false)
+	if !result.empty():
+		var collider:=result.collider as Node2D
+		dbgmsg("raycast detection : %s"%collider.name)
+		last_collision=result
+		if collider.name.matchn("*wall*"):
+			dbgmsg("has detected wall :%s"%collider.name)
+			return true
+	return false
 	
-func fixedgrid():
-	return Vector2(16+round((position.x-16)/cell_size)*cell_size,16+round((position.y-16)/cell_size)*cell_size)
+func snapped_pos(pos:Vector2=Vector2.ZERO):
+	var half=cell_size/2
+	if pos==Vector2.ZERO:
+#		return Vector2(half+floor((position.x-half)/cell_size)*cell_size,half+floor((position.y-half)/cell_size)*cell_size)
+		return Vector2(half+(floor(position.x/cell_size)*cell_size),half+(floor(position.y/cell_size)*cell_size))	
+	else:
+		return Vector2(half+(floor(pos.x/cell_size)*cell_size),half+(floor(pos.y/cell_size)*cell_size))	
 
 func adjust_speed():
 	if current_dir==NONE:
@@ -290,16 +390,21 @@ func adjust_speed():
 			speed=lerp(speed,0,ground_friction)
 		if abs(speed)<1.0:speed=0
 	else:
-		if speed<max_speed:
-			speed=lerp(speed,max_speed,ground_friction)
-		if abs(speed-max_speed)<1.0:speed=max_speed
-		
-func goto(dir:Vector2):
-	#if $ObjectDebug: $ObjectDebug.message="Going to :\n{dir}".format({"dir":dir})
+		var target_speed=max_speed
+		if pushed_thing and forced_speed>0:
+			dbgmsg("set its target speed to %s"%forced_speed)
+			target_speed=forced_speed
+		if speed!=target_speed:
+			speed=lerp(speed,target_speed,ground_friction)
+		if abs(speed-target_speed)<1.0:speed=target_speed
+	
+func goto(from:Vector2,dir:Vector2):
+	#dbgmsg("Going to %s"%dir)
 	next_dir=dir
 	
 func stop():
 	next_dir=NONE
+	cool_down=false
 	
 func speedup():
 	max_speed=run_speed

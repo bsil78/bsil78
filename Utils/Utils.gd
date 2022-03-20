@@ -25,7 +25,7 @@ func choose(choices:Array):
 	
 func chance(percent:int)->bool:
 	if(percent<0 or percent>100):
-		DEBUG.error("Percent must be between 0 and 100 : {}",[percent])
+		DEBUG.error("Percent must be between 0 and 100 : %s"%percent)
 		Utils.quit(-1)
 	randomize()
 	var roll = randi()  % 101
@@ -44,7 +44,7 @@ func play_sound(channel,sounds,volume_db:int=-999):
 		else:
 			channel.stream=sounds as AudioStream
 		if channel.stream==null:
-			DEBUG.error("Sound is null : {}",[sounds])
+			DEBUG.error("Sound is null : %s"%sounds)
 		if volume_db!=-999:channel.volume_db=volume_db
 		channel.play()
 		channel.volume_db=volume

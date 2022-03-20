@@ -15,10 +15,10 @@ func _ready():
 	idle()
 
 func _physics_process(_delta):
-	if $ObjectDebug:$ObjectDebug.message=("wt : %s \nir : %s \ncd : %s" % [waiting_timer,is_running,current_dir])
+	dbgmsg("wt : %s \nir : %s \ncd : %s" % [waiting_timer,is_running,current_dir])
 	if not waiting_timer and not is_running and current_dir==NONE:
 		var pos_in_front=next_pos(last_dir)
-		if not is_something(pos_in_front):
+		if not was_stopped(pos_in_front):
 			var player_on_frontright:Node2D=GameData.world.level.matching_object_at("Player*",next_pos_from(pos_in_front,GameFuncs.rotr(last_dir)))
 			var player_on_frontleft:Node2D=GameData.world.level.matching_object_at("Player*",next_pos_from(pos_in_front,GameFuncs.rotl(last_dir)))
 			if player_on_frontleft or player_on_frontright:
@@ -36,7 +36,7 @@ func try_run(right,left):
 	
 func run():
 	speedup()
-	goto(last_dir)
+	goto(position,last_dir)
 
 func is_intersepting(player:Node2D,intersect_pdir:Vector2)->bool:
 	if not player : return false
@@ -59,12 +59,13 @@ func push_from_front(who:Node2D)->bool:
 func push_from_back(who:Node2D)->bool:
 	return false	
 
-func on_move(from,to):
+func on_move(from,to)->bool:
+	var move_ok=.on_move(from,to)
 	if current_dir==fixed_dir:
 		last_dir=current_dir
 		is_running=true
-	.on_move(from,to)
-
+	return move_ok
+	
 func on_moved(from,to):
 	if !is_running:
 		.on_moved(from,to)
@@ -90,3 +91,17 @@ func on_collision(objects:Dictionary)->bool:
 		return true
 	else:
 		return false
+
+func collision(others:Dictionary)->bool:
+	var collided = .collision(others)
+	if collided: idle()
+	return collided
+
+func collide_actor(actor:Node2D)->bool:
+	if GameFuncs.is_actor(actor,[GameEnums.ACTORS.ANY_PLAYER,GameEnums.ACTORS.ANY_ENEMY]):
+		if current_dir==fixed_dir or [fixed_dir,-1*fixed_dir].has(actor.current_dir):
+			actor.hit(self,200)
+			return false	
+	return .collide_actor(actor)
+
+	

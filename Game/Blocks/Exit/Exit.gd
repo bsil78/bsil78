@@ -11,7 +11,7 @@ func use_in_place(who:Node2D)->bool:
 		return false
 	else:
 		if who.is_actor(GameEnums.ACTORS.ANY_PLAYER):
-			if who.inventory().god_signs==needed_god_signs:
+			if who.inventory().god_signs>=needed_god_signs:
 				who.inventory().god_signs-=needed_god_signs
 				$Sprite.frame=STAIRS_FRAME
 				is_open=true

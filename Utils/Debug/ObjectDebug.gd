@@ -3,21 +3,28 @@ extends Control
 export(Font) var font
 
 var message:=""
+var objects:String=""
+var mousepos:Vector2=Vector2.ZERO
 export(bool) var hide_me:bool=true
+var debug_obj:Object
+
 
 func _ready():
-	visible=(!hide_me and DEBUG.active and DEBUG.objects)
+	visible=(GameData.world!=null and !hide_me and DEBUG.active and DEBUG.objects)
+	var parent:=get_parent()
+	if parent is Node2D:
+		debug_obj=parent as Node2D
 
 func _process(_delta):
-	var owner:=get_parent()
-	var animator:=owner.find_node("Animator",true,false)
-	var anim:=""
-	if animator:anim=animator.getanim()
-	$Label.text=("%s\nglobal pos:%s\ngrid pos:%s\nanim:%s,\n%s" % [
-									owner.name,
-									owner.global_position,
-									GameFuncs.grid_pos(owner.global_position),
-									anim,
-									message
-								]).c_unescape()
-
+	if is_instance_valid(debug_obj):
+		var text:=""
+		if debug_obj.has_method("state_str"):
+			text=debug_obj.state_str()
+		else:
+			text=("%s\nglobal pos:%s\ngrid pos:%s\n%s" % [
+										debug_obj.name,
+										debug_obj.global_position,
+										GameFuncs.grid_pos(debug_obj.global_position),
+										GameFuncs.dump(DEBUG.messages).replace(",",",\n\t")
+										])
+		$Label.text=text.c_unescape()

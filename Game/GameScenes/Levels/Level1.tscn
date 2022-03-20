@@ -4,14 +4,14 @@
 [ext_resource path="res://Game/GameScenes/Levels/ContextOfLevels.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Game/Actors/Enemy1/Enemy1.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Game/Blocks/Exit/Exit.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Game/Actors/CrusherBlock.tscn" type="PackedScene" id=5]
-[ext_resource path="res://Game/Items/Torch.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Game/GameScenes/Levels/Level.gd" type="Script" id=5]
+[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockGood.tscn" type="PackedScene" id=6]
 [ext_resource path="res://Game/Actors/Block.tscn" type="PackedScene" id=7]
-[ext_resource path="res://Game/Items/Map.tscn" type="PackedScene" id=8]
-[ext_resource path="res://Game/Actors/Scarab/Scarab.tscn" type="PackedScene" id=9]
-[ext_resource path="res://Game/GameScenes/Levels/Level.gd" type="Script" id=10]
-[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockBad.tscn" type="PackedScene" id=11]
-[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockGood.tscn" type="PackedScene" id=12]
+[ext_resource path="res://Game/Items/Torch.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockBad.tscn" type="PackedScene" id=9]
+[ext_resource path="res://Game/Actors/CrusherBlock.tscn" type="PackedScene" id=10]
+[ext_resource path="res://Game/Items/Map.tscn" type="PackedScene" id=11]
+[ext_resource path="res://Game/Actors/Scarab/Scarab.tscn" type="PackedScene" id=12]
 
 [sub_resource type="OccluderPolygon2D" id=1]
 polygon = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
@@ -252,7 +252,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 1/z_index = 0
 
 [node name="Level1" type="Node2D"]
-script = ExtResource( 10 )
+script = ExtResource( 5 )
 size = 10
 
 [node name="ContextOfLevels" parent="." instance=ExtResource( 2 )]
@@ -273,13 +273,13 @@ __meta__ = {
 
 [node name="BlocksLayer" type="Node2D" parent="."]
 
-[node name="GodSignBlockBad2" parent="BlocksLayer" instance=ExtResource( 11 )]
+[node name="GodSignBlockBad2" parent="BlocksLayer" instance=ExtResource( 9 )]
 position = Vector2( 48, 144 )
 
-[node name="GodSignBlockGood2" parent="BlocksLayer" instance=ExtResource( 12 )]
+[node name="GodSignBlockGood2" parent="BlocksLayer" instance=ExtResource( 6 )]
 position = Vector2( 80, 144 )
 
-[node name="GodSignBlockGood" parent="BlocksLayer" instance=ExtResource( 12 )]
+[node name="GodSignBlockGood" parent="BlocksLayer" instance=ExtResource( 6 )]
 position = Vector2( 240, 176 )
 
 [node name="Exit1" parent="BlocksLayer" instance=ExtResource( 4 )]
@@ -290,15 +290,15 @@ needed_god_signs = 1
 position = Vector2( 304, 16 )
 needed_god_signs = 1
 
-[node name="GodSignBlockBad" parent="BlocksLayer" instance=ExtResource( 11 )]
+[node name="GodSignBlockBad" parent="BlocksLayer" instance=ExtResource( 9 )]
 position = Vector2( 272, 176 )
 
 [node name="ItemsLayer" type="Node2D" parent="."]
 
-[node name="Torch" parent="ItemsLayer" instance=ExtResource( 6 )]
+[node name="Torch" parent="ItemsLayer" instance=ExtResource( 8 )]
 position = Vector2( 48, 16 )
 
-[node name="Torch8" parent="ItemsLayer" instance=ExtResource( 6 )]
+[node name="Torch8" parent="ItemsLayer" instance=ExtResource( 8 )]
 position = Vector2( 272, 304 )
 
 [node name="Food" type="Sprite" parent="ItemsLayer"]
@@ -343,30 +343,24 @@ vframes = 10
 hframes = 8
 frame = 56
 
-[node name="Map" parent="ItemsLayer" instance=ExtResource( 8 )]
+[node name="Map" parent="ItemsLayer" instance=ExtResource( 11 )]
 position = Vector2( 144, 16 )
 
 [node name="ActorsLayer" type="Node2D" parent="."]
 
-[node name="CrusherBlock1" parent="ActorsLayer" instance=ExtResource( 5 )]
-position = Vector2( 48, 80 )
-animator = NodePath("../CrusherBlock1/Animation/Animator")
-raycast = NodePath("../CrusherBlock1/RayCast2D")
+[node name="Scarab" parent="ActorsLayer" instance=ExtResource( 12 )]
+position = Vector2( 81, 48 )
 initial_dir = "Right"
 
-[node name="Scarab" parent="ActorsLayer" instance=ExtResource( 9 )]
-position = Vector2( 80, 48 )
-initial_dir = "Right"
-
-[node name="Scarab3" parent="ActorsLayer" instance=ExtResource( 9 )]
+[node name="Scarab3" parent="ActorsLayer" instance=ExtResource( 12 )]
 position = Vector2( 80, 240 )
 initial_dir = "Down"
 
-[node name="Scarab2" parent="ActorsLayer" instance=ExtResource( 9 )]
+[node name="Scarab2" parent="ActorsLayer" instance=ExtResource( 12 )]
 position = Vector2( 240, 272 )
 initial_dir = "Left"
 
-[node name="Scarab4" parent="ActorsLayer" instance=ExtResource( 9 )]
+[node name="Scarab4" parent="ActorsLayer" instance=ExtResource( 12 )]
 position = Vector2( 240, 80 )
 
 [node name="Block2" parent="ActorsLayer" instance=ExtResource( 7 )]
@@ -389,9 +383,13 @@ position = Vector2( 16, 208 )
 [node name="Enemy2" parent="ActorsLayer" instance=ExtResource( 3 )]
 position = Vector2( 304, 112 )
 
-[node name="CrusherBlock2" parent="ActorsLayer" instance=ExtResource( 5 )]
+[node name="CrusherBlock2" parent="ActorsLayer" instance=ExtResource( 10 )]
 position = Vector2( 272, 240 )
 initial_dir = "Left"
+
+[node name="CrusherBlock" parent="ActorsLayer" instance=ExtResource( 10 )]
+position = Vector2( 48, 80 )
+initial_dir = "Right"
 
 [node name="Position1_Right_ACTIVE" type="Position2D" parent="."]
 position = Vector2( 16, 16 )

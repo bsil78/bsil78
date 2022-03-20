@@ -16,7 +16,6 @@
 [ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_fruit2.ogg" type="AudioStream" id=14]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_die.ogg" type="AudioStream" id=15]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/humhum.ogg" type="AudioStream" id=16]
-[ext_resource path="res://Utils/Debug/ObjectDebug.tscn" type="PackedScene" id=17]
 [ext_resource path="res://Game/Assets/Audio/ogg/enemies/sproutch.ogg" type="AudioStream" id=18]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/backpack.ogg" type="AudioStream" id=19]
 [ext_resource path="res://Game/Effects/Lights/Torch.tscn" type="PackedScene" id=20]
@@ -644,11 +643,15 @@ region = Rect2( 96, 0, 32, 32 )
 
 [sub_resource type="AtlasTexture" id=34]
 atlas = ExtResource( 3 )
-region = Rect2( 192, 160, 32, 32 )
+region = Rect2( 0, 160, 32, 32 )
 
 [sub_resource type="AtlasTexture" id=35]
 atlas = ExtResource( 3 )
-region = Rect2( 224, 160, 32, 32 )
+region = Rect2( 32, 160, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=43]
+atlas = ExtResource( 3 )
+region = Rect2( 0, 0, 32, 32 )
 
 [sub_resource type="AtlasTexture" id=36]
 atlas = ExtResource( 3 )
@@ -664,11 +667,11 @@ region = Rect2( 96, 0, 32, 32 )
 
 [sub_resource type="AtlasTexture" id=39]
 atlas = ExtResource( 3 )
-region = Rect2( 0, 160, 32, 32 )
+region = Rect2( 192, 160, 32, 32 )
 
 [sub_resource type="AtlasTexture" id=40]
 atlas = ExtResource( 3 )
-region = Rect2( 32, 160, 32, 32 )
+region = Rect2( 224, 160, 32, 32 )
 
 [sub_resource type="SpriteFrames" id=41]
 animations = [ {
@@ -682,10 +685,10 @@ animations = [ {
 "name": "idle",
 "speed": 4.5
 }, {
-"frames": [ SubResource( 34 ), SubResource( 35 ) ],
+"frames": [ SubResource( 34 ), SubResource( 35 ), SubResource( 43 ) ],
 "loop": true,
-"name": "hit",
-"speed": 5.0
+"name": "chop",
+"speed": 6.0
 }, {
 "frames": [ SubResource( 36 ), SubResource( 37 ), SubResource( 38 ) ],
 "loop": true,
@@ -694,8 +697,8 @@ animations = [ {
 }, {
 "frames": [ SubResource( 39 ), SubResource( 40 ) ],
 "loop": true,
-"name": "chop",
-"speed": 3.5
+"name": "hit",
+"speed": 5.0
 } ]
 
 [sub_resource type="RectangleShape2D" id=42]
@@ -713,7 +716,6 @@ onUpFlip = 4
 onDownFlip = 4
 onIdleFlip = 4
 animator = NodePath("Animation/Animator")
-raycast = NodePath("RayCast2D")
 max_food_points = 1000
 food_points = 1000
 soda1 = ExtResource( 10 )
@@ -755,7 +757,6 @@ anims/walk = SubResource( 28 )
 [node name="AnimatedSprite" type="AnimatedSprite" parent="Animation"]
 light_mask = 0
 frames = SubResource( 41 )
-animation = "idle"
 playing = true
 __meta__ = {
 "_editor_description_": ""
@@ -787,10 +788,6 @@ limit_bottom = 768
 editor_draw_limits = true
 editor_draw_drag_margin = true
 
-[node name="RayCast2D" type="RayCast2D" parent="."]
-enabled = true
-cast_to = Vector2( 0, -16 )
-
 [node name="Steps" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 6 )
 
@@ -799,9 +796,6 @@ stream = ExtResource( 15 )
 
 [node name="SoundsEffects" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 9 )
-
-[node name="ObjectDebug" parent="." instance=ExtResource( 17 )]
-visible = false
 
 [node name="LoseEnergyTimer" type="Timer" parent="."]
 wait_time = 10.0

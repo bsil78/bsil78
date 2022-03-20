@@ -34,20 +34,32 @@ func object_type_of(obj:Node2D):
 	if is_item(obj): return GameEnums.OBJECT_TYPE.ITEM
 	return GameEnums.OBJECT_TYPE.UNKNOWN
 
-func is_block(obj:Node2D):
-	
+func is_block(obj:Node2D,types:Array=[])->bool:
+	if obj.has_method("is_block"):
+		if types.empty(): return obj.is_block()
+		for type in types:
+			if obj.is_block(type): return true
 	for block in GameEnums.BLOCKS_MAP.values():
 		if obj.name.matchn(block): return true
+	return false
 
-func is_actor(obj:Node2D):
-	
+func is_actor(obj:Node2D,types:Array=[])->bool:
+	if obj.has_method("is_actor"):
+		if types.empty(): return obj.is_actor()
+		for type in types:
+			if obj.is_actor(type): return true
 	for actor in GameEnums.ACTORS_MAP.values():
 		if obj.name.matchn(actor): return true
+	return false
 
-func is_item(obj:Node2D):
+func is_item(obj:Node2D,types:Array=[])->bool:
+	if obj.has_method("is_item"):
+		if types.empty(): return obj.is_item()
+		for type in types:
+			if obj.is_item(type): return true
 	for item in GameEnums.ITEMS_MAP.values():
 		if obj.name.matchn(item): return true
-
+	return false
 
 func are_in_hit_distance(obj1,obj2)->bool:
 	return (obj1 as Node2D).global_position.distance_to((obj2 as Node2D).global_position)<GameData.MAX_HIT_DISTANCE
@@ -55,7 +67,7 @@ func are_in_hit_distance(obj1,obj2)->bool:
 		
 
 func grid_pos(position:Vector2)->Vector2:
-	return Vector2(int(position.x/GameData.cell_size),int(position.y/GameData.cell_size))
+	return Vector2(floor(position.x/GameData.cell_size),floor(position.y/GameData.cell_size))
 		
 func transition():
 	GameData.current_player=null
@@ -77,7 +89,7 @@ func change_active_player()->bool:
 		break
 	var changed:=false
 	if next_player:
-		DEBUG.push("Next player : {}".format([next_player.name],"{}"))
+		DEBUG.push("Next player : %s"%next_player.name)
 		GameData.current_player.desactivate()
 		GameData.current_player=next_player
 		next_player.activate()
@@ -85,7 +97,7 @@ func change_active_player()->bool:
 	return changed
 
 func exit_player(player:Node2D,exit_name:String):	
-	DEBUG.push("{} took {}",[player.name,exit_name])
+	DEBUG.push("%s took %s" % [player.name,exit_name])
 	if !exit_name.begins_with("Exit"):
 		printerr("%s is not an exit !" % exit_name)
 		return
@@ -126,14 +138,14 @@ func end_world(with_change_level:bool=false):
 			var processing=(p as Node2D).is_physics_processing()
 			still_active=still_active and processing
 			if processing:
-				print("%s still processing..." % p.name) 
+				DEBUG.push("%s still processing..." % p.name) 
 				p.freeze()
 	GameData.world=null
 	if with_change_level:GameData.current_level+=1
 	transition()
 
 func player_died(player:Node2D):
-	print("%s died" % player.name)
+	DEBUG.push("%s died" % player.name)
 	var tired:bool=(player.life_points<=0)
 	GameData.world.set_process(false)
 	if GameData.players.size()==1:
@@ -149,23 +161,27 @@ func player_died(player:Node2D):
 		player.remove_from_world()
 		Utils.timer(1.0).connect("timeout",self,"change_active_player")
 		
-func dump(objects:Dictionary)->String:
+func dump(objects)->String:
+	if objects is Dictionary:
+		return dump_dic(objects)
+	if objects is Array:
+		return dump_array(objects)
+	if (objects is KinematicBody2D or 
+		objects is Sprite or
+		objects is Node2D):
+		return objects.name
+	return str(objects)
+			
+func dump_array(objects:Array)->String:
+	var res:=""
+	for item in objects:
+		res=res+dump(item)+",\n"
+	return res
+			
+func dump_dic(objects:Dictionary)->String:
 	var dic:={}
 	for key in objects:
-		var value
-		if is_instance_valid(objects[key]):
-			if objects[key] is Node2D:
-				value=(objects[key] as Node2D).name
-			elif objects[key] is Dictionary:
-				value=dump(objects[key])
-			else:
-				value=str(objects[key])
-		else:
-			value="]freed["
-		if key is String:
-			dic[key]=value
-		else:
-			dic[str(key)]=value
+		dic[dump(key)]=dump(objects[key])
 	return str(dic)
 
 
@@ -178,7 +194,7 @@ func rotl(dir:Vector2):
 	
 func take_over_playercam(player:Node2D):
 	if !GameData.world: return
-	print_debug("World camera is taking player camera over")
+	DEBUG.push("World camera is taking %s camera over"%player.name)
 	var worldcam:=(GameData.world.get_node(NodePath("Camera2D")) as Camera2D)
 	var playercam:=(player.get_node(NodePath("Camera2D")) as Camera2D)
 	worldcam.limit_bottom=playercam.limit_bottom

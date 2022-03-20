@@ -1,4 +1,4 @@
-extends "res://Game/BaseScripts/Thing.gd"
+extends "res://Game/BaseScripts/Block.gd"
 
 
 export(PackedScene) var hitEffect:=preload("res://Game/Effects/HitBlock.tscn")

@@ -17,29 +17,34 @@ func _ready():
 	$UI/LifeBar.value=life_points
 	$UI/LifeBar.visible=false
 	
-func _process(_delta):
+func _physics_process(_delta):
 	if !Thing.freezed and is_alive():
 		manage_sound_volume()
 		if thinking: return
-		if think_dir!=NONE:
-			goto(think_dir)
+		if think_dir!=NONE and current_dir==NONE:
+			goto(position,think_dir)
 		else:
-			if next_dir!=NONE and Utils.chance(90):return
-			if current_dir!=NONE and Utils.chance(90):  return
-			if Utils.chance(50):think_of_dir()
+			if(target_pos==NONE):
+				if next_dir!=NONE and Utils.chance(90):return
+				if current_dir!=NONE and Utils.chance(90):  return
+				if Utils.chance(50):think_of_dir()
 			
 func idle():
 	if is_alive():
 		.idle()
 		_animator.trigger_anim("idle")
 		
-func on_move(from,to):
-	.on_move(from,to)
-	_animator.trigger_anim("walk")
-
+func on_move(from,to)->bool:
+	if .on_move(from,to):
+		_animator.trigger_anim("walk")
+		return true
+	else:
+		think_dir=NONE
+		return false
+		
 func hit(from:Node2D,amount:int=1):
 	if .hit(from,amount):
-		print("hit by %s" % from.name)
+		#print("hit by %s" % from.name)
 		_animator.trigger_anim("hit",false,true)
 		Utils.play_effect_once(hitEffect,$FrontEffects,global_position)
 		$UI/LifeBar.value=life_points
@@ -55,7 +60,7 @@ func hit(from:Node2D,amount:int=1):
 			if life_points>(max_life_points/3):
 				set_attack(true)
 				think_dir=player_dir
-				Utils.timer(2).connect("timeout",self,"set_attack",[false])
+				Utils.timer(2.0).connect("timeout",self,"set_attack",[false])
 			else:
 				set_attack(false)
 				think_dir=-1*player_dir
@@ -72,8 +77,7 @@ func explode():
 
 
 func is_actor(actor:int=-1)->bool:
-	return ( .is_actor(actor) 
-			or GameEnums.ACTORS.ANY_ENEMY==actor )
+	return ( .is_actor(actor) or GameEnums.ACTORS.ANY_ENEMY==actor )
 
 	
 func manage_sound_volume():
@@ -89,33 +93,28 @@ func manage_sound_volume():
 		$Steps.volume_db=-60
 		$Voice.volume_db=-60
 
-func on_wall_collision(_wall_pos:Vector2,_collider:Node2D)->bool:
+func on_wall_collision(_wall_pos:Vector2)->bool:
+	dbgmsg("colliding wall")
+	think_dir=NONE
+	idle()
+	return true
+
+func collide_actor(actor:Node2D)->bool:
+	if actor.is_actor(GameEnums.ACTORS.ANY_PLAYER):
+		if !pause_attack and (actor as Node2D).global_position.distance_to(global_position)<40:
+			_animator.trigger_anim("attack")
+			actor.hit(self,ATTACK_POWER)
+			set_attack(true)
+			pause_attack=true
+			Utils.timer(1.0).connect("timeout",self,"set_pause_attack",[false])
+		think_dir=next_dir
+		return true
 	think_dir=NONE
 	return true
 
-func on_collision(others:Dictionary)->bool:
-	if others.empty():
-		if debug: debug.error("{} colliding with nothing !",[name])
-		return true
-	
-	var actor:= others.get(GameEnums.OBJECT_TYPE.ACTOR) as Actor
-	var item:=	others.get(GameEnums.OBJECT_TYPE.ITEM) as Node2D
-	var block:=	others.get(GameEnums.OBJECT_TYPE.BLOCK) as Node2D
-	
-	if actor:
-		if actor.is_actor(GameEnums.ACTORS.ANY_PLAYER):
-			if !pause_attack and (actor as Node2D).global_position.distance_to(global_position)<40:
-				_animator.trigger_anim("attack")
-				actor.hit(self,ATTACK_POWER)
-				set_attack(true)
-				pause_attack=true
-				Utils.timer(1.0).connect("timeout",self,"set_pause_attack",[false])
-			think_dir=next_dir
-			return true
-	if item:
-		return false
+func collide_block(block:Node2D)->bool:
 	think_dir=NONE
-	return true	
+	return true
 
 func set_pause_attack(value:bool):
 	pause_attack=value	
@@ -129,11 +128,33 @@ func set_attack(value:bool):
 	
 func think_of_dir():
 	thinking=true
-	#$ObjectDebug.message="Yielding thinking"
-	yield(Utils.timer(0.1),"timeout")
-	var all_dirs_and_idle=[Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN,Vector2.ZERO]
-	think_dir=Utils.choose(all_dirs_and_idle)
-	#$ObjectDebug.message="Choosed %s" % think_dir
+	dbgmsg("Thinking dir")
+	var all_dirs_and_idle=[Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN,NONE]
+	randomize()
+	all_dirs_and_idle.shuffle()
+	var blocked=true
+	while blocked:
+		think_dir=all_dirs_and_idle.pop_front()
+		if think_dir==NONE:
+			blocked=false
+		else:
+			blocked=is_something(next_pos(think_dir))			
+	dbgmsg("Choosed %s" % think_dir)
+	current_dir=NONE
+	next_dir=NONE
+	target_pos=NONE
 	thinking=false
 
+func is_something(at:Vector2)->bool:
+	var objs:=detect_obstacles(at)
+	if objs.has("WALL"):return true
+	if objs.has(GameEnums.OBJECT_TYPE.BLOCK): return true
+	if objs.has(GameEnums.OBJECT_TYPE.ACTOR):
+		if (objs[GameEnums.OBJECT_TYPE.ACTOR]).is_actor(GameEnums.ACTORS.ANY_PLAYER):
+			return false
+		else:
+			return true
+	return false
+			
+		
 

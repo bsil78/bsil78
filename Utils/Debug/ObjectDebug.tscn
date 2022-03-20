@@ -2,8 +2,6 @@
 
 [ext_resource path="res://Utils/Debug/ObjectDebug.gd" type="Script" id=1]
 
-
-
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://Game/Assets/Fonts/PressStart2P.ttf"
 
@@ -23,22 +21,22 @@ size = 8
 font_data = SubResource( 1 )
 
 [node name="ObjectDebug" type="Control"]
-margin_left = -16.0
-margin_top = -32.0
-margin_right = 16.0
-margin_bottom = -16.0
-hint_tooltip = "Debug player"
-mouse_default_cursor_shape = 16
+anchor_right = 0.187
+anchor_bottom = 0.025
+margin_right = 0.319992
+grow_vertical = 0
+mouse_filter = 2
 script = ExtResource( 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 font = SubResource( 2 )
+hide_me = false
 
 [node name="Label" type="Label" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_bottom = -9.53674e-07
+margin_right = 7.62939e-06
 grow_vertical = 0
 custom_styles/normal = SubResource( 3 )
 custom_fonts/font = SubResource( 4 )

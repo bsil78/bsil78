@@ -56,7 +56,7 @@ func shutdown(timer:Timer=null):
 
 func flamme_it():
 	if torch_timer: 
-		print_debug("Already flamming !")
+		DEBUG.error("Torch already flamming !")
 		return
 	flamming=true
 	visible=true

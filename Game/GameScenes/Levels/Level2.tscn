@@ -4,8 +4,8 @@
 [ext_resource path="res://Game/GameScenes/Levels/ContextOfLevels.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Game/Actors/Enemy1/Enemy1.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Game/Blocks/Exit/Exit.tscn" type="PackedScene" id=4]
-[ext_resource path="res://Game/GameScenes/Levels/Level.gd" type="Script" id=5]
-[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockGood.tscn" type="PackedScene" id=6]
+[ext_resource path="res://Game/GameScenes/Levels/Level.gd" type="Script" id=10]
+[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockGood.tscn" type="PackedScene" id=12]
 
 [sub_resource type="OccluderPolygon2D" id=1]
 polygon = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
@@ -246,7 +246,7 @@ points = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )
 1/z_index = 0
 
 [node name="Level2" type="Node2D"]
-script = ExtResource( 5 )
+script = ExtResource( 10 )
 size = 20
 
 [node name="ContextOfLevels" parent="." instance=ExtResource( 2 )]
@@ -257,10 +257,10 @@ light_mask = 3
 tile_set = SubResource( 33 )
 cell_size = Vector2( 32, 32 )
 cell_custom_transform = Transform2D( 32, 0, 0, 32, 0, 0 )
-collision_mask = 2
+collision_mask = 10
 occluder_light_mask = 3
 format = 1
-tile_data = PoolIntArray( 1, 0, 0, 5, 0, 0, 7, 0, 0, 11, 0, 0, 15, 0, 0, 65537, 0, 0, 65539, 0, 0, 65541, 0, 0, 65545, 0, 0, 65549, 0, 0, 65550, 0, 0, 65551, 0, 0, 65553, 0, 0, 65554, 0, 0, 65555, 0, 0, 131073, 0, 0, 131075, 0, 0, 131080, 0, 0, 131081, 0, 0, 131082, 0, 0, 131083, 0, 0, 131084, 0, 0, 131085, 0, 0, 131089, 0, 0, 196609, 0, 0, 196612, 0, 0, 196616, 0, 0, 196623, 0, 0, 196627, 0, 0, 262145, 0, 0, 262147, 0, 0, 262148, 0, 0, 262150, 0, 0, 262154, 0, 0, 262155, 0, 0, 262156, 0, 0, 262157, 0, 0, 262158, 0, 0, 262159, 0, 0, 262160, 0, 0, 262161, 0, 0, 327681, 0, 0, 327685, 0, 0, 327686, 0, 0, 327687, 0, 0, 327688, 0, 0, 327689, 0, 0, 327690, 0, 0, 327699, 0, 0, 393217, 0, 0, 393218, 0, 0, 393219, 0, 0, 393221, 0, 0, 393225, 0, 0, 393228, 0, 0, 393229, 0, 0, 393230, 0, 0, 393231, 0, 0, 393232, 0, 0, 393233, 0, 0, 393234, 0, 0, 393235, 0, 0, 458753, 0, 0, 458759, 0, 0, 458763, 0, 0, 458764, 0, 0, 458766, 0, 0, 524289, 0, 0, 524291, 0, 0, 524292, 0, 0, 524293, 0, 0, 524294, 0, 0, 524295, 0, 0, 524296, 0, 0, 524297, 0, 0, 524300, 0, 0, 524304, 0, 0, 524306, 0, 0, 524307, 0, 0, 589825, 0, 0, 589835, 0, 0, 589836, 0, 0, 589838, 0, 0, 589839, 0, 0, 589840, 0, 0, 655361, 0, 0, 655362, 0, 0, 655364, 0, 0, 655366, 0, 0, 655367, 0, 0, 655368, 0, 0, 655369, 0, 0, 655370, 0, 0, 655371, 0, 0, 655375, 0, 0, 655378, 0, 0, 720898, 0, 0, 720900, 0, 0, 720902, 0, 0, 720909, 0, 0, 720912, 0, 0, 720914, 0, 0, 786433, 0, 0, 786434, 0, 0, 786436, 0, 0, 786437, 0, 0, 786438, 0, 0, 786440, 0, 0, 786441, 0, 0, 786442, 0, 0, 786443, 0, 0, 786444, 0, 0, 786445, 0, 0, 786446, 0, 0, 786447, 0, 0, 786448, 0, 0, 786449, 0, 0, 786450, 0, 0, 851969, 0, 0, 851970, 0, 0, 851972, 0, 0, 851973, 0, 0, 851977, 0, 0, 851979, 0, 0, 851986, 0, 0, 917505, 0, 0, 917509, 0, 0, 917511, 0, 0, 917515, 0, 0, 917517, 0, 0, 917518, 0, 0, 917520, 0, 0, 917522, 0, 0, 983041, 0, 0, 983043, 0, 0, 983044, 0, 0, 983045, 0, 0, 983047, 0, 0, 983048, 0, 0, 983049, 0, 0, 983050, 0, 0, 983051, 0, 0, 983056, 0, 0, 1048579, 0, 0, 1048583, 0, 0, 1048589, 0, 0, 1048590, 0, 0, 1048592, 0, 0, 1048594, 0, 0, 1114112, 0, 0, 1114113, 0, 0, 1114114, 0, 0, 1114115, 0, 0, 1114116, 0, 0, 1114118, 0, 0, 1114119, 0, 0, 1114120, 0, 0, 1114121, 0, 0, 1114122, 0, 0, 1114123, 0, 0, 1114130, 0, 0, 1179652, 0, 0, 1179654, 0, 0, 1179661, 0, 0, 1179662, 0, 0, 1179663, 0, 0, 1179664, 0, 0, 1179665, 0, 0, 1179666, 0, 0, 1179667, 0, 0, 1245185, 0, 0, 1245186, 0, 0, 1245190, 0, 0, 1245192, 0, 0, 1245193, 0, 0, 1245194, 0, 0, 1245195, 0, 0 )
+tile_data = PoolIntArray( 1, 0, 0, 5, 0, 0, 7, 0, 0, 11, 0, 0, 15, 0, 0, 65537, 0, 0, 65539, 0, 0, 65541, 0, 0, 65545, 0, 0, 65549, 0, 0, 65550, 0, 0, 65551, 0, 0, 65553, 0, 0, 65554, 0, 0, 65555, 0, 0, 131073, 0, 0, 131075, 0, 0, 131080, 0, 0, 131081, 0, 0, 131082, 0, 0, 131083, 0, 0, 131084, 0, 0, 131085, 0, 0, 131089, 0, 0, 196609, 0, 0, 196612, 0, 0, 196616, 0, 0, 196623, 0, 0, 196627, 0, 0, 262145, 0, 0, 262147, 0, 0, 262148, 0, 0, 262150, 0, 0, 262154, 0, 0, 262155, 0, 0, 262156, 0, 0, 262157, 0, 0, 262158, 0, 0, 262159, 0, 0, 262160, 0, 0, 262161, 0, 0, 327681, 0, 0, 327685, 0, 0, 327686, 0, 0, 327687, 0, 0, 327688, 0, 0, 327689, 0, 0, 327690, 0, 0, 327699, 0, 0, 393217, 0, 0, 393218, 0, 0, 393219, 0, 0, 393221, 0, 0, 393225, 0, 0, 393228, 0, 0, 393229, 0, 0, 393230, 0, 0, 393231, 0, 0, 393232, 0, 0, 393233, 0, 0, 393234, 0, 0, 393235, 0, 0, 458753, 0, 0, 458759, 0, 0, 458763, 0, 0, 458764, 0, 0, 458766, 0, 6, 524289, 0, 0, 524291, 0, 0, 524292, 0, 0, 524293, 0, 0, 524294, 0, 0, 524295, 0, 0, 524296, 0, 0, 524297, 0, 0, 524300, 0, 0, 524304, 0, 0, 524306, 0, 2, 589825, 0, 0, 589835, 0, 0, 589836, 0, 0, 589838, 0, 3, 589840, 0, 3, 589842, 0, 4, 655361, 0, 0, 655362, 0, 0, 655364, 0, 0, 655366, 0, 0, 655367, 0, 0, 655368, 0, 0, 655369, 0, 0, 655370, 0, 0, 655371, 0, 0, 655372, 0, 4, 655376, 0, 3, 655378, 0, 0, 720898, 0, 0, 720900, 0, 0, 720902, 0, 0, 720910, 0, 0, 720912, 0, 0, 720914, 0, 0, 786433, 0, 0, 786434, 0, 0, 786436, 0, 0, 786437, 0, 0, 786438, 0, 0, 786441, 0, 0, 786443, 0, 0, 786444, 0, 0, 786445, 0, 0, 786446, 0, 0, 786447, 0, 0, 786448, 0, 0, 786449, 0, 0, 786450, 0, 0, 851969, 0, 0, 851970, 0, 0, 851972, 0, 0, 851973, 0, 0, 851977, 0, 0, 851979, 0, 0, 851986, 0, 0, 917505, 0, 0, 917509, 0, 0, 917511, 0, 0, 917515, 0, 0, 917517, 0, 0, 917518, 0, 0, 917520, 0, 0, 917522, 0, 0, 983041, 0, 0, 983043, 0, 0, 983044, 0, 0, 983045, 0, 0, 983047, 0, 0, 983048, 0, 0, 983049, 0, 0, 983050, 0, 0, 983051, 0, 0, 983056, 0, 0, 1048579, 0, 0, 1048583, 0, 0, 1048589, 0, 0, 1048590, 0, 0, 1048592, 0, 0, 1048594, 0, 0, 1048595, 0, 2, 1114112, 0, 0, 1114113, 0, 0, 1114114, 0, 0, 1114115, 0, 0, 1114116, 0, 0, 1114118, 0, 0, 1114119, 0, 0, 1114120, 0, 0, 1114121, 0, 0, 1114122, 0, 0, 1114123, 0, 0, 1114130, 0, 0, 1179652, 0, 0, 1179654, 0, 0, 1179661, 0, 0, 1179662, 0, 0, 1179663, 0, 0, 1179664, 0, 0, 1179665, 0, 0, 1179666, 0, 0, 1245185, 0, 0, 1245186, 0, 0, 1245190, 0, 0, 1245192, 0, 0, 1245193, 0, 0, 1245194, 0, 0, 1245195, 0, 0 )
 __meta__ = {
 "_edit_lock_": true
 }
@@ -275,58 +275,58 @@ needed_god_signs = 9
 position = Vector2( 16, 624 )
 needed_god_signs = 9
 
-[node name="GodSignBlockGood" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 176, 336 )
 
-[node name="GodSignBlockGood2" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood2" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 80, 304 )
 
-[node name="GodSignBlockGood13" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood13" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 112, 243 )
 
-[node name="GodSignBlockGood15" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood15" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 592, 144 )
 
-[node name="GodSignBlockGood14" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood14" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 304, 16 )
 
-[node name="GodSignBlockGood16" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood16" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 176, 112 )
 
-[node name="GodSignBlockGood18" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood18" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 208, 51 )
 
-[node name="GodSignBlockGood17" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood17" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 592, 80 )
 
-[node name="GodSignBlockGood3" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood3" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 304, 304 )
 
-[node name="GodSignBlockGood4" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood4" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 240, 432 )
 
-[node name="GodSignBlockGood5" parent="BlocksLayer" instance=ExtResource( 6 )]
-position = Vector2( 400, 336 )
+[node name="GodSignBlockGood5" parent="BlocksLayer" instance=ExtResource( 12 )]
+position = Vector2( 400, 368 )
 
-[node name="GodSignBlockGood6" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood6" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 368, 528 )
 
-[node name="GodSignBlockGood7" parent="BlocksLayer" instance=ExtResource( 6 )]
-position = Vector2( 432, 496 )
+[node name="GodSignBlockGood7" parent="BlocksLayer" instance=ExtResource( 12 )]
+position = Vector2( 432, 624 )
 
-[node name="GodSignBlockGood8" parent="BlocksLayer" instance=ExtResource( 6 )]
-position = Vector2( 464, 496 )
+[node name="GodSignBlockGood8" parent="BlocksLayer" instance=ExtResource( 12 )]
+position = Vector2( 624, 592 )
 
-[node name="GodSignBlockGood9" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood9" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 368, 592 )
 
-[node name="GodSignBlockGood10" parent="BlocksLayer" instance=ExtResource( 6 )]
-position = Vector2( 560, 336 )
+[node name="GodSignBlockGood10" parent="BlocksLayer" instance=ExtResource( 12 )]
+position = Vector2( 560, 272 )
 
-[node name="GodSignBlockGood11" parent="BlocksLayer" instance=ExtResource( 6 )]
-position = Vector2( 592, 240 )
+[node name="GodSignBlockGood11" parent="BlocksLayer" instance=ExtResource( 12 )]
+position = Vector2( 592, 496 )
 
-[node name="GodSignBlockGood12" parent="BlocksLayer" instance=ExtResource( 6 )]
+[node name="GodSignBlockGood12" parent="BlocksLayer" instance=ExtResource( 12 )]
 position = Vector2( 528, 240 )
 
 [node name="ItemsLayer" type="Node2D" parent="."]
@@ -353,7 +353,7 @@ hframes = 8
 frame = 79
 
 [node name="Torch7" type="Sprite" parent="ItemsLayer"]
-position = Vector2( 432, 240 )
+position = Vector2( 560, 336 )
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 8
@@ -367,7 +367,7 @@ hframes = 8
 frame = 72
 
 [node name="Food2" type="Sprite" parent="ItemsLayer"]
-position = Vector2( 144, 531 )
+position = Vector2( 560, 304 )
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 8
@@ -402,14 +402,14 @@ hframes = 8
 frame = 64
 
 [node name="Soda3" type="Sprite" parent="ItemsLayer"]
-position = Vector2( 528, 336 )
+position = Vector2( 560, 368 )
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 8
 frame = 64
 
 [node name="Soda4" type="Sprite" parent="ItemsLayer"]
-position = Vector2( 624, 240 )
+position = Vector2( 144, 528 )
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 8
@@ -457,31 +457,27 @@ position = Vector2( 368, 48 )
 
 [node name="Enemy4" parent="ActorsLayer" instance=ExtResource( 3 )]
 position = Vector2( 80, 272 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy4/CollisionRayCast")
-
-[node name="Enemy2" parent="ActorsLayer" instance=ExtResource( 3 )]
-position = Vector2( 496, 368 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy2/CollisionRayCast")
 
 [node name="Enemy8" parent="ActorsLayer" instance=ExtResource( 3 )]
 position = Vector2( 336, 464 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy2/CollisionRayCast")
 
 [node name="Enemy3" parent="ActorsLayer" instance=ExtResource( 3 )]
-position = Vector2( 336, 275 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy3/CollisionRayCast")
+position = Vector2( 336, 272 )
 
 [node name="Enemy5" parent="ActorsLayer" instance=ExtResource( 3 )]
 position = Vector2( 464, 272 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy5/CollisionRayCast")
+
+[node name="Enemy9" parent="ActorsLayer" instance=ExtResource( 3 )]
+position = Vector2( 368, 368 )
+
+[node name="Enemy10" parent="ActorsLayer" instance=ExtResource( 3 )]
+position = Vector2( 368, 368 )
 
 [node name="Enemy7" parent="ActorsLayer" instance=ExtResource( 3 )]
-position = Vector2( 624, 528 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy5/CollisionRayCast")
+position = Vector2( 624, 560 )
 
 [node name="Enemy6" parent="ActorsLayer" instance=ExtResource( 3 )]
 position = Vector2( 624, 144 )
-raycast = NodePath("../../../Level2/ActorsLayer/Enemy5/CollisionRayCast")
 
 [node name="Position2_Down_INACTIVE" type="Position2D" parent="."]
 position = Vector2( 16, 16 )

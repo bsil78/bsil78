@@ -128,4 +128,5 @@ quality/2d/use_pixel_snap=true
 threads/thread_model=2
 quality/shadows/filter_mode=2
 quality/shadows/filter_mode.mobile=2
+environment/default_clear_color=Color( 0.14902, 0.160784, 0.262745, 1 )
 environment/default_environment="res://default_env.tres"

@@ -7,6 +7,7 @@ const marge:= 5
 export(bool) var debug:=false
 
 func _process(_delta):
+	
 	if get_parent() and get_parent().name.matchn("*Level*"):
 		target_size=get_parent().size
 	
