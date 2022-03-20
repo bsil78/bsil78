@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Game/Objects/Exit/Exit.gd" type="Script" id=1]
+[ext_resource path="res://Game/Assets/Visuals/Scavengers_SpriteSheet.png" type="Texture" id=2]
+
+
+
+
+[node name="TransitionZone" type="Node2D"]
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_group_": true
+}
+target_scene = "res://Game/Scenes/Transitional/TransitionScene.tscn"
+
+[node name="Sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+region_enabled = true
+region_rect = Rect2( 128, 64, 32, 32 )

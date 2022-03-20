@@ -1,0 +1,3 @@
+extends Node
+
+enum TRANSITION_STATUS { NONE = -1, LEVEL_UP = 0, DEAD_HUNGRY, DEAD_TIRED }

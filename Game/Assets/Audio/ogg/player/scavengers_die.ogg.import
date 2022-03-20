@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/scavengers_die.ogg-b053340861a68cce0ab5a4380ef1368a.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/player/scavengers_die.ogg"
+dest_files=[ "res://.import/scavengers_die.ogg-b053340861a68cce0ab5a4380ef1368a.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

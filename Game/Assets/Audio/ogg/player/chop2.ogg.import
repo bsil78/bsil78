@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/chop2.ogg-708f1b7de4f2f6d75a3f118bcd0b9ad5.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/player/chop2.ogg"
+dest_files=[ "res://.import/chop2.ogg-708f1b7de4f2f6d75a3f118bcd0b9ad5.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

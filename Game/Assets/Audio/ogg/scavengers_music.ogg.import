@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/scavengers_music.ogg-56a791bf81a9d7ce48822852f7451f6c.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/scavengers_music.ogg"
+dest_files=[ "res://.import/scavengers_music.ogg-56a791bf81a9d7ce48822852f7451f6c.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

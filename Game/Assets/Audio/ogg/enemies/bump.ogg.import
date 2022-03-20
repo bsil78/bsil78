@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/bump.ogg-f972b8ac669bb237c5f9667f092680d8.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/enemies/bump.ogg"
+dest_files=[ "res://.import/bump.ogg-f972b8ac669bb237c5f9667f092680d8.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0
