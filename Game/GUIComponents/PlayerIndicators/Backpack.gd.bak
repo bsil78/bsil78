@@ -10,6 +10,8 @@ var _bphelp:Label
 var _labels:={}
 var is_open:=false
 
+
+
 enum ITEMS { NONE=-1,MEDKIT=1,TORCH,FOOD,SODA }
 
 var help_text:Dictionary={ ITEMS.MEDKIT: 
@@ -125,6 +127,11 @@ func show_help_item(item):
 	else:
 		_bphelp.text=help_text[item][false]
 	selected_item=item
+
+func update_items():
+	if GameData.current_player and is_instance_valid(self):
+		for item in range(1,5):
+			_labels[item].text=str(player_item_count(item))
 
 func player_item_count(item):
 	if GameData.current_player:

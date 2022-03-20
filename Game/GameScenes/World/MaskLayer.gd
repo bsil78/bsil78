@@ -1,12 +1,11 @@
 extends Node
 
-export(Vector2) var offset:=Vector2(32,32)
+export(Vector2) var offset:=Vector2(96,96)
 export(float) var factor:=1.0
+const default_pos=Vector2(248,248)
+const torch_path="Animation/Torch"
 const large_fow_subpath="Large_FoWHole"
 const small_fow_subpath="Small_FoWHole"
-const player_center_offset=Vector2(16,16)
-const large_fow_half_size=Vector2(200,200)
-const screen_center=Vector2(320,320)
 
 func _ready():
 	$FixedMask_LightOff.show()
@@ -19,18 +18,19 @@ func update():
 	var activep=GameData.current_player
 	if is_instance_valid(activep):
 		show_active_fow(activep)
-		for player in GameData.world.players():
-			if player.name==activep.name: continue
-			show_inactive_fow(player)
-			return
+		for pname in GameData.players_names:
+			if pname==activep.name: continue
+			if GameData.players.has(pname):
+				show_inactive_fow(GameData.players[pname])
+				return
 	else:
 		hide_active_fow()
 	hide_inactive_fow()
 		
 				
 func show_active_fow(player:Node2D):
-	var torch=player.torch()
-	$FogOfWar/Viewport/Active_FoW.position=Vector2(24,40)
+	var torch=player.get_node(torch_path)
+	$FogOfWar/Viewport/Active_FoW.position=default_pos
 	$FogOfWar/Viewport/Active_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.get_node(small_fow_subpath).visible=!torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.show()
@@ -39,16 +39,12 @@ func show_active_fow(player:Node2D):
 	$FixedMask_LightOff.visible=!torch.is_flammed()
 
 func show_inactive_fow(player:Node2D):
-	var torch=player.torch()
+	var torch=player.get_node(torch_path)
 	var active_pos=GameData.current_player.position
 	var delta_pos=player.position-active_pos
-	var active_fow_pos=Vector2(24,40) #large_fow_half_size + player_center_offset+offset
-	$FogOfWar/Viewport/Inactive_FoW.position=  active_fow_pos +delta_pos 
+	$FogOfWar/Viewport/Inactive_FoW.position= default_pos + delta_pos
 	$FogOfWar/Viewport/Inactive_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Inactive_FoW.show()
-
-func camera_origin(player)->Vector2:
-	return player.get_camera().get_viewport_transform().origin
 
 func hide_inactive_fow():
 	$FogOfWar/Viewport/Inactive_FoW.hide()

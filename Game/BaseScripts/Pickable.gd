@@ -1,12 +1,13 @@
-extends "res://Game/BaseScripts/Item.gd"
+extends Item
+class_name Pickable
 
-func behaviors()->Array:
-	var bhvs:=.behaviors().duplicate(true)
-	bhvs.append(GameEnums.BEHAVIORS.PICKUP)
-	return bhvs
+func capabilities()->Array:
+	var base=.capabilities()
+	base.append(GameEnums.CAPABILITIES.PICKUP)
+	return base
 	
 func pickup(who:Node2D)->bool:
-	return who.is_actor(GameEnums.ACTORS.ANY_PLAYER)
+	return true
 
 func is_item(item:int=-1)->bool:
 	return item==-1

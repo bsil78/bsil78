@@ -1,15 +1,23 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://Game/Assets/Fonts/Pixeled.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Game/Assets/Images/backpack.png" type="Texture" id=2]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/Backpack.gd" type="Script" id=3]
-[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=4]
-[ext_resource path="res://shaders/shaders/blur.shader" type="Shader" id=5]
+[ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=4]
 
-[sub_resource type="RectangleShape2D" id=7]
-extents = Vector2( 32, 32 )
+[sub_resource type="StyleBoxFlat" id=1]
+bg_color = Color( 0.239216, 0.184314, 0.133333, 1 )
 
-[sub_resource type="StyleBoxFlat" id=8]
+[sub_resource type="DynamicFont" id=2]
+size = 7
+outline_color = Color( 0, 0, 0, 1 )
+use_mipmaps = true
+use_filter = true
+extra_spacing_top = -2
+extra_spacing_char = 1
+font_data = ExtResource( 1 )
+
+[sub_resource type="StyleBoxFlat" id=3]
 bg_color = Color( 0.239216, 0.184314, 0.133333, 1 )
 border_width_left = 2
 border_width_top = 2
@@ -26,37 +34,178 @@ shadow_color = Color( 0, 0, 0, 0.243137 )
 shadow_size = 1
 shadow_offset = Vector2( 4, 4 )
 
-[sub_resource type="DynamicFont" id=6]
-size = 8
-outline_size = 1
-outline_color = Color( 0, 0, 0, 1 )
-extra_spacing_char = 1
-font_data = ExtResource( 1 )
+[sub_resource type="ViewportTexture" id=4]
+viewport_path = NodePath("View/Viewport")
 
-[sub_resource type="ShaderMaterial" id=2]
-shader = ExtResource( 5 )
-shader_param/radius = 8.0
+[sub_resource type="CircleShape2D" id=5]
+radius = 16.0
 
-[sub_resource type="SphereMesh" id=3]
-radius = 14.0
-height = 28.0
-radial_segments = 4
-rings = 128
+[sub_resource type="RectangleShape2D" id=6]
+extents = Vector2( 32, 32 )
 
-[sub_resource type="Gradient" id=4]
-offsets = PoolRealArray( 0.486425 )
-colors = PoolColorArray( 0.36, 0.2886, 0.234, 1 )
-
-[sub_resource type="GradientTexture" id=5]
-gradient = SubResource( 4 )
-
-[node name="BackPack" type="Control"]
-margin_right = 272.0
-margin_bottom = 64.0
-mouse_filter = 2
+[node name="Backpack" type="Node2D"]
 script = ExtResource( 3 )
+
+[node name="View" type="ViewportContainer" parent="."]
+light_mask = 0
+margin_left = 80.0
+margin_top = 80.0
+margin_right = 248.0
+margin_bottom = 112.0
+rect_min_size = Vector2( 168, 32 )
+rect_clip_content = true
 __meta__ = {
 "_edit_use_anchors_": false
+}
+
+[node name="Viewport" type="Viewport" parent="View"]
+size = Vector2( 168, 32 )
+size_override_stretch = true
+transparent_bg = true
+handle_input_locally = false
+disable_3d = true
+usage = 0
+render_target_update_mode = 3
+
+[node name="Items" type="Panel" parent="View/Viewport"]
+light_mask = 0
+margin_right = 168.0
+margin_bottom = 32.0
+rect_min_size = Vector2( 168, 32 )
+custom_styles/panel = SubResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="Visuals" type="Node2D" parent="View/Viewport/Items"]
+light_mask = 0
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Medkit" type="Sprite" parent="View/Viewport/Items/Visuals"]
+light_mask = 0
+position = Vector2( 8, 0 )
+texture = ExtResource( 4 )
+centered = false
+vframes = 10
+hframes = 8
+frame = 56
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Torch" type="Sprite" parent="View/Viewport/Items/Visuals"]
+light_mask = 0
+position = Vector2( 48, 0 )
+texture = ExtResource( 4 )
+centered = false
+vframes = 10
+hframes = 8
+frame = 79
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Food" type="Sprite" parent="View/Viewport/Items/Visuals"]
+light_mask = 0
+position = Vector2( 88, 0 )
+texture = ExtResource( 4 )
+centered = false
+vframes = 10
+hframes = 8
+frame = 72
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="Sodas" type="Sprite" parent="View/Viewport/Items/Visuals"]
+light_mask = 0
+position = Vector2( 128, 0 )
+texture = ExtResource( 4 )
+centered = false
+vframes = 10
+hframes = 8
+frame = 64
+__meta__ = {
+"_editor_description_": ""
+}
+
+[node name="MedkitCount" type="Label" parent="View/Viewport/Items"]
+light_mask = 0
+anchor_left = 0.048
+anchor_top = 0.539
+anchor_right = 0.238
+anchor_bottom = 1.0
+margin_left = -0.0640001
+margin_top = -0.625
+margin_right = 0.0159988
+margin_bottom = 2.375
+custom_fonts/font = SubResource( 2 )
+text = "10"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="TorchCount" type="Label" parent="View/Viewport/Items"]
+light_mask = 0
+anchor_left = 0.286
+anchor_top = 0.539
+anchor_right = 0.476
+anchor_bottom = 1.125
+margin_left = -0.0480042
+margin_top = -0.625
+margin_right = 0.0319977
+margin_bottom = -1.125
+custom_fonts/font = SubResource( 2 )
+text = "10"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="FoodCount" type="Label" parent="View/Viewport/Items"]
+light_mask = 0
+anchor_left = 0.524
+anchor_top = 0.539
+anchor_right = 0.714
+anchor_bottom = 1.125
+margin_left = -0.0320053
+margin_top = -0.625
+margin_right = 0.0479889
+margin_bottom = -1.125
+custom_fonts/font = SubResource( 2 )
+text = "10"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="SodasCount" type="Label" parent="View/Viewport/Items"]
+light_mask = 0
+anchor_left = 0.718
+anchor_top = 0.539
+anchor_right = 0.952
+anchor_bottom = 1.125
+margin_left = 7.37599
+margin_top = -0.625
+margin_right = 0.0639954
+margin_bottom = -1.125
+custom_fonts/font = SubResource( 2 )
+text = "10"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
 }
 
 [node name="Visual" type="TextureRect" parent="."]
@@ -66,20 +215,10 @@ margin_bottom = 64.0
 mouse_filter = 2
 mouse_default_cursor_shape = 2
 texture = ExtResource( 2 )
-expand = true
 stretch_mode = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
-
-[node name="Backpack_mouse_detector" type="Area2D" parent="Visual"]
-light_mask = 0
-monitorable = false
-
-[node name="Square" type="CollisionShape2D" parent="Visual/Backpack_mouse_detector"]
-light_mask = 0
-position = Vector2( 32, 32 )
-shape = SubResource( 7 )
 
 [node name="BackpackOpen" type="Panel" parent="."]
 margin_left = 72.0
@@ -87,270 +226,108 @@ margin_top = 8.0
 margin_right = 256.0
 margin_bottom = 56.0
 mouse_filter = 2
-size_flags_horizontal = 0
-size_flags_vertical = 0
-custom_styles/panel = SubResource( 8 )
+mouse_default_cursor_shape = 2
+custom_styles/panel = SubResource( 3 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Help" type="Label" parent="BackpackOpen"]
 light_mask = 0
-margin_top = -21.0
-margin_right = 184.0
-grow_vertical = 0
-custom_fonts/font = SubResource( 6 )
-valign = 2
-autowrap = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Content" type="Control" parent="BackpackOpen"]
-anchor_left = 0.043
-anchor_top = 0.083
-anchor_right = 0.957
-anchor_bottom = 0.917
-margin_left = 0.0879998
-margin_top = 0.0159996
-margin_right = -0.0879822
-margin_bottom = -0.0160065
-rect_min_size = Vector2( 0, 40 )
-rect_clip_content = true
-mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Items" type="Control" parent="BackpackOpen/Content"]
-anchor_top = -0.125
+anchor_top = -0.333
 anchor_right = 1.0
-anchor_bottom = 1.125
-margin_top = 5.0
-margin_bottom = -5.0
-rect_min_size = Vector2( 168, 40 )
-rect_clip_content = true
+margin_top = -0.0159998
+custom_fonts/font = SubResource( 2 )
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Content" type="TextureRect" parent="BackpackOpen"]
+light_mask = 0
+anchor_left = 0.043
+anchor_top = 0.167
+anchor_right = 0.955
+anchor_bottom = 0.833
+margin_left = -0.256001
+margin_top = -0.0160007
+margin_right = -7.056
+margin_bottom = 0.0159988
+rect_min_size = Vector2( 0, 32 )
 mouse_filter = 2
+texture = SubResource( 4 )
+stretch_mode = 3
+flip_v = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Selection" type="Control" parent="BackpackOpen/Content/Items"]
-anchor_left = 0.054
-anchor_right = 0.054
-margin_left = -1.072
-margin_top = 4.0
-margin_right = 30.928
-margin_bottom = 36.0
-mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Circle" type="MeshInstance2D" parent="BackpackOpen/Content/Items/Selection"]
+[node name="ItemsSensors" type="Node2D" parent="BackpackOpen"]
 light_mask = 0
-material = SubResource( 2 )
-position = Vector2( 16, 16 )
-mesh = SubResource( 3 )
-texture = SubResource( 5 )
-__meta__ = {
-"_editor_description_": ""
-}
+position = Vector2( 32, 24 )
 
-[node name="Item1" type="TextureButton" parent="BackpackOpen/Content/Items"]
-margin_left = 8.0
-margin_top = 4.0
-margin_right = 40.0
-margin_bottom = 36.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-action_mode = 0
-enabled_focus_mode = 0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Ankh" type="Sprite" parent="BackpackOpen/Content/Items/Item1"]
+[node name="Item1" type="Area2D" parent="BackpackOpen/ItemsSensors"]
 light_mask = 0
-texture = ExtResource( 4 )
-centered = false
-vframes = 10
-hframes = 10
-frame = 17
 __meta__ = {
-"_editor_description_": ""
+"_edit_group_": true
 }
 
-[node name="AnkhCount" type="Label" parent="BackpackOpen/Content/Items/Item1"]
+[node name="Circle" type="CollisionShape2D" parent="BackpackOpen/ItemsSensors/Item1"]
+shape = SubResource( 5 )
+
+[node name="Item2" type="Area2D" parent="BackpackOpen/ItemsSensors"]
 light_mask = 0
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -16.0
-margin_top = -19.0
-margin_right = 16.0
-margin_bottom = 4.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-custom_fonts/font = SubResource( 6 )
-text = "10"
-align = 1
-valign = 2
+position = Vector2( 40, 0 )
 __meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
+"_edit_group_": true
 }
 
-[node name="Item2" type="TextureButton" parent="BackpackOpen/Content/Items"]
-margin_left = 48.0
-margin_top = 4.0
-margin_right = 80.0
-margin_bottom = 36.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-action_mode = 0
-enabled_focus_mode = 0
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="Circle" type="CollisionShape2D" parent="BackpackOpen/ItemsSensors/Item2"]
+shape = SubResource( 5 )
 
-[node name="Torch" type="Sprite" parent="BackpackOpen/Content/Items/Item2"]
+[node name="Item3" type="Area2D" parent="BackpackOpen/ItemsSensors"]
 light_mask = 0
-texture = ExtResource( 4 )
-centered = false
-vframes = 10
-hframes = 10
-frame = 10
+position = Vector2( 80, 0 )
 __meta__ = {
-"_editor_description_": ""
+"_edit_group_": true
 }
 
-[node name="TorchCount" type="Label" parent="BackpackOpen/Content/Items/Item2"]
+[node name="Circle" type="CollisionShape2D" parent="BackpackOpen/ItemsSensors/Item3"]
+shape = SubResource( 5 )
+
+[node name="Item4" type="Area2D" parent="BackpackOpen/ItemsSensors"]
 light_mask = 0
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -16.0
-margin_top = -19.0
-margin_right = 16.0
-margin_bottom = 4.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-custom_fonts/font = SubResource( 6 )
-text = "10"
-align = 1
-valign = 2
+position = Vector2( 120, 0 )
 __meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
+"_edit_group_": true
 }
 
-[node name="Item3" type="TextureButton" parent="BackpackOpen/Content/Items"]
-margin_left = 88.0
-margin_top = 4.0
-margin_right = 120.0
-margin_bottom = 36.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-action_mode = 0
-enabled_focus_mode = 0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Food" type="Sprite" parent="BackpackOpen/Content/Items/Item3"]
-light_mask = 0
-texture = ExtResource( 4 )
-centered = false
-vframes = 10
-hframes = 10
-frame = 1
-__meta__ = {
-"_editor_description_": ""
-}
-
-[node name="FoodCount" type="Label" parent="BackpackOpen/Content/Items/Item3"]
-light_mask = 0
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -16.0
-margin_top = -19.0
-margin_right = 16.0
-margin_bottom = 4.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-custom_fonts/font = SubResource( 6 )
-text = "10"
-align = 1
-valign = 2
-__meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
-}
-
-[node name="Item4" type="TextureButton" parent="BackpackOpen/Content/Items"]
-margin_left = 128.0
-margin_top = 4.0
-margin_right = 160.0
-margin_bottom = 36.0
-focus_mode = 0
-mouse_default_cursor_shape = 2
-action_mode = 0
-enabled_focus_mode = 0
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="Jar" type="Sprite" parent="BackpackOpen/Content/Items/Item4"]
-light_mask = 0
-texture = ExtResource( 4 )
-centered = false
-vframes = 10
-hframes = 10
-frame = 3
-__meta__ = {
-"_editor_description_": ""
-}
-
-[node name="JarCount" type="Label" parent="BackpackOpen/Content/Items/Item4"]
-light_mask = 0
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-margin_left = -16.0
-margin_top = -19.0
-margin_right = 16.0
-margin_bottom = 4.0
-size_flags_horizontal = 0
-size_flags_vertical = 0
-custom_fonts/font = SubResource( 6 )
-text = "10"
-align = 1
-valign = 2
-__meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
-}
+[node name="Circle" type="CollisionShape2D" parent="BackpackOpen/ItemsSensors/Item4"]
+shape = SubResource( 5 )
 
 [node name="Tween" type="Tween" parent="."]
-playback_process_mode = 0
-[connection signal="input_event" from="Visual/Backpack_mouse_detector" to="." method="backpack_mouse_clicked"]
-[connection signal="mouse_entered" from="Visual/Backpack_mouse_detector" to="." method="open"]
-[connection signal="mouse_entered" from="BackpackOpen/Content/Items/Item1" to="." method="select_item" binds= [ "ANKH" ]]
-[connection signal="mouse_exited" from="BackpackOpen/Content/Items/Item1" to="." method="unselect_item"]
-[connection signal="pressed" from="BackpackOpen/Content/Items/Item1" to="." method="click_item" binds= [ "ANKH" ]]
-[connection signal="mouse_entered" from="BackpackOpen/Content/Items/Item2" to="." method="select_item" binds= [ "TORCH" ]]
-[connection signal="mouse_exited" from="BackpackOpen/Content/Items/Item2" to="." method="unselect_item"]
-[connection signal="pressed" from="BackpackOpen/Content/Items/Item2" to="." method="click_item" binds= [ "TORCH" ]]
-[connection signal="mouse_entered" from="BackpackOpen/Content/Items/Item3" to="." method="select_item" binds= [ "FOOD" ]]
-[connection signal="mouse_exited" from="BackpackOpen/Content/Items/Item3" to="." method="unselect_item"]
-[connection signal="pressed" from="BackpackOpen/Content/Items/Item3" to="." method="click_item" binds= [ "FOOD" ]]
-[connection signal="mouse_entered" from="BackpackOpen/Content/Items/Item4" to="." method="select_item" binds= [ "JAR" ]]
-[connection signal="mouse_exited" from="BackpackOpen/Content/Items/Item4" to="." method="unselect_item"]
-[connection signal="pressed" from="BackpackOpen/Content/Items/Item4" to="." method="click_item" binds= [ "JAR" ]]
+
+[node name="Backpack_mouse_detector" type="Area2D" parent="."]
+light_mask = 0
+monitorable = false
+
+[node name="Square" type="CollisionShape2D" parent="Backpack_mouse_detector"]
+light_mask = 0
+position = Vector2( 32, 32 )
+shape = SubResource( 6 )
+[connection signal="input_event" from="BackpackOpen/ItemsSensors/Item1" to="." method="click_item" binds= [ 1 ]]
+[connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item1" to="." method="show_help_item" binds= [ 1 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item1" to="." method="hide_help_item"]
+[connection signal="input_event" from="BackpackOpen/ItemsSensors/Item2" to="." method="click_item" binds= [ 2 ]]
+[connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item2" to="." method="show_help_item" binds= [ 2 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item2" to="." method="hide_help_item"]
+[connection signal="input_event" from="BackpackOpen/ItemsSensors/Item3" to="." method="click_item" binds= [ 3 ]]
+[connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item3" to="." method="show_help_item" binds= [ 3 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item3" to="." method="hide_help_item"]
+[connection signal="input_event" from="BackpackOpen/ItemsSensors/Item4" to="." method="click_item" binds= [ 4 ]]
+[connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item4" to="." method="show_help_item" binds= [ 4 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item4" to="." method="hide_help_item"]
 [connection signal="tween_all_completed" from="Tween" to="." method="bptween_completed"]
+[connection signal="input_event" from="Backpack_mouse_detector" to="." method="backpack_mouse_clicked"]
+[connection signal="mouse_entered" from="Backpack_mouse_detector" to="." method="backpack_mouse_entered"]

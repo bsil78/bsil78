@@ -1,115 +1,74 @@
-extends "res://Game/BaseScripts/Actor.gd"
+extends Actor
+class_name RunningActor
 
-export(bool) var one_step_on_push:=false
+var pushdir
+
+export(bool) var one_step_only:=false
 export(bool) var always_running:=false
 export(bool) var walk_on_push:=true
 export(String,"Up","Right","Down","Left") var initial_dir:String="Up"
 
-var push_hardness:=10
-var push_reset_timer:Timer=Timer.new()
-var push_effort:=0
-var last_pushdir:=Vector2.UP
-var pushdir:=NONE
-var is_running:=false
-
-export(NodePath) var audio_player_path 
-var rock_sound=preload("res://Game/Assets/Audio/ogg/effects/rock_moving.ogg")
-var audio_player
-
 func _ready():
-	audio_player=get_node(audio_player_path)
 	for dir in GameEnums.DIRS_MAP:
 		if GameEnums.DIRS_MAP[dir]==initial_dir:
-			last_pushdir=dir
+			pushdir=CLASS.stic("Dir2D","from_Vector2",[dir])
 			break
 	if always_running: 
 		speedup()
-	push_reset_timer.name="push_reset_timer"
-	push_reset_timer.one_shot=true
-	push_reset_timer.connect("timeout",self,"reset_push")
-	add_child(push_reset_timer)
 
-func can_be_push_by(who:Node2D)->bool:
-	return who==self or who.is_actor(GameEnums.ACTORS.ANY_PLAYER)
-
-func push_to(who:Node2D,pdir:Vector2)->bool:
-	if !can_be_push_by(who):return false
-	push_reset_timer.stop()
-	if (pushdir!=NONE and pushdir!=pdir):reset_push()
-	push_effort+=1
-	dbgmsg("pushed by %s with effort %s"%[who,push_effort])
-	pushdir=pdir
-	if who!=self and push_effort<push_hardness: 
-		push_reset_timer.start(0.2)
+#who:Actor,pdir:Dir2D
+func push_to(who:Actor,pdir)->bool:
+	CLASS.check(who,"Actor")
+	CLASS.check(pdir,"Dir2D")
+	if was_stopped(grid_pos().step(pdir)): return false
+	if !pushdir.equals(pdir):
+		pushdir=pdir
 		return false
-	if was_stopped(next_pos(pdir)):
-		dbgmsg("pushed by %s but is blocked"%who)
-		return false
-	if who!=self:play_push_sound()
-	on_pushed(who)
+	on_pushed()
 	return true
 	
-func reset_push():
-	dbgmsg("push reset")
-	pushdir=NONE
-	push_effort=0
+#from:GridPos,to:GridPos
+func on_moved(from,to):
+	CLASS.check(from,"GridPos")
+	CLASS.check(to,"GridPos")
+	if one_step_only:
+		idle()
+	elif !pushdir.isNone():	
+		push_to(self,pushdir)
 
-func on_moved(_from,_to):
-	.on_moved(_from,_to)
-	if !can_move: return
-	if last_pushdir!=NONE:
-		if one_step_on_push:
-			last_pushdir=NONE
-			is_running=false
-		else:	
-			push_to(self,last_pushdir)
-	
-func on_moving(from:Vector2,to:Vector2):
-#	if global_position.distance_to(to)<(cell_size-2):
-#		if lvl.has_actor_at(from,self):
-#			var _done=lvl.remove_object_at(from,self) # remove self blocking old cell
-#			if !_done: printerr("Cannot remove %s from game map at %s\n%s" % [name, from, GameFuncs.dump(lvl.objects)])
-	return true
+#from:GridPos,to:GridPos
+func on_moving(from,to):
+	CLASS.check(from,"GridPos")
+	CLASS.check(to,"GridPos")
+	if global_position.distance_to(to.as_Vector2())<(cell_size-2):
+		if GameData.world.level.objects_at(from).has(GameEnums.OBJECT_TYPE.ACTOR):
+			if GameData.world.level.objects_at(from)[GameEnums.OBJECT_TYPE.ACTOR]==self:
+				var _done=GameData.world.level.remove_object_at(from,GameEnums.OBJECT_TYPE.ACTOR) # remove self blocking old cell
+				if !_done: printerr("Cannot remove Actor from game map at %s\n%d" % [from, GameFuncs.dump(GameData.world.level.objects)])
+				
+func on_collision(objects:Dictionary)->bool:
+	var collide=objects.has(GameEnums.OBJECT_TYPE.ACTOR) or objects.has(GameEnums.OBJECT_TYPE.BLOCK)
+	return collide
 
+#from:GridPos,to:GridPos
 func on_move(from,to)->bool:
 	var move_ok=.on_move(from,to)
 	if move_ok:play_move_anim(current_dir)
-	if last_pushdir!=NONE and !walk_on_push: is_running=true
 	return move_ok
 	
-func on_pushed(by):
-	dbgmsg("was pushed by %s !"%by.name)
+func on_pushed():
 	if walk_on_push: speeddown()
-	goto(position,pushdir)
-	last_pushdir=pushdir
-	reset_push()
+	goto(grid_pos(),pushdir)
 
-func play_push_sound():
-	if audio_player:
-		audio_player.play()
-
-
-func play_move_anim(dir:Vector2):
-	if !_animator: 
-		dbgmsg("should play move anim for %s but has no animator !"%dir)
-		return
-	match dir:
-		Vector2.RIGHT:
-			_animator.trigger_anim("GoingRight")
-		Vector2.UP:
-			_animator.trigger_anim("GoingUp")
-		Vector2.DOWN:
-			_animator.trigger_anim("GoingDown")
-		Vector2.LEFT:
-			_animator.trigger_anim("GoingLeft")
-		_:
-			printerr("Cannot manage dir {}".format([current_dir],"{}"))
+#dir:Dir2D
+func play_move_anim(dir,forced:bool=true):
+	CLASS.check(dir,"Dir2D")
+	if dir.isNone(): 
+		print_debug("Cannot manage dir")
+	else:
+		var anim_to_play="Going%s"%dir
+		_animator.trigger_anim(anim_to_play,forced)
+				
 
 func is_actor(actor:int=-1):
 	return ( .is_actor(actor) or GameEnums.ACTORS.ANY_RUNNER==actor )
-
-func behaviors()->Array:
-	var bhvs=.behaviors()
-	bhvs.erase(GameEnums.BEHAVIORS.HIT)
-	bhvs.append(GameEnums.BEHAVIORS.PUSH)
-	return bhvs

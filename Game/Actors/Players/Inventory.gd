@@ -1,94 +1,69 @@
 extends Node2D
 class_name Inventory
-
-#signals
-signal inventory_changed
 	
-var jar:=0
+var sodas:=0
 var food:=0
-var ankh:=0
+var medkit:=0
 var torch:=1
 var god_signs:=0
 var maps:={}
 
+signal inventory_changed
+
 export(AudioStream) var backpack
 
-func store(item:int,item_node:Node2D,backpack_play_sound:bool=true)->bool:
-	var taken:=false
-	
+func store(item:int,item_node:Node2D):
+	backpack_sound()
 	match item:
 		GameEnums.ITEMS.GOD_SIGN_GOOD:
 			god_signs+=1
-			update()
-			taken= true
-		GameEnums.ITEMS.JAR:
-			jar+=1
-			update()
-			taken= true
+			emit_signal("inventory_changed")
+			return
+		GameEnums.ITEMS.SODA:
+			sodas+=1
+			emit_signal("inventory_changed")
+			return
 		GameEnums.ITEMS.FOOD:
 			food+=1
-			update()
-			taken= true
-		GameEnums.ITEMS.ANKH:
-			ankh+=1
-			update()
-			taken= true
+			emit_signal("inventory_changed")
+			return
+		GameEnums.ITEMS.MEDKIT:
+			medkit+=1
+			emit_signal("inventory_changed")
+			return
 		GameEnums.ITEMS.TORCH:
 			torch+=1
-			update()
-			taken= true
+			emit_signal("inventory_changed")
+			return
 		GameEnums.ITEMS.MAP:
 			if !maps.has(GameData.current_level):maps[GameData.current_level]=[]
 			maps[GameData.current_level].push_back(item_node)
-			update()
-			taken= true
+			emit_signal("inventory_changed")
+			return
 		_:
 			printerr("Unknown item %s of name %s" % [item,item_node.name])
-			taken= false
-	if taken and backpack_play_sound:backpack_sound()
-	return taken
-
-func duplicate(flags:int=6):
-	var new_inv=.duplicate(DUPLICATE_GROUPS+DUPLICATE_SCRIPTS)
-	new_inv.jar=jar
-	new_inv.ankh=ankh
-	new_inv.food=food
-	new_inv.torch=torch
-	new_inv.god_signs=god_signs
-	new_inv.maps=maps.duplicate(true)
-	return new_inv
-
-
-
-func reset():
-	jar=0
-	food=0
-	ankh=0
-	torch=1
-	god_signs=0
-	maps={}
-				
+			
 func use(item:int):
 	match item:
-		GameEnums.ITEMS.JAR:
-			if jar>0:
-				jar-=1
-				update()
+		GameEnums.ITEMS.SODA:
+			if sodas>0:
+				sodas-=1
+				emit_signal("inventory_changed")
 				return true
 		GameEnums.ITEMS.FOOD:
 			if food>0:
 				food-=1
-				update()
+				emit_signal("inventory_changed")
 				return true
-		GameEnums.ITEMS.ANKH:
-			if ankh>0:
-				ankh-=1
-				update()
+		GameEnums.ITEMS.MEDKIT:
+			if medkit>0:
+				medkit-=1
+				emit_signal("inventory_changed")
 				return true
 		GameEnums.ITEMS.TORCH:
 			if torch>0:
 				torch-=1
-				update()
+				emit_signal("inventory_changed")
 				return true
 		GameEnums.ITEMS.MAP:
 			return false
@@ -97,8 +72,6 @@ func use(item:int):
 	
 	return false
 
-func update():
-	emit_signal("inventory_changed")
 		
 func backpack_sound():
-	if backpack:Utils.play_sound($SoundsEffects,backpack)
+	Utils.play_sound($SoundsEffects,backpack,-10)

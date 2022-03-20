@@ -1,9 +1,10 @@
-extends "res://Game/BaseScripts/Pickable.gd"
+extends Pickable
+class_name GodSignBad
 
-func pickup(who:Node2D)->bool:
-	if .pickup(who):
+func pickup(who)->bool:
+	CLASS.check(who,"Actor")
+	if who.is_actor(GameEnums.ACTORS.ANY_PLAYER):
 		who.lose_torch()
-		Utils.play_sound($BadGodSignTakenSound)
 		remove_from_world()
 		return true
 	else:

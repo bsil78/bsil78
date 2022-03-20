@@ -1,8 +1,7 @@
-[gd_scene load_steps=17 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Game/GameScenes/World/World.gd" type="Script" id=1]
-[ext_resource path="res://Game/GUIComponents/GameControls/GameControls.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Game/GUIComponents/PauseMenu/PauseMenu.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Game/GUIComponents/InputButtons/InputButtons.tscn" type="PackedScene" id=2]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits.png" type="Texture" id=4]
 [ext_resource path="res://Game/Assets/Images/wind-rose-letters.png" type="Texture" id=5]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits-LightOff.png" type="Texture" id=6]
@@ -11,154 +10,61 @@
 [ext_resource path="res://Game/Assets/Images/fow_smallhole.png" type="Texture" id=10]
 [ext_resource path="res://Game/GameScenes/World/MaskLayer.gd" type="Script" id=11]
 
-[sub_resource type="GDScript" id=1]
-script/source = "extends Node2D
-
-var bg:ColorRect
-
-func _ready() -> void:
-	bg=get_viewport().find_node(\"Background\",true,false)
-	bg.connect(\"resized\",self,\"scale_upon_bg\")
-	
-func scale_upon_bg():
-	var ratio_vect=bg.rect_size/Vector2(640,640)
-	ratio_vect=Vector2(max(1,ratio_vect.x),max(1,ratio_vect.y))
-	scale=ratio_vect
-	print(\"%s has scale : %s\"%[name,scale])
-"
-
-[sub_resource type="GDScript" id=2]
-script/source = "extends Node2D
-
-var bg:ColorRect
-
-func _ready() -> void:
-	bg=get_viewport().find_node(\"Background\",true,false)
-	bg.connect(\"resized\",self,\"scale_upon_bg\")
-	
-func scale_upon_bg():
-	var ratio_vect=bg.rect_size/Vector2(640,640)
-	ratio_vect=Vector2(max(1,ratio_vect.x),max(1,ratio_vect.y))
-	scale=ratio_vect
-	print(\"%s has scale : %s\"%[name,scale])
-"
-
-[sub_resource type="GDScript" id=3]
-script/source = "extends Node2D
-
-var bg:ColorRect
-
-func _ready() -> void:
-	bg=get_viewport().find_node(\"Background\",true,false)
-	bg.connect(\"resized\",self,\"scale_upon_bg\")
-	
-func scale_upon_bg():
-	var ratio_vect=bg.rect_size/Vector2(640,640)
-	ratio_vect=Vector2(max(1,ratio_vect.x),max(1,ratio_vect.y))
-	scale=ratio_vect
-	print(\"%s has scale : %s\"%[name,scale])
-
-"
-
-[sub_resource type="Shader" id=4]
+[sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
 render_mode unshaded;
 
 void fragment(){
 	vec4 color=texture(TEXTURE, UV);
-	float alpha=1.0-(color.r+color.g+color.b)/3.0;
+	float alpha=1.0-((color.r+color.g+color.b)/3.0);
 	color.a=alpha;
 	COLOR=color;
 	
 }"
 
-[sub_resource type="ShaderMaterial" id=5]
-shader = SubResource( 4 )
+[sub_resource type="ShaderMaterial" id=2]
+shader = SubResource( 1 )
 
-[sub_resource type="ViewportTexture" id=6]
+[sub_resource type="ViewportTexture" id=3]
 viewport_path = NodePath("MaskLayer/FogOfWar/Viewport")
 
-[node name="WorldContainer" type="Control"]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="World" type="Node2D"]
+process_priority = 1
+script = ExtResource( 1 )
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-mouse_filter = 2
+margin_right = 640.0
+margin_bottom = 640.0
 color = Color( 0, 0, 0, 1 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="World" type="Control" parent="."]
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
-script = ExtResource( 1 )
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
-[node name="LevelPlaceholder" type="Node2D" parent="World"]
-script = SubResource( 1 )
+[node name="LevelPlaceholder" type="Node2D" parent="."]
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="PlayersPlaceholder" type="Node2D" parent="World"]
-script = SubResource( 2 )
-
-[node name="EffectsLayer" type="Node2D" parent="World"]
-light_mask = 0
-position = Vector2( -1, 0 )
-script = SubResource( 3 )
-
-[node name="Camera2D" type="Camera2D" parent="World"]
-visible = false
+[node name="PlayersPlaceholder" type="Node2D" parent="."]
 
 [node name="MaskLayer" type="CanvasLayer" parent="."]
-layer = 124
 script = ExtResource( 11 )
 
-[node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
-material = SubResource( 5 )
-anchor_right = 1.0
-anchor_bottom = 1.0
-margin_left = 96.0
-margin_top = 96.0
-margin_right = -96.0
-margin_bottom = -128.0
-mouse_filter = 2
-texture = SubResource( 6 )
-expand = true
-stretch_mode = 1
-flip_v = true
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="FogOfWar" type="ViewportContainer" parent="MaskLayer"]
-margin_left = -1888.0
-margin_top = 96.0
-margin_right = -1440.0
-margin_bottom = 544.0
-grow_horizontal = 0
-grow_vertical = 0
-rect_min_size = Vector2( 448, 448 )
-rect_clip_content = true
+margin_left = -1088.0
+margin_top = -128.0
+margin_right = -192.0
+margin_bottom = 768.0
+rect_min_size = Vector2( 896, 896 )
 mouse_filter = 2
-stretch = true
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="Viewport" type="Viewport" parent="MaskLayer/FogOfWar"]
-size = Vector2( 448, 448 )
+size = Vector2( 896, 896 )
 transparent_bg = true
 handle_input_locally = false
 hdr = false
@@ -177,14 +83,13 @@ __meta__ = {
 
 [node name="Active_FoW" type="Node2D" parent="MaskLayer/FogOfWar/Viewport"]
 light_mask = 0
-position = Vector2( 24, 24 )
+position = Vector2( 248, 248 )
 
 [node name="Large_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Active_FoW"]
 light_mask = 0
 margin_right = 256.0
 margin_bottom = 256.0
 texture = ExtResource( 8 )
-stretch_mode = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -202,9 +107,10 @@ __meta__ = {
 [node name="Inactive_FoW" type="Node2D" parent="MaskLayer/FogOfWar/Viewport"]
 visible = false
 light_mask = 0
-position = Vector2( 24, 24 )
+position = Vector2( 248, 248 )
 
 [node name="Large_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Inactive_FoW"]
+visible = false
 light_mask = 0
 margin_right = 256.0
 margin_bottom = 256.0
@@ -214,46 +120,39 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="FixedMask" type="TextureRect" parent="MaskLayer"]
-visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
+[node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
+light_mask = 0
+material = SubResource( 2 )
+margin_left = -128.0
+margin_top = -128.0
+margin_right = 768.0
+margin_bottom = 768.0
 mouse_filter = 2
+texture = SubResource( 3 )
+stretch_mode = 3
+flip_v = true
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FixedMask" type="Sprite" parent="MaskLayer"]
+visible = false
+position = Vector2( 320, 320.56 )
 texture = ExtResource( 4 )
-expand = true
-stretch_mode = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="FixedMask_LightOff" type="TextureRect" parent="MaskLayer"]
+[node name="FixedMask_LightOff" type="Sprite" parent="MaskLayer"]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
+position = Vector2( 320, 320.56 )
 texture = ExtResource( 6 )
-expand = true
-stretch_mode = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="Letters" type="TextureRect" parent="MaskLayer"]
+[node name="Letters" type="Sprite" parent="MaskLayer"]
 visible = false
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
+position = Vector2( 320, 320.56 )
 texture = ExtResource( 5 )
-expand = true
-stretch_mode = 1
-__meta__ = {
-"_edit_use_anchors_": false
-}
 
-[node name="GameControls" parent="." instance=ExtResource( 2 )]
-layer = 125
+[node name="InputButtons" parent="." instance=ExtResource( 2 )]
 
 [node name="PlayerIndicators" parent="." instance=ExtResource( 7 )]
 
-[node name="PauseMenu" parent="." instance=ExtResource( 3 )]
-layer = 127
+[node name="Camera2D" type="Camera2D" parent="."]
+visible = false

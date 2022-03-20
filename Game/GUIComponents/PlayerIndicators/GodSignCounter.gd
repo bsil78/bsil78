@@ -1,23 +1,10 @@
 extends TextureRect
 
-func _ready() -> void:
-	$Count.text=""
-
-func update_indicator(world=null):
-	var level
-	if world==null:
-		if !GameData.world:
-			$Count.text=""
-			return
-		else:
-			level=GameData.world.level
+func update():
+	if ( is_instance_valid(GameData.current_player) 
+		and is_instance_valid(GameData.world) 
+		and is_instance_valid(GameData.world.level) ):
+		$Count.text="%s/%s" % [ GameData.current_player.inventory().god_signs,
+								GameData.world.level.remaining_good_godsigns() ]
 	else:
-		level=world.level
-	if level:
-		$Count.text="%s +[%s]" % [ 	level.remaining_good_godsigns_items(),
-									level.remaining_good_godsigns_blocks() ]
-	else:
-		$Count.text=""	
-
-
-	
+		$Count.text="?/?"

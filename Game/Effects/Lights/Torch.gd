@@ -1,58 +1,73 @@
 tool
 extends Node2D
 
+var torch_timer:Timer
 export(bool) var flamming:=false setget set_flamming
 export(int) var TORCH_DELAY_SEC:=120
 var max_delay:float=TORCH_DELAY_SEC
 
 func _ready():
-	shutdown(false)
+	if !flamming:
+		shutdown(torch_timer)
 
 func set_flamming(value:bool):
 	if is_instance_valid($Light):
 		if value:
 			flamme_it()
 		else:
-			shutdown()
+			shutdown(torch_timer)
 
 func is_flammed()->bool:
 	return flamming
 
 func remaing_time()->float:
-	return $Timer.time_left
+	if torch_timer:
+		return torch_timer.time_left
+	else:
+		return 0.0
+
+func max_delay()->float:
+	return max_delay
 
 func queue_free():
-	$Timer.stop()
-	shutdown()
+	shutdown(torch_timer)
 	.queue_free()
 
 func freeze():
-	$Timer.paused=true
+	if torch_timer:
+		torch_timer.stop()
 
 func unfreeze():
-	$Timer.paused=false
+	if torch_timer:
+		torch_timer.start()
 
-func shutdown(withsound:=true):
-	flamming=false
-	hide()
-	$Light.hide()		
-	$Flammes.emitting=false
-	$Timer.stop()
-	if withsound:$SoundTorchOff.play()
+func shutdown(timer:Timer=null):
+	var aTimer:Timer=timer
+	if aTimer==null:aTimer=torch_timer
+	if(torch_timer==aTimer):
+		flamming=false
+		visible=false
+		$Light.visible=false		
+		$Flammes.emitting=false
+		torch_timer=null
+	if aTimer:
+		aTimer.stop()
+		aTimer.queue_free()	
 
 func flamme_it():
-	if !$Timer.is_stopped():
+	if torch_timer: 
 		DEBUG.error("Torch already flamming !")
 		return
-	$SoundTorchOn.play()
-	$Timer.paused=false
 	flamming=true
-	show()
-	$Light.show()	
+	visible=true
+	$Light.visible=true		
 	$Flammes.emitting=true
 	var delay=TORCH_DELAY_SEC
-	max_delay=delay*randfpct(20)
-	$Timer.start(max_delay)
+	max_delay*=randfpct(20)
+	torch_timer=Timer.new()
+	add_child(torch_timer)
+	torch_timer.connect("timeout",self,"shutdown",[torch_timer])
+	torch_timer.start(max_delay)
 
 func randfpct(pct:int=50)->float:
 	var marge=(pct/2.0)/100.0
@@ -68,9 +83,9 @@ func flip(flip:bool):
 	$Flammes.position.x=abs($Flammes.position.x)*posfact
 
 func visuals_hidden():
-	$Wand.hide()
-	$Flammes.hide()
+	$Wand.visible=false
+	$Flammes.visible=false
 	
 func visuals_visible():
-	$Wand.show()
-	$Flammes.show()
+	$Wand.visible=true
+	$Flammes.visible=true

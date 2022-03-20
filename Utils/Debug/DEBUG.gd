@@ -5,7 +5,6 @@ export(bool) var active
 export(bool) var console
 export(bool) var panel
 export(bool) var objects
-export(bool) var debuglevel
 
 var forobj:Node2D
 

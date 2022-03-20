@@ -31,6 +31,6 @@ func change_scene(scene:String):
 	var err=get_tree().change_scene_to(pckscn)
 	if err!=OK:
 		printerr("Error while changing scene to "+scene)
-		Utils.quit_from(self,-1)
+		Utils.quit(-1)
 
 	
