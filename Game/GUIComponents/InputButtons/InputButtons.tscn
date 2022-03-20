@@ -183,5 +183,4 @@ text = "Run"
 __meta__ = {
 "_edit_use_anchors_": false
 }
-[connection signal="gui_input" from="Run" to="." method="_on_Run_gui_input"]
 [connection signal="toggled" from="Run" to="." method="run_toggled"]

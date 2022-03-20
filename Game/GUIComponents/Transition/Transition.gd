@@ -1,9 +1,9 @@
 extends CanvasLayer
 
-
+const menu_scene:="res://Game/GUIComponents/Menu/Menu.tscn"
+const world_scene:="res://Game/GameScenes/World/World.tscn"
 const gameOverPattern := "Vous êtes mort\n%s\naprès %s jour%s."
 var fading_in := true
-var changing_scene := false
 var waiting_fading_in := false
 
 onready var text=$Canvas/Center/Text
@@ -23,21 +23,17 @@ func _ready():
 			text.text_to_use = gameOverPattern % ["de blessures",GameData.current_level, pluralDays]
 	text.center_text()
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+	change_scene()
 
-func _process(_delta):
-	if !changing_scene:
-		changing_scene=true
-		change_scene()
-		
 func change_scene():
-	if GameData.current_level==1 or GameData.transition_state==GameEnums.TRANSITION_STATUS.WIN_GAME:
-		Utils.timer(GameData.long_transition_delay).connect("timeout",self,"do_transition")
-	else:
-		Utils.timer(GameData.short_transition_delay).connect("timeout",self,"do_transition")
-
+	var delay:=GameData.short_transition_delay
+	if (GameData.current_level==1 
+		or GameData.transition_state==GameEnums.TRANSITION_STATUS.WIN_GAME):
+			delay=GameData.long_transition_delay
+	Utils.timer(delay).connect("timeout",self,"do_transition")
+	
 func do_transition():
-	if GameData.transition_state==GameEnums.TRANSITION_STATUS.LEVEL_UP:
-		CommonUI.fade_transition_scene("res://Game/GameScenes/World/World.tscn")
-	else:
-		CommonUI.fade_transition_scene("res://Game/GUIComponents/Menu/Menu.tscn")
+	var next_scene=menu_scene
+	if GameData.transition_state==GameEnums.TRANSITION_STATUS.LEVEL_UP: next_scene=world_scene
+	CommonUI.fade_transition_scene(next_scene)
 

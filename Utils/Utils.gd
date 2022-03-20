@@ -1,6 +1,20 @@
 extends Node
 
 
+func pressed(event,action):
+	if not event is InputEventKey: return
+	if event.is_action_pressed(action):
+		DEBUG.push("Pressed "+event.as_text())
+		return true
+	return false
+	
+func released(event,action):
+	if not event is InputEventKey: return
+	if event.is_action_released(action):
+		DEBUG.push("Released "+event.as_text())
+		return true
+	return false	
+
 func quit(exit_code:int=0):
 	get_tree().quit(exit_code)
 
@@ -17,9 +31,7 @@ func chance(percent:int)->bool:
 	var roll = randi()  % 101
 	return roll<percent
 
-func randfpct(pct:int):
-	var marge=(pct/2.0)/100.0
-	return ((1.0-marge)+(randf()/(100/pct)))
+
 
 func timer(var delay:float)->SceneTreeTimer:
 	return get_tree().create_timer(delay)
@@ -49,8 +61,7 @@ func play_effect_once(effect:PackedScene,effect_node:Node2D):
 		newEffect.queue_free()
 	
 		
-func choose_sound_in_anim(animPlayer:AnimationPlayer,anim:String,tracks:Dictionary):
-	var tracks_names=tracks.keys()
+func rand_animation_track(animPlayer:AnimationPlayer,anim:String,tracks:Dictionary):
 	var chosen:String
 	var itrack:int
 	for key in tracks:
@@ -59,6 +70,7 @@ func choose_sound_in_anim(animPlayer:AnimationPlayer,anim:String,tracks:Dictiona
 				chosen=key
 				itrack=tracks[key][0]
 				break
+		# warning-ignore:narrowing_conversion
 		elif Utils.chance(100/len(tracks)):
 			chosen=key
 			itrack=tracks[key]

@@ -1,0 +1,90 @@
+[gd_scene load_steps=14 format=2]
+
+[ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=1]
+[ext_resource path="res://Game/Effects/Lights/FlammesLight.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Game/Effects/Lights/Torch.gd" type="Script" id=3]
+[ext_resource path="res://Game/Assets/Images/big_light.png" type="Texture" id=5]
+
+[sub_resource type="Gradient" id=1]
+offsets = PoolRealArray( 0.0633484, 0.174208, 0.256356, 0.317797, 0.408898, 0.491525, 0.650424 )
+colors = PoolColorArray( 1, 1, 1, 1, 1, 0.46875, 0, 1, 1, 0, 0, 0.670588, 1, 0.0313726, 0, 0.654902, 0.04, 0, 0, 1, 0.34, 0.103594, 0, 0.611765, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=2]
+gradient = SubResource( 1 )
+
+[sub_resource type="Curve" id=3]
+max_value = 100.0
+_data = [ Vector2( 0, 1 ), 0.0, 0.0, 0, 0, Vector2( 1, 1 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=4]
+curve = SubResource( 3 )
+
+[sub_resource type="Curve" id=5]
+min_value = -20.0
+max_value = 20.0
+_data = [ Vector2( 0.0282828, 0.727272 ), 0.0, 0.0, 0, 0, Vector2( 0.0343434, 20 ), 0.0, 0.0, 0, 1, Vector2( 0.0808081, 20 ), 0.0, -15.4011, 1, 0, Vector2( 0.212121, -0.727272 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=6]
+curve = SubResource( 5 )
+
+[sub_resource type="Curve" id=7]
+_data = [ Vector2( 0.0802348, 0.390909 ), 0.251106, 1.99091, 1, 0, Vector2( 0.146771, 0.690909 ), -0.185537, -0.185537, 0, 0, Vector2( 0.322896, 0.290909 ), -2.67429, -2.67429, 0, 0, Vector2( 0.573385, 0.3 ), -2.26608, -2.26608, 0, 0, Vector2( 0.997773, 0.0090909 ), -0.68548, 0.0, 1, 0 ]
+
+[sub_resource type="CurveTexture" id=8]
+curve = SubResource( 7 )
+
+[sub_resource type="ParticlesMaterial" id=9]
+lifetime_randomness = 0.15
+emission_shape = 2
+emission_box_extents = Vector3( 2, 1, 1 )
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 5.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 0.1
+angular_velocity = 50.0
+angular_velocity_random = 1.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel_curve = SubResource( 6 )
+damping_curve = SubResource( 4 )
+scale = 4.0
+scale_random = 0.5
+scale_curve = SubResource( 8 )
+color_ramp = SubResource( 2 )
+
+[node name="Torch" type="Node2D"]
+visible = false
+script = ExtResource( 3 )
+
+[node name="Light" type="Node2D" parent="."]
+visible = false
+position = Vector2( -15, -4 )
+
+[node name="FlammesLight" parent="Light" instance=ExtResource( 2 )]
+texture = ExtResource( 5 )
+range_item_cull_mask = 7
+
+[node name="Wand" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 8
+frame = 18
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="Flammes" type="Particles2D" parent="."]
+light_mask = 0
+position = Vector2( 5.59044, -2.69877 )
+scale = Vector2( 1.5, 2 )
+emitting = false
+amount = 200
+lifetime = 4.0
+randomness = 0.16
+fixed_fps = 60
+visibility_rect = Rect2( -10, -32, 20, 40 )
+process_material = SubResource( 9 )
+__meta__ = {
+"_edit_lock_": true
+}

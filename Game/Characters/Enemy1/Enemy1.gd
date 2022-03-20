@@ -53,7 +53,7 @@ func _process(_delta):
 	else:
 		if next_dir!=NONE and Utils.chance(90):return
 		if current_dir!=NONE and Utils.chance(90):  return
-		if Utils.chance(50):think_dir()
+		if Utils.chance(50):think_of_dir()
 	
 func manage_sound_volume():
 	if GameData.current_player and global_position:
@@ -66,7 +66,7 @@ func manage_sound_volume():
 		$Steps.volume_db=volume_db-10
 		$Voice.volume_db=volume_db
 
-func on_wall_collision(wall_pos:Vector2,collider:Node2D)->bool:
+func on_wall_collision(_wall_pos:Vector2,_collider:Node2D)->bool:
 	think_dir=NONE
 	return true
 
@@ -99,7 +99,7 @@ func on_collision(others:Dictionary)->bool:
 func set_attack(value:bool):
 	attack=value
 	
-func think_dir():
+func think_of_dir():
 	thinking=true
 	yield(Utils.timer(0.1),"timeout")
 	var all_dirs_and_idle=[Vector2.LEFT,Vector2.RIGHT,Vector2.UP,Vector2.DOWN,Vector2.ZERO]

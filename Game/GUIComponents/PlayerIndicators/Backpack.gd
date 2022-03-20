@@ -1,134 +1,140 @@
-extends Panel
+extends Node2D
 
-var selected_item:String
+var _bptween:Tween
+var selected_item:int
+var _bp_open:Panel
+var _bpviewport:Viewport
+var _bpview:ViewportContainer
+var _bp_open_content:TextureRect
+var _bphelp:Label
+var _labels:={}
+var is_open:=false
+
+enum ITEMS { NONE=-1,MEDKIT=1,TORCH,FOOD,SODA }
+
+var help_text:Dictionary={ ITEMS.MEDKIT: 
+									{ 
+									true: "Il faut peut-être se soigner ? [M]/[1]", 
+									false:"Pas de medkit !"
+									},
+							ITEMS.TORCH:
+									{
+										true:"On n'aime pas être dans le noir ? [T]/[2]",
+										false:"Pas de torche !"
+									},
+							ITEMS.FOOD:
+									{
+										true:"La faim est proche ? [E]/[3]",
+										false:"Pas de repas !"
+									},
+							ITEMS.SODA:
+									{
+										true:"On s'en jette un petit dans le gosier ? [D]/[4]",
+										false:"Pas de boisson !"
+									}	
+									
+						}
+
 
 func _ready():
-	$Backpack_opened.rect_size=Vector2(0,48)
-	$Backpack_opened.visible=false
-	$ViewportContainer/Viewport.size=Vector2(1,64)
-	$ViewportContainer.visible=false
-
+	_bptween=$Tween
+	_bphelp=$BackpackOpen/Help
+	_bp_open=$BackpackOpen
+	_bp_open.rect_size=Vector2(0,48)
+	_bp_open.visible=false
+	_bp_open.get_node("ItemsSensors").visible=false
+	_bpviewport=$View/Viewport
+	_bpview=$View
+	_bpviewport.size=Vector2(1,64)
+	_bpview.visible=false
+	_labels[ITEMS.MEDKIT]=_bpviewport.get_node("Items/MedkitCount")
+	_labels[ITEMS.TORCH]=_bpviewport.get_node("Items/TorchCount")
+	_labels[ITEMS.FOOD]=_bpviewport.get_node("Items/FoodCount")
+	_labels[ITEMS.SODA]=_bpviewport.get_node("Items/SodasCount")
 	
 func _process(_delta):
 	if GameData.current_player and is_instance_valid(self):
-		$ViewportContainer/Viewport/ColorRect/Control/BackPack_Content/MedkitCount.text=str(GameData.current_player.inventory.medkit)
-		$ViewportContainer/Viewport/ColorRect/Control/BackPack_Content/TorchCount.text=str(GameData.current_player.inventory.torch)
-		$ViewportContainer/Viewport/ColorRect/Control/BackPack_Content/FoodCount.text=str(GameData.current_player.inventory.food)
-		$ViewportContainer/Viewport/ColorRect/Control/BackPack_Content/SodasCount.text=str(GameData.current_player.inventory.sodas)
+		for item in range(1,5):
+			_labels[item].text=str(player_item_count(item))
 	
 	if Input.is_action_just_pressed("ui_inventory"):
-		if $Backpack_opened.visible:
+		if _bp_open.visible:
 			close()
 		else:
 			open()
 			
 	for i in range(1,5):
-		var action:="ui_use_item{}".format({0:i},"{}")
+		var action:="ui_use_item{}".format([i],"{}")
 		if Input.is_action_just_pressed(action):use_item(i)
 
 	
 func open():
-	if $Backpack_opened.visible or $Tween.is_active(): return
-	$Tween.remove_all()
-	$Tween.interpolate_property($Backpack_opened,"rect_size",Vector2(0,48),Vector2(184,48),0.5,Tween.TRANS_SINE)
-	$Tween.interpolate_property($ViewportContainer/Viewport,"size",Vector2(0,32),Vector2(168,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT,0.01)
-	$Backpack_opened.visible=true
-	$ViewportContainer.visible=true
-	$Tween.start()
+	if _bptween.is_active() or is_open: return
+	is_open=true
+	_bptween.remove_all()
+	_bptween.interpolate_property(_bp_open,"rect_size",Vector2(0,48),Vector2(184,48),0.5,Tween.TRANS_SINE)
+	_bptween.interpolate_property(_bpviewport,"size",Vector2(0,32),Vector2(168,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT,0.01)
+	_bp_open.visible=true
+	_bpview.visible=true
+	_bptween.start()
+	
 
 func close():
-	if not $Backpack_opened.visible or $Tween.is_active(): return
-	$Tween.remove_all()
-	$Tween.interpolate_property($Backpack_opened,"rect_size",Vector2(184,48),Vector2(0,48),0.5,Tween.TRANS_SINE,0.01)
-	$Tween.interpolate_property($ViewportContainer/Viewport,"size",Vector2(168,32),Vector2(0,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT)
-	$Tween.start()
+	if _bptween.is_active() or !is_open: return
+	is_open=false
+	hide_help_item()
+	_bp_open.get_node("ItemsSensors").visible=false
+	_bptween.remove_all()
+	_bptween.interpolate_property(_bp_open,"rect_size",Vector2(184,48),Vector2(0,48),0.5,Tween.TRANS_SINE,0.01)
+	_bptween.interpolate_property(_bpviewport,"size",Vector2(168,32),Vector2(0,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT)
+	_bptween.start()
 
-func _on_mouse_entered():
+
+func backpack_mouse_entered():
 	open()
 
+func backpack_mouse_clicked(_viewport, event:InputEventMouse, _shape_idx):
+	if event.button_mask&BUTTON_LEFT:close()
 
-func _on_Backpack_mouse_detector_input_event(viewport, event:InputEventMouse, shape_idx):
-	if event.button_mask&BUTTON_LEFT:
-		close()
-
-func _on_Tween_tween_all_completed():
-	if $Backpack_opened.rect_size<Vector2(50,48):
-		$Backpack_opened.visible=false
-		$ViewportContainer.visible=false
+func bptween_completed():
+	if !is_open:
+		_bp_open.visible=false
+		_bpview.visible=false
 	else:
-		$Backpack_opened.rect_size=Vector2(184,48)
-		$ViewportContainer/Viewport.size=Vector2(168,32)
+		_bp_open.rect_size=Vector2(184,48)
+		_bpviewport.size=Vector2(168,32)
+		_bp_open.get_node("ItemsSensors").visible=true
 
 
+func hide_help_item():
+	_bphelp.text=""
+	selected_item=ITEMS.NONE
 
-func _on_Item1_mouse_entered():
-	if GameData.current_player and GameData.current_player.inventory.medkit>0:
-		$Backpack_opened/Help.text="Il faut peut-être se soigner ? [M]/[1]"
-	else:
-		$Backpack_opened/Help.text="Pas de medkit !"
-	selected_item="Medkit"
+func click_item(_viewport, event:InputEventMouse, _shape_idx,item):
+	if event.button_mask&BUTTON_LEFT:use_item(item)
 
-func _on_Item1_mouse_exited():
-	$Backpack_opened/Help.text=""
-	selected_item=""
-
-func _on_Item2_mouse_entered():
-	if GameData.current_player and GameData.current_player.inventory.torch>0:
-		$Backpack_opened/Help.text="On n'aime pas être dans le noir ? [T]/[2]"
-	else:
-		$Backpack_opened/Help.text="Pas de torche !"
-	selected_item="Torch"
-
-func _on_Item2_mouse_exited():
-	$Backpack_opened/Help.text=""
-	selected_item=""
-	
-func _on_Item3_mouse_entered():
-	if GameData.current_player and GameData.current_player.inventory.food>0:
-		$Backpack_opened/Help.text="La faim est proche ? [E]/[3]"
-	else:
-		$Backpack_opened/Help.text="Pas de repas !"
-	selected_item="Food"
-
-func _on_Item3_mouse_exited():
-	$Backpack_opened/Help.text=""
-	selected_item=""
-	
-func _on_Item4_mouse_entered():
-	if GameData.current_player and GameData.current_player.inventory.food>0:
-		$Backpack_opened/Help.text="On s'en jette un petit dans le gosier ? [D]/[4]"
-	else:
-		$Backpack_opened/Help.text="Pas de boisson !"
-	selected_item="Soda"
-
-func _on_Item4_mouse_exited():
-	$Backpack_opened/Help.text=""
-	selected_item=""
-
-
-func use_item(index:int):
-	match index:
-		1:GameData.current_player.use_medkit()
-		2:GameData.current_player.use_torch()
-		3:GameData.current_player.consume_food()
-		4:GameData.current_player.consume_soda()
+func use_item(item:int):
+	if GameData.current_player:
+		match item:
+			ITEMS.MEDKIT:GameData.current_player.use_medkit()
+			ITEMS.TORCH:GameData.current_player.use_torch()
+			ITEMS.FOOD:GameData.current_player.consume_food()
+			ITEMS.SODA:GameData.current_player.consume_soda()
 				
-func _on_Item1_input_event(viewport, event:InputEventMouse, shape_idx):
-	if GameData.current_player and event.button_mask&BUTTON_LEFT:
-			use_item(1)
 
+func show_help_item(item):
+	if GameData.current_player and player_item_count(item)>0:
+		_bphelp.text=help_text[item][true]
+	else:
+		_bphelp.text=help_text[item][false]
+	selected_item=item
 
-func _on_Item2_input_event(viewport, event:InputEventMouse, shape_idx):
-	if GameData.current_player and event.button_mask&BUTTON_LEFT:
-			use_item(2)
-
-
-func _on_Item3_input_event(viewport, event:InputEventMouse, shape_idx):
-	if GameData.current_player and event.button_mask&BUTTON_LEFT:
-			use_item(3)
-			
-func _on_Item4_input_event(viewport, event:InputEventMouse, shape_idx):
-	if GameData.current_player and event.button_mask&BUTTON_LEFT:
-			use_item(4)
-
+func player_item_count(item):
+	if GameData.current_player:
+		var inv=GameData.current_player.inventory
+		match item:
+			ITEMS.MEDKIT:return inv.medkit
+			ITEMS.TORCH:return inv.torch
+			ITEMS.FOOD:return inv.food
+			ITEMS.SODA:return inv.sodas
 

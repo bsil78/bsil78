@@ -1,6 +1,7 @@
 extends Node
 
 var music=preload("res://Game/Effects/Music.tscn")
+var players_locker:Object=null
 
 func _ready():
 	CommonUI.add_child(music.instance())
@@ -19,6 +20,8 @@ func init_new_game():
 	GameData.current_player=null	
 	GameData.players={}
 	GameData.level_objects={}
+	GameData.players_slots={"PlayerOne":1,"PlayerTwo":2}
+	GameData.players_saves={}
 	for name in GameData.players_names:
 		instanciate_player(name)
 	GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
@@ -32,7 +35,7 @@ func lock_grid():
 
 func unlock_grid():
 	GameData.grid_lock.unlock()
-
+	
 func scan_level_objects(level_node:Node2D):
 	lock_grid()
 	GameData.level_objects.clear()
@@ -48,20 +51,20 @@ func add_scanned_objects_to_level(level_node:Node2D):
 			var type:int=object_type_of(node)
 			if type!=GameEnums.OBJECT_TYPE.UNKNOWN:
 				add_level_object(node as Node2D)
-				#print_debug(GameData.level_objects)
-#			else:
-#				DEBUG.push("{} is of unknown object type, cannot be added as level object",[(node as Node2D).name])
-
+				
 func dump(objects:Dictionary)->String:
 	var dic:={}
 	for key in objects:
 		var value
-		if objects[key] is Node2D:
-			value=(objects[key] as Node2D).name
-		elif objects[key] is Dictionary:
-			value=dump(objects[key])
+		if is_instance_valid(objects[key]):
+			if objects[key] is Node2D:
+				value=(objects[key] as Node2D).name
+			elif objects[key] is Dictionary:
+				value=dump(objects[key])
+			else:
+				value=str(objects[key])
 		else:
-			value=str(objects[key])
+			value="]freed["
 		if key is String:
 			dic[key]=value
 		else:
@@ -82,7 +85,6 @@ func add_level_object_at(object:Node2D,pos:Vector2)->bool:
 	lock_grid()
 	var grid_pos=grid_pos(pos)
 	var result=true
-	
 	if GameData.level_objects.has(grid_pos):
 		var dic:Dictionary=GameData.level_objects[grid_pos]
 		if dic.has(type):
@@ -186,53 +188,86 @@ func grid_pos(position:Vector2)->Vector2:
 func transition():
 	CommonUI.fade_transition_scene("res://Game/GUIComponents/Transition/Transition.tscn")
 
-func instanciate_player(name:String):
-	var player_scene=load("res://Game/Characters/Players/"+name+".tscn") as PackedScene
+func instanciate_player(pname:String):
+	var player_scene=load("res://Game/Characters/Players/PlayerOne.tscn") as PackedScene
+	#var player_scene=load("res://Game/Characters/Players/"+pname+".tscn") as PackedScene
 	var player=player_scene.instance()
-	GameData.players[name]=player
+	player.name=pname
+	GameData.players[pname]=player
 
-func change_active_player():
+func change_active_player()->bool:
+	DEBUG.push("Switching players")
+	
 	var next_player
-	for name in GameData.players:
-		if name==GameData.current_player.name:continue
-		next_player=GameData.players[name]
+	for pname in GameData.players:
+		if GameData.current_player and pname==GameData.current_player.name:continue
+		next_player=GameData.players[pname]
 		break
+	var changed:=false
 	if next_player:
+		DEBUG.push("Next player : {}".format([next_player.name],"{}"))
 		GameData.current_player.desactivate()
 		GameData.current_player=next_player
 		next_player.activate()
+		changed=true
+	return changed
 	
-
 func remove_from_world(object):
 	remove_level_object(object)
 	object.get_parent().remove_child(object)
 	object.queue_free()
 
+
+func exit_player(player:Node2D,exit_name:String):
+	DEBUG.push("{} took {}",[player.name,exit_name])
+	if !exit_name.begins_with("Exit"):
+		printerr("Not an exit !")
+		return
+	var slotval=exit_name
+	slotval.erase(0,len("Exit"))
+	var slot:=int(slotval)
+	GameData.world.set_process(false)
+	GameData.players_slots[player.name]=slot
+	if GameData.current_player==player:change_active_player()
+	GameData.players_saves[player.name]=player
+	player.remove_from_world()
+	if GameData.players.empty():
+		end_world_and_current_player()
+		GameData.current_level+=1
+		GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
+		transition()
+	else:
+		GameData.world.set_process(true)
+		
+func end_world_and_current_player():
+	var player=GameData.current_player
+	GameData.current_player=null
+	if GameData.world:
+		take_over_playercam(player)
+		GameData.world.set_process(false)
+		GameData.world.set_physics_process(false)
+		GameData.world=null
+	player.remove_from_world()
+
 func player_died(player:Node2D):
 	var tired:bool=(player.life_points<=0)
-	GameData.players.erase(player.name)
-	DEBUG.push("Players : {}",[GameData.players])
-	if GameData.players.empty():
-		GameData.current_player=null
-		if GameData.world:
-			take_over_playercam(player)
-			player.remove_from_world()
-			GameData.world.set_process(false)
-			GameData.world.set_physics_process(false)
-			GameData.world=null
+	GameData.world.set_process(false)
+	if GameData.players.size()==1:
+		end_world_and_current_player()
 		if tired:
 			GameData.transition_state=GameEnums.TRANSITION_STATUS.DEAD_TIRED
 		else:
 			GameData.transition_state=GameEnums.TRANSITION_STATUS.DEAD_HUNGRY
 		transition()
-		return
-	if GameData.current_player==player:
-		change_active_player()
-		player.remove_for_world()
-
+	else:
+		if GameData.current_player==player:change_active_player()
+		player.remove_from_world()
+		GameData.world.set_process(true)
+	
+	
 func take_over_playercam(player:Node2D):
 	if !GameData.world: return
-	print("World camera is taking player camera over")
+	print_debug("World camera is taking player camera over")
 	var worldcam:=(GameData.world.get_node(NodePath("Camera2D")) as Camera2D)
 	var playercam:=(player.get_node(NodePath("Camera2D")) as Camera2D)
 	worldcam.position=playercam.global_position

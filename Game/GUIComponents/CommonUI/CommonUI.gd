@@ -5,7 +5,7 @@ onready var animation_player = $AnimationPlayer
 signal UI_faded_in
 signal UI_faded_out
 
-func fade_transition_scene(scene):
+func fade_transition_scene(scene:String):
 	fade_out()
 	yield(self,"UI_faded_out")
 	change_scene(scene)
@@ -26,11 +26,11 @@ func fade_in():
 	$FadePanel.visible = false
 	emit_signal("UI_faded_in")
 
-func change_scene(scene):
+func change_scene(scene:String):
 	var pckscn:=load(scene) as PackedScene
 	var err=get_tree().change_scene_to(pckscn)
 	if err!=OK:
-		print_debug("Error while changing scene to "+scene)
+		printerr("Error while changing scene to "+scene)
 		Utils.quit(-1)
 
 	

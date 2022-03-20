@@ -19,7 +19,6 @@ export(GameEnums.FLIP) var onDownFlip:=GameEnums.FLIP.NONE
 export(GameEnums.FLIP) var onIdleFlip:=GameEnums.FLIP.NONE
 
 export(NodePath) var animator
-export(NodePath) var visual
 export(NodePath) var raycast
 
 #protected values
@@ -33,7 +32,7 @@ var current_dir:=NONE
 var last_pos:Vector2
 
 var _animator:Node2D
-var _visual:Node2D
+
 var _raycast:RayCast2D
 var alive:=true
 
@@ -45,7 +44,6 @@ func _ready():
 	ground_friction=GameData.ground_friction
 	level_size=GameData.level_size
 	_animator=get_node(animator)
-	_visual=get_node(visual)
 	_raycast=get_node(raycast)
 	_animator.trigger_anim("start")
 
@@ -97,16 +95,24 @@ func idle():
 	next_dir==NONE
 	_animator.trigger_anim("idle")		
 
+func freeze():
+	set_physics_process(false)
+	set_process(false)
+
+func unfreeze():
+	set_physics_process(true)
+	set_process(true)
+
 func remove_from_world():
 	remove_from_level_objects()
 	position=Vector2(999,999)
-	set_process(false)
-	set_physics_process(false)
-	Utils.timer(0.5).connect("timeout",self,"queue_free")
+	freeze()
+	var parent=get_parent()
+	if parent: parent.remove_child(self)
+	remove_from_game()
 
-func queue_free():
-	get_parent().remove_child(self)
-	.queue_free()	
+func remove_from_game():
+	Utils.timer(0.5).connect("timeout",self,"queue_free")
 	
 func move(delta):
 	if (speed==0): return
@@ -114,11 +120,10 @@ func move(delta):
 	var distance=path.length()
 	var delta_move:Vector2=path.normalized()*(speed*delta) 
 	var delta_len=delta_move.length()
-	if(
-		delta_len>grid_size 
+	if( delta_len>grid_size 
 		or delta_len>distance
 		or distance<1.0		
-	):
+		):
 		delta_move=Vector2(round(path.x),round(path.y))
 		position=target_pos #jump precisely
 		target_pos=NONE #should find new target
@@ -134,25 +139,30 @@ func move(delta):
 	
 	
 
-func adjust_facing(dir:Vector2=NONE):
-	if dir!=NONE:
-		current_dir=dir
-	if not ( current_dir==NONE and onIdleFlip==GameEnums.FLIP.KEEP ):
-		fliph(flip(GameEnums.FLIP.H))
-		flipv(flip(GameEnums.FLIP.V))
+func adjust_facing(dir:Vector2=NONE,with_moving:bool=true):
+	if with_moving:
+		if dir!=NONE:current_dir=dir
+		if current_dir!=NONE or onIdleFlip!=GameEnums.FLIP.KEEP:
+			fliph(flip(current_dir,GameEnums.FLIP.H))
+			flipv(flip(current_dir,GameEnums.FLIP.V))
+	else:
+		fliph(flip(dir,GameEnums.FLIP.H))
+		flipv(flip(dir,GameEnums.FLIP.V))
 
 func fliph(flip:bool):
-	_visual.flip_h = flip
+	if _animator.get_visual().flip_h!=flip:
+		_animator.get_visual().flip_h = flip
 	
 func flipv(flip:bool):
-	_visual.flip_v = flip
+	if _animator.get_visual().flip_v!=flip:
+		_animator.get_visual().flip_v = flip
 	
-func flip(flip_type:int)->bool:
+func flip(dir:Vector2,flip_type:int)->bool:
 	if flip_type!=GameEnums.FLIP.H and flip_type!=GameEnums.FLIP.V:
 		if(debug):debug.error("flip type not supported")
 		return false
 	var flipProp=onIdleFlip
-	match current_dir:
+	match dir:
 		Vector2.LEFT:
 			flipProp=onLeftFlip
 		Vector2.RIGHT:
@@ -163,9 +173,9 @@ func flip(flip_type:int)->bool:
 			flipProp=onDownFlip
 	if flipProp==GameEnums.FLIP.KEEP:
 		if flip_type==GameEnums.FLIP.H:
-			return _visual.flip_h
+			return _animator.get_visual().flip_h
 		if flip_type==GameEnums.FLIP.V:
-			return _visual.flip_v	
+			return _animator.get_visual().flip_v	
 	return flipProp==flip_type or flipProp==GameEnums.FLIP.BOTH
 		
 func adjust_current_dir():
@@ -204,10 +214,10 @@ func on_moved(from:Vector2,to:Vector2):
 		if not GameFuncs.add_level_object(self):
 			if(debug):
 				debug.error("{} cannot add itself to {}",[name,GameFuncs.grid_pos(position)])
-				print(GameData.level_objects)
+				print_debug(GameData.level_objects)
 	elif(debug):
 		debug.error("{} cannot be removed from {}",[name,GameFuncs.grid_pos(position)])
-		print(GameData.level_objects)
+		print_debug(GameData.level_objects)
 	current_dir=NONE
 	target_pos=NONE
 
@@ -271,5 +281,3 @@ func speedup():
 func speeddown():
 	max_speed=walk_speed
 
-func choose_sound(anim:String,tracks:Dictionary):
-	Utils.choose_sound_in_anim($AnimationPlayer,anim,tracks)

@@ -70,6 +70,8 @@ __meta__ = {
 
 [node name="GameConfig" type="Node" parent="."]
 script = ExtResource( 2 )
+long_transition_delay = 4
+short_transition_delay = 2
 
 [node name="DebugConfig" type="Node" parent="."]
 script = ExtResource( 3 )

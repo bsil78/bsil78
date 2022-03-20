@@ -3,8 +3,7 @@ extends "res://Game/BaseScripts/Actor.gd"
 #exposed values
 export(int,0,1000,10) var max_food_points:=100
 export(int,0,1000,10) var food_points:=100
-export(NodePath) var camera
-export(int) var TORCH_DELAY_SEC:=120
+
 
 export(AudioStream) var soda1
 export(AudioStream) var soda2
@@ -25,12 +24,11 @@ class Inventory:
 
 #protected values
 var active:=false
-var _camera:Camera2D
 var _mask_light_on:Sprite
 var _mask_light_off:Sprite
 var inventory:=Inventory.new()
 var hum_occuring:=false
-var torch_timer:SceneTreeTimer
+var _torch:Node2D
 
 const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 const LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn")
@@ -42,30 +40,48 @@ const explodeEffect:=preload("res://Game/Effects/PlayerDying.tscn")
 
 
 func _ready():
-	_camera=get_node(camera) as Camera2D
-	_camera.limit_left=-9*grid_size
-	_camera.limit_top=-9*grid_size
-	_camera.limit_right=(level_size+9)*grid_size
-	_camera.limit_bottom=(level_size+9)*grid_size
-	_camera.current=false
+	init_camera()
 	_mask_light_on=get_parent().get_parent().get_node("MaskLayer/FixedMask")
 	_mask_light_off=get_parent().get_parent().get_node("MaskLayer/FixedMask_LightOff")
-	use_torch()
-	hum_occuring=true
-	hum()
+	_torch=$Animation/Torch
+
 
 func _physics_process(_delta):
 	if food_points<=0:
 		killed()
-	if !hum_occuring and food_points<=max_food_points/3 or life_points<=max_life_points/3:
+	if food_points<=max_food_points/3 or life_points<=max_life_points/3:
 		var delay:=min(food_points,life_points)/10
 		Utils.timer(delay).connect("timeout",self,"hum",[delay*-5])
-		hum_occuring=true
-	else:
-		hum_occuring=false
-		
+
+
+func init_camera():
+	$Camera2D.current=false
+	$Camera2D.limit_left=-9*grid_size
+	$Camera2D.limit_top=-9*grid_size
+	$Camera2D.limit_right=(level_size+9)*grid_size
+	$Camera2D.limit_bottom=(level_size+9)*grid_size
+
+func on_level_entered():
+	hum()
+	idle()
+	desactivate()
+	next_dir=NONE
+	alive=true
+	unfreeze()
+
+func freeze():
+	.freeze()
+	$LoseEnergyTimer.stop()
+	torch().freeze()
+
+func unfreeze():
+	.unfreeze()
+	$LoseEnergyTimer.start()
+	torch().unfreeze()
+
 func hum(db_volume:int=-40):
-	if hum_occuring:
+	if !hum_occuring:
+		hum_occuring=true
 		Utils.play_sound($Voice,humhum,-40)
 		hum_occuring=false
 	
@@ -74,33 +90,32 @@ func backpack_sound():
 
 func activate():
 	if(debug):debug.push("{} is active",[name])
-	_camera.current=true
+	$Camera2D.make_current()
 	active=true
+	
+func torch():
+	return _torch
 
-func get_camera()->Camera2D:
-	return _camera
+func get_camera():
+	return $Camera2D
 
 func desactivate():
 	if(debug):debug.push("{} no more active",[name])
-	_camera.current=false
+	$Camera2D.current=false
 	active=false
 
-func lose_torch(timer:SceneTreeTimer):
-	if(torch_timer==timer):
-		$Lights.torchOff()
-		$AnimatedSprite/Torch/Flammes.emitting=false
-		_mask_light_on.visible=false
-		_mask_light_off.visible=true
+func lose_torch():
+	_torch.shutdown()
+	_torch.visible=false
 
+func remove_from_game():
+	GameData.players.erase(name)
+	
 func use_torch():
 	if inventory.torch>0:
 		inventory.torch-=1
-		$Lights.torchOn()
-		$AnimatedSprite/Torch/Flammes.emitting=true
-		_mask_light_off.visible=false
-		_mask_light_on.visible=true
-		torch_timer=Utils.timer(TORCH_DELAY_SEC*Utils.randfpct(20))
-		torch_timer.connect("timeout",self,"lose_torch",[torch_timer])
+		_torch.visible=true
+		_torch.flamme_it()
 		
 func hit(from:Node2D,amount:int=1):
 	if life_points>0:
@@ -108,18 +123,19 @@ func hit(from:Node2D,amount:int=1):
 		life_points=max(life_points-amount,0)
 		Utils.play_effect_once(hitEffect,$FrontEffects)
 
-
 func fliph(flip:bool):
-	var posfact=1
-	if flip:posfact=-1
-	$AnimatedSprite.flip_h=flip
-	$AnimatedSprite/Torch.flip_h=flip
-	$AnimatedSprite/Torch.position.x=abs($AnimatedSprite/Torch.position.x)*posfact
-	$AnimatedSprite/Torch/Flammes.position.x=abs($AnimatedSprite/Torch/Flammes.position.x)*posfact
-
+	if $Animation/AnimatedSprite.flip_h!=flip:
+		print_debug("{} flip_h is {}".format([name,flip],"{}"))
+		$Animation/AnimatedSprite.flip_h=flip
+		_torch.flip(flip)
+	
 func loseEnergy(amount:int=1):
-	food_points=max(food_points-amount,0)		
+	if in_game():
+		food_points=max(food_points-amount,0)		
 
+func in_game():
+	return GameData.players.has(name)
+	
 func on_move(from,to):
 	if max_speed==walk_speed:
 		loseEnergy(1)
@@ -180,9 +196,11 @@ func on_collision(others:Dictionary)->bool:
 			return false
 	if block:
 		if block.name.matchn("Exit*") :
-			if GameData.current_level==GameData.max_levels:
+			if GameData.players.size()==1 and GameData.current_level==GameData.max_levels:
 				GameData.transition_state=GameEnums.TRANSITION_STATUS.WIN_GAME
 				GameFuncs.transition()
+			else:
+				GameFuncs.exit_player(self,block.name)
 			return false
 	return true
 

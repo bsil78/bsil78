@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=2]
+
+[sub_resource type="OccluderPolygon2D" id=1]
+polygon = PoolVector2Array( -56, 16, -56, -16, -40, -40, -16, -56, 16, -56, 40, -40, 56, -16, 56, 16, 40, 40, 16, 56, -16, 56, -40, 40 )
+
+[node name="LightLimit" type="LightOccluder2D"]
+light_mask = 3
+position = Vector2( 1, 0 )
+scale = Vector2( 1.7, 1.7 )
+occluder = SubResource( 1 )
+light_mask = 3
