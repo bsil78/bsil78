@@ -10,6 +10,7 @@ var last_time_mouve_moved:int=0
 
 	
 func _ready():
+	$TextureRect.hide()
 	walk={"up":[Vector2.UP,$WalkUpBtn],"right":[Vector2.RIGHT,$WalkRightBtn],"left":[Vector2.LEFT,$WalkLeftBtn],"down":[Vector2.DOWN,$WalkDownBtn]}
 	stopBtns={$StopBtn:"pressed",$WalkRightBtn:"button_up",$WalkLeftBtn:"button_up",$WalkUpBtn:"button_up",$WalkDownBtn:"button_up"}
 	
@@ -21,12 +22,10 @@ func _physics_process(_delta):
 	if player:
 		if player!=connected_player:
 			if connected_player:
-				$HitBtn.disconnect("pressed",connected_player,"hit")
 				$ChopBtn.disconnect("pressed",connected_player,"chop")
 				disconnect_stop()
 				disconnect_walk()
 			connected_player=player
-			$HitBtn.connect("pressed",connected_player,"hit")
 			$ChopBtn.connect("pressed",connected_player,"chop")
 			connect_stop()
 			connect_walk()
@@ -83,6 +82,7 @@ func _input(event):
 		if (event as InputEventMouseMotion).speed>Vector2.ZERO:
 			last_time_mouve_moved=OS.get_unix_time()
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+		return
 	
 	if Utils.pressed(event,"ui_speedup"):
 		if $Run.pressed:
@@ -131,4 +131,3 @@ func torch_toggled(button_pressed):
 		GameData.current_player.lose_torch()
 
 
-		

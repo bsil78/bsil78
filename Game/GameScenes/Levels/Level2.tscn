@@ -2,8 +2,10 @@
 
 [ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=1]
 [ext_resource path="res://Game/GameScenes/Levels/ContextOfLevels.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Game/Characters/Enemy1/Enemy1.tscn" type="PackedScene" id=3]
-[ext_resource path="res://Game/Objects/Exit/Exit.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Game/Actors/Enemy1/Enemy1.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Game/Blocks/Exit/Exit.tscn" type="PackedScene" id=4]
+
+
 
 [sub_resource type="OccluderPolygon2D" id=1]
 polygon = PoolVector2Array( 0, 0, 32, 0, 32, 32, 0, 32 )

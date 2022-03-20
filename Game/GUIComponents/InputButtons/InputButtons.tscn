@@ -27,30 +27,14 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="HitBtn" type="Button" parent="."]
-anchor_left = 0.713
-anchor_top = 0.262
-anchor_right = 0.761
-anchor_bottom = 0.293
-margin_left = -0.00338745
-margin_top = -0.0574646
-margin_right = 0.276611
-margin_bottom = 0.102554
-shortcut_in_tooltip = false
-text = "Hit"
-__meta__ = {
-"_edit_use_anchors_": false
-}
-
 [node name="StopBtn" type="Button" parent="."]
-anchor_left = 0.251
-anchor_top = 0.711
-anchor_right = 0.314
-anchor_bottom = 0.742
-margin_left = 0.106033
-margin_top = 0.0553284
-margin_right = -0.213959
-margin_bottom = 0.215302
+anchor_left = 0.225
+anchor_top = 0.725
+anchor_right = 0.285
+anchor_bottom = 0.75
+margin_left = 1.52588e-05
+margin_right = 1.60002
+margin_bottom = 3.99997
 shortcut_in_tooltip = false
 text = "Stop"
 __meta__ = {

@@ -63,6 +63,7 @@ position = Vector2( -15, -4 )
 
 [node name="FlammesLight" parent="Light" instance=ExtResource( 2 )]
 texture = ExtResource( 5 )
+color = Color( 1, 0.65098, 0, 0.211765 )
 range_item_cull_mask = 7
 
 [node name="Wand" type="Sprite" parent="."]

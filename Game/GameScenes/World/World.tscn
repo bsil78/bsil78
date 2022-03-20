@@ -29,6 +29,7 @@ shader = SubResource( 1 )
 viewport_path = NodePath("FogOfWar/Viewport")
 
 [node name="World" type="Node2D"]
+process_priority = 1
 script = ExtResource( 1 )
 
 [node name="FogOfWar" type="ViewportContainer" parent="."]
@@ -125,6 +126,7 @@ __meta__ = {
 [node name="MaskLayer" type="CanvasLayer" parent="."]
 
 [node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
+visible = false
 light_mask = 0
 material = SubResource( 2 )
 margin_left = -96.0

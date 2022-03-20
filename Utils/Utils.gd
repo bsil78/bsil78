@@ -4,14 +4,14 @@ extends Node
 func pressed(event,action):
 	if not event is InputEventKey: return
 	if event.is_action_pressed(action):
-		DEBUG.push("Pressed "+event.as_text())
+		#DEBUG.push("Pressed "+event.as_text())
 		return true
 	return false
 	
 func released(event,action):
 	if not event is InputEventKey: return
 	if event.is_action_released(action):
-		DEBUG.push("Released "+event.as_text())
+		#DEBUG.push("Released "+event.as_text())
 		return true
 	return false	
 
@@ -49,10 +49,11 @@ func play_sound(channel,sounds,volume_db:int=-999):
 		channel.play()
 		channel.volume_db=volume
 	
-func play_effect_once(effect:PackedScene,effect_node:Node2D):
+func play_effect_once(effect:PackedScene,effect_node:Node2D,global_pos:Vector2):
 	var newEffect:=effect.instance() as Particles2D
 	var effect_duration=newEffect.lifetime+newEffect.randomness
 	effect_node.add_child(newEffect)
+	newEffect.position=newEffect.to_local(global_pos) 
 	newEffect.visible=true
 	newEffect.emitting=true
 	yield(Utils.timer(effect_duration),"timeout")

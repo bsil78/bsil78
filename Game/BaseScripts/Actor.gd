@@ -45,7 +45,7 @@ func _ready():
 	level_size=GameData.level_size
 	_animator=get_node(animator)
 	_raycast=get_node(raycast)
-	_animator.trigger_anim("start")
+	_animator.trigger_anim("start",true)
 
 func _physics_process(delta):
 	if alive:
@@ -88,12 +88,11 @@ func killed():
 	dead()
 	
 func idle():
-	$ObjectDebug.message="idle"
 	speed=0
 	target_pos=NONE
 	current_dir=NONE
-	next_dir==NONE
-	_animator.trigger_anim("idle")		
+	next_dir=NONE
+	
 
 func freeze():
 	set_physics_process(false)
@@ -105,7 +104,7 @@ func unfreeze():
 
 func remove_from_world():
 	remove_from_level_objects()
-	position=Vector2(999,999)
+	position=Vector2(-999,-999)
 	freeze()
 	var parent=get_parent()
 	if parent: parent.remove_child(self)
@@ -115,7 +114,7 @@ func remove_from_game():
 	Utils.timer(0.5).connect("timeout",self,"queue_free")
 	
 func move(delta):
-	if (speed==0): return
+	if (!alive or speed==0): return
 	var path=target_pos-position
 	var distance=path.length()
 	var delta_move:Vector2=path.normalized()*(speed*delta) 
@@ -152,7 +151,7 @@ func adjust_facing(dir:Vector2=NONE,with_moving:bool=true):
 func fliph(flip:bool):
 	if _animator.get_visual().flip_h!=flip:
 		_animator.get_visual().flip_h = flip
-	
+
 func flipv(flip:bool):
 	if _animator.get_visual().flip_v!=flip:
 		_animator.get_visual().flip_v = flip
@@ -184,8 +183,7 @@ func adjust_current_dir():
 
 func find_target_pos():
 	if target_pos!=NONE: return
-	var next_pos=fixedgrid()+(current_dir*grid_size)
-	if current_dir!=NONE and target_pos==NONE and !can_go(next_pos) :
+	if current_dir!=NONE and target_pos==NONE and !can_go(next_pos_from(fixedgrid(),current_dir)) :
 		target_pos=NONE
 		next_dir=NONE
 		current_dir=NONE
@@ -200,8 +198,15 @@ func can_go(next_pos:Vector2)->bool:
 
 func on_move(from:Vector2,to:Vector2):
 	add_as_blocker(to)
-	_animator.trigger_anim("walk")
 	
+func next_pos(dir:Vector2)->Vector2:
+	return position+dir*grid_size
+	
+func next_pos_from(pos:Vector2,dir:Vector2)->Vector2:
+	var next_pos=pos+dir*grid_size	
+	#print("next pos to %s from %s is %s" % [dir,pos,next_pos])
+	return next_pos
+		
 # warning-ignore:unused_argument
 func on_moving(from:Vector2,to:Vector2):
 	if global_position.distance_to(to)<(grid_size/2):
@@ -220,7 +225,10 @@ func on_moved(from:Vector2,to:Vector2):
 		print_debug(GameData.level_objects)
 	current_dir=NONE
 	target_pos=NONE
+	last_pos=position
 
+func push_to(dir:Vector2)->bool:
+	return false
 
 func add_as_blocker(pos:Vector2):
 	if not GameFuncs.add_level_object_at(self,pos):
@@ -269,7 +277,7 @@ func adjust_speed():
 		if abs(speed-max_speed)<1.0:speed=max_speed
 		
 func goto(dir:Vector2):
-	$ObjectDebug.message="Going to :\n{dir}".format({"dir":dir})
+	if $ObjectDebug: $ObjectDebug.message="Going to :\n{dir}".format({"dir":dir})
 	next_dir=dir
 	
 func stop():

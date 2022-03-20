@@ -23,32 +23,36 @@ func init_level():
 		
 	
 func place_players():
+	if GameData.players_slots.empty(): 
+		GameData.transition_state=GameEnums.TRANSITION_STATUS.MENU
+		GameFuncs.transition() 
 	for pname in GameData.players_names:
-		var slot=GameData.players_slots[pname]
-		if slot==null: continue
-		var player_pos=$LevelPlaceholder.find_node("Position"+str(slot)+"*",true,false) as Position2D
-		if player_pos==null: continue
-		var player
-		if GameData.players_saves.has(pname):player=GameData.players_saves[pname]
-		elif GameData.players.has(pname): player=GameData.players[pname]
-		if player==null:
-			print_debug("Cannot get player {}".format([pname],"{}"))
-			continue
-		$PlayersPlaceholder.add_child(player)
-		GameData.players[pname]=player
-		player.position=player_pos.global_position
-		GameFuncs.add_level_object(player)
-		var pos_data:PoolStringArray=player_pos.name.split("_")
-		if len(pos_data)>1:
-			var dir=pos_data[1]
-			var facing_dir:=facing_dir(dir)
-			print_debug("Adjusting facing of {} to {} according to {}".format([player.name,facing_dir,player_pos.name],"{}"))
-			player.adjust_facing(facing_dir,false)
-			print_debug("Player flip_h is : {}".format([player.get_node("Animation/AnimatedSprite").flip_h],"{}"))
-			player.on_level_entered()
-			if len(pos_data)>2:
-				var active:=(pos_data[2]=="ACTIVE")
-				if active:GameData.current_player=player
+		if GameData.players_slots.has(pname):
+			var slot=GameData.players_slots[pname]
+			if slot==null: continue
+			var player_pos=$LevelPlaceholder.find_node("Position"+str(slot)+"*",true,false) as Position2D
+			if player_pos==null: continue
+			var player
+			if GameData.players_saves.has(pname):player=GameData.players_saves[pname]
+			elif GameData.players.has(pname): player=GameData.players[pname]
+			if player==null:
+				print_debug("Cannot get player {}".format([pname],"{}"))
+				continue
+			$PlayersPlaceholder.add_child(player)
+			GameData.players[pname]=player
+			player.position=player_pos.global_position
+			GameFuncs.add_level_object(player)
+			var pos_data:PoolStringArray=player_pos.name.split("_")
+			if len(pos_data)>1:
+				var dir=pos_data[1]
+				var facing_dir:=facing_dir(dir)
+				#print_debug("Adjusting facing of {} to {} according to {}".format([player.name,facing_dir,player_pos.name],"{}"))
+				player.adjust_facing(facing_dir,false)
+				#print_debug("Player flip_h is : {}".format([player.get_node("Animation/AnimatedSprite").flip_h],"{}"))
+				player.on_level_entered()
+				if len(pos_data)>2:
+					var active:=(pos_data[2]=="ACTIVE")
+					if active:GameData.current_player=player
 		
 	if not GameData.current_player:
 		printerr("No active player in "+GameFuncs.level_as_string())

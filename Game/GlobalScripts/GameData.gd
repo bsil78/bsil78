@@ -7,12 +7,11 @@ var current_player:Node2D=null
 var players:={}
 var players_slots:={"PlayerOne":1,"PlayerTwo":2}
 var players_saves:={}
-#var players_lock:=Mutex.new()
+var world:Node2D=null
 
 const players_names:=["PlayerOne","PlayerTwo"]
 const MAX_HIT_DISTANCE=38
 
-var world:Node2D=null
 
 export(int) var startLevel := 1
 export(float,0.1,1,0.1) var ground_friction:=0.5

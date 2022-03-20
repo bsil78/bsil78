@@ -34,7 +34,7 @@ shadow_color = Color( 0, 0, 0, 0.243137 )
 shadow_size = 1
 shadow_offset = Vector2( 4, 4 )
 
-[sub_resource type="ViewportTexture" id=7]
+[sub_resource type="ViewportTexture" id=4]
 viewport_path = NodePath("View/Viewport")
 
 [sub_resource type="CircleShape2D" id=5]
@@ -256,7 +256,7 @@ margin_right = -7.056
 margin_bottom = 0.0159988
 rect_min_size = Vector2( 0, 32 )
 mouse_filter = 2
-texture = SubResource( 7 )
+texture = SubResource( 4 )
 stretch_mode = 3
 flip_v = true
 __meta__ = {
@@ -318,16 +318,16 @@ position = Vector2( 32, 32 )
 shape = SubResource( 6 )
 [connection signal="input_event" from="BackpackOpen/ItemsSensors/Item1" to="." method="click_item" binds= [ 1 ]]
 [connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item1" to="." method="show_help_item" binds= [ 1 ]]
-[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item1" to="." method="hide_help_item" binds= [ 1 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item1" to="." method="hide_help_item"]
 [connection signal="input_event" from="BackpackOpen/ItemsSensors/Item2" to="." method="click_item" binds= [ 2 ]]
 [connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item2" to="." method="show_help_item" binds= [ 2 ]]
-[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item2" to="." method="hide_help_item" binds= [ 1 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item2" to="." method="hide_help_item"]
 [connection signal="input_event" from="BackpackOpen/ItemsSensors/Item3" to="." method="click_item" binds= [ 3 ]]
 [connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item3" to="." method="show_help_item" binds= [ 3 ]]
-[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item3" to="." method="hide_help_item" binds= [ 3 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item3" to="." method="hide_help_item"]
 [connection signal="input_event" from="BackpackOpen/ItemsSensors/Item4" to="." method="click_item" binds= [ 4 ]]
 [connection signal="mouse_entered" from="BackpackOpen/ItemsSensors/Item4" to="." method="show_help_item" binds= [ 4 ]]
-[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item4" to="." method="hide_help_item" binds= [ 4 ]]
+[connection signal="mouse_exited" from="BackpackOpen/ItemsSensors/Item4" to="." method="hide_help_item"]
 [connection signal="tween_all_completed" from="Tween" to="." method="bptween_completed"]
 [connection signal="input_event" from="Backpack_mouse_detector" to="." method="backpack_mouse_clicked"]
 [connection signal="mouse_entered" from="Backpack_mouse_detector" to="." method="backpack_mouse_entered"]

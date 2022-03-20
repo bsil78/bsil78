@@ -41,12 +41,12 @@ func _ready():
 	_bphelp=$BackpackOpen/Help
 	_bp_open=$BackpackOpen
 	_bp_open.rect_size=Vector2(0,48)
-	_bp_open.visible=false
-	_bp_open.get_node("ItemsSensors").visible=false
+	_bp_open.hide()
+	_bp_open.get_node("ItemsSensors").hide()
 	_bpviewport=$View/Viewport
 	_bpview=$View
 	_bpviewport.size=Vector2(1,64)
-	_bpview.visible=false
+	_bpview.hide()
 	_labels[ITEMS.MEDKIT]=_bpviewport.get_node("Items/MedkitCount")
 	_labels[ITEMS.TORCH]=_bpviewport.get_node("Items/TorchCount")
 	_labels[ITEMS.FOOD]=_bpviewport.get_node("Items/FoodCount")
@@ -74,8 +74,8 @@ func open():
 	_bptween.remove_all()
 	_bptween.interpolate_property(_bp_open,"rect_size",Vector2(0,48),Vector2(184,48),0.5,Tween.TRANS_SINE)
 	_bptween.interpolate_property(_bpviewport,"size",Vector2(0,32),Vector2(168,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT,0.01)
-	_bp_open.visible=true
-	_bpview.visible=true
+	_bp_open.show()
+	_bpview.show()
 	_bptween.start()
 	
 
@@ -83,7 +83,7 @@ func close():
 	if _bptween.is_active() or !is_open: return
 	is_open=false
 	hide_help_item()
-	_bp_open.get_node("ItemsSensors").visible=false
+	_bp_open.get_node("ItemsSensors").hide()
 	_bptween.remove_all()
 	_bptween.interpolate_property(_bp_open,"rect_size",Vector2(184,48),Vector2(0,48),0.5,Tween.TRANS_SINE,0.01)
 	_bptween.interpolate_property(_bpviewport,"size",Vector2(168,32),Vector2(0,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT)
@@ -98,12 +98,12 @@ func backpack_mouse_clicked(_viewport, event:InputEventMouse, _shape_idx):
 
 func bptween_completed():
 	if !is_open:
-		_bp_open.visible=false
-		_bpview.visible=false
+		_bp_open.hide()
+		_bpview.hide()
 	else:
 		_bp_open.rect_size=Vector2(184,48)
 		_bpviewport.size=Vector2(168,32)
-		_bp_open.get_node("ItemsSensors").visible=true
+		_bp_open.get_node("ItemsSensors").show()
 
 
 func hide_help_item():
@@ -131,7 +131,7 @@ func show_help_item(item):
 
 func player_item_count(item):
 	if GameData.current_player:
-		var inv=GameData.current_player.inventory
+		var inv=GameData.current_player.get_node("Inventory")
 		match item:
 			ITEMS.MEDKIT:return inv.medkit
 			ITEMS.TORCH:return inv.torch

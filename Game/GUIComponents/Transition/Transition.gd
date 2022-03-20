@@ -13,6 +13,8 @@ func _ready():
 	if GameData.current_level==1:
 			pluralDays=""
 	match GameData.transition_state:
+		GameEnums.TRANSITION_STATUS.MENU:
+			text.text_to_use = "Je terminé...\n\nretour au menu"
 		GameEnums.TRANSITION_STATUS.WIN_GAME:
 			text.text_to_use = "B R A V O !\nVous avez réussi à sortir\naprès %s jour%s !" % [GameData.current_level, pluralDays]
 		GameEnums.TRANSITION_STATUS.LEVEL_UP:

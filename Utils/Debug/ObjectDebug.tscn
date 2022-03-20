@@ -1,6 +1,8 @@
 [gd_scene load_steps=6 format=2]
 
-[ext_resource path="res://Game/Characters/Players/ObjectDebug.gd" type="Script" id=1]
+[ext_resource path="res://Utils/Debug/ObjectDebug.gd" type="Script" id=1]
+
+
 
 [sub_resource type="DynamicFontData" id=1]
 font_path = "res://Game/Assets/Fonts/PressStart2P.ttf"

@@ -70,7 +70,13 @@ func dump(objects:Dictionary)->String:
 		else:
 			dic[str(key)]=value
 	return str(dic)
-			
+
+
+func rotr(dir:Vector2):
+	return dir.rotated(PI/2)		
+	
+func rotl(dir:Vector2):
+	return dir.rotated(PI/-2)		
 
 func add_level_object(object:Node2D)->bool:
 	var type:int=object_type_of(object)
@@ -116,18 +122,17 @@ func object_type_of(obj:Node2D):
 	return GameEnums.OBJECT_TYPE.UNKNOWN
 
 func is_block(obj:Node2D):
-	var blocks:=["Exit*"]
-	for block in blocks:
+	
+	for block in GameEnums.BLOCKS_MAP.values():
 		if obj.name.matchn(block): return true
 
 func is_actor(obj:Node2D):
-	var actors:=["Enemy*","Player*"]
-	for actor in actors:
+	
+	for actor in GameEnums.ACTORS_MAP.values():
 		if obj.name.matchn(actor): return true
 
 func is_item(obj:Node2D):
-	var items:=["Medkit*","Food*","Soda*","Torch*"]
-	for item in items:
+	for item in GameEnums.ITEMS_MAP.values():
 		if obj.name.matchn(item): return true
 
 func ifmatch_remove_level_object(mask:String,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->Vector2:
@@ -182,14 +187,23 @@ func level_objects(at:Vector2)->Dictionary:
 	unlock_grid()
 	return objects
 
+func matching_level_object(mask:String,at:Vector2)->Node2D:
+	var objects:=level_objects(at)
+	for obj in objects.values():
+		if obj.name.matchn(mask):
+			return obj
+	return null
+		
+
 func grid_pos(position:Vector2)->Vector2:
 	return Vector2(int(position.x/GameData.grid_size),int(position.y/GameData.grid_size))
 		
 func transition():
+	GameData.current_player=null
 	CommonUI.fade_transition_scene("res://Game/GUIComponents/Transition/Transition.tscn")
 
 func instanciate_player(pname:String):
-	var player_scene=load("res://Game/Characters/Players/PlayerOne.tscn") as PackedScene
+	var player_scene=load("res://Game/Actors/Players/PlayerOne.tscn") as PackedScene
 	#var player_scene=load("res://Game/Characters/Players/"+pname+".tscn") as PackedScene
 	var player=player_scene.instance()
 	player.name=pname
@@ -197,7 +211,6 @@ func instanciate_player(pname:String):
 
 func change_active_player()->bool:
 	DEBUG.push("Switching players")
-	
 	var next_player
 	for pname in GameData.players:
 		if GameData.current_player and pname==GameData.current_player.name:continue
@@ -230,18 +243,17 @@ func exit_player(player:Node2D,exit_name:String):
 	GameData.players_slots[player.name]=slot
 	if GameData.current_player==player:change_active_player()
 	GameData.players_saves[player.name]=player
-	player.remove_from_world()
-	if GameData.players.empty():
+	if GameData.players.size()==1:
 		end_world_and_current_player()
 		GameData.current_level+=1
 		GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 		transition()
 	else:
+		player.remove_from_world()
 		GameData.world.set_process(true)
 		
 func end_world_and_current_player():
 	var player=GameData.current_player
-	GameData.current_player=null
 	if GameData.world:
 		take_over_playercam(player)
 		GameData.world.set_process(false)
@@ -258,11 +270,12 @@ func player_died(player:Node2D):
 			GameData.transition_state=GameEnums.TRANSITION_STATUS.DEAD_TIRED
 		else:
 			GameData.transition_state=GameEnums.TRANSITION_STATUS.DEAD_HUNGRY
-		transition()
+		Utils.timer(1.0).connect("timeout",self,"transition")
 	else:
-		if GameData.current_player==player:change_active_player()
+		take_over_playercam(player)
 		player.remove_from_world()
-		GameData.world.set_process(true)
+		Utils.timer(1.0).connect("timeout",self,"change_active_player")
+		
 	
 	
 func take_over_playercam(player:Node2D):
@@ -274,9 +287,9 @@ func take_over_playercam(player:Node2D):
 	worldcam.make_current()
 
 func spawn(spawn_point:Vector2, subject:PackedScene, spawn_placeholder:Node, direction:Vector2=Vector2.ZERO):
-	var node=subject.instance()
+	var node:Node2D=subject.instance()
 	spawn_placeholder.add_child(node)
-	node.position=spawn_point
+	node.position=node.to_local(spawn_point)
 	if node.has_method("adjust_facing"):
 		node.adjust_facing(direction)
 
