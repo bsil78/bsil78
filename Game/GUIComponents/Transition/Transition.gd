@@ -2,30 +2,33 @@ extends CanvasLayer
 
 const menu_scene:="res://Game/GUIComponents/Menu/Menu.tscn"
 const world_scene:="res://Game/GameScenes/World/World.tscn"
-const gameOverPattern := "Vous êtes mort\n%s\naprès %s jour%s."
+
 var fading_in := true
 var waiting_fading_in := false
 
 onready var text=$Canvas/Center/Text
 
 func _ready():
-	var pluralDays := "s"
-	if GameData.current_level==1:
-			pluralDays=""
+	var gameOverPattern := tr("DEAD_AFTER")
+	var previous_level:=GameData.current_level-1
 	match GameData.transition_state:
 		GameEnums.TRANSITION_STATUS.MENU:
-			text.text_to_use = "Je terminé...\n\nretour au menu"
+			text.text_to_use = tr("GAME_OVER")
 		GameEnums.TRANSITION_STATUS.WIN_GAME:
-			text.text_to_use = "B R A V O !\nVous avez réussi à sortir\naprès %s jour%s !" % [GameData.current_level, pluralDays]
+			text.text_to_use = tr("GAME_WON") % [previous_level, pluralDays(previous_level)]
 		GameEnums.TRANSITION_STATUS.LEVEL_UP:
-			text.text_to_use = "Jour %s" % GameData.current_level
+			text.text_to_use = tr("ENTER_LEVEL") % GameData.current_level
 		GameEnums.TRANSITION_STATUS.DEAD_HUNGRY:
-			text.text_to_use = gameOverPattern % [ "épuisé", GameData.current_level, pluralDays]
+			text.text_to_use = gameOverPattern % [ tr("OF_NO_ENERGY"), previous_level, pluralDays(previous_level)]
 		GameEnums.TRANSITION_STATUS.DEAD_TIRED:
-			text.text_to_use = gameOverPattern % ["de blessures",GameData.current_level, pluralDays]
+			text.text_to_use = gameOverPattern % [ tr("OF_NO_LIFE"), previous_level, pluralDays(previous_level)]
 	text.center_text()
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	change_scene()
+
+func pluralDays(level):
+	return "" if level==1 else "s"
+			
 
 func change_scene():
 	var delay:=GameData.short_transition_delay

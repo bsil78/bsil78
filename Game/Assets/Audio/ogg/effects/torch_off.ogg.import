@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/torch_off.ogg-0038855b5fa511d8b909e20ece624003.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/torch_off.ogg"
+dest_files=[ "res://.import/torch_off.ogg-0038855b5fa511d8b909e20ece624003.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

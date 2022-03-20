@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/sadness.ogg-0abf5e19cedd742c585f3fe293fcfc79.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/sadness.ogg"
+dest_files=[ "res://.import/sadness.ogg-0abf5e19cedd742c585f3fe293fcfc79.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

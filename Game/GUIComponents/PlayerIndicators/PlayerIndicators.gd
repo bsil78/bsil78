@@ -9,19 +9,20 @@ func _ready():
 	world.connect("level_ready",$Backpack,"update_items")
 	
 func disconnect_inventory(player):
-	print("inventory disconnected of %s"%player.name)
-	var inv:Inventory=player.inventory()
+	print("%s's inventory disconnected from indicators"%player.name)
+	var inv=player.inventory()
 	inv.disconnect("inventory_changed",$Backpack,"update_items")
-	inv.disconnect("inventory_changed",$PlayerGodSign,"update")
+	inv.disconnect("inventory_changed",$PlayerGodSign,"update_indicator")
 	
 func connect_inventory(player):
-	print("inventory connected of %s"%player.name)
-	var inv:Inventory=player.inventory()
+	print("%s's inventory connected to indicators"%player.name)
+	var inv=player.inventory()
 	inv.connect("inventory_changed",$Backpack,"update_items")
-	inv.connect("inventory_changed",$PlayerGodSign,"update")
+	inv.connect("inventory_changed",$PlayerGodSign,"update_indicator",[player])
+	inv.update()
 
-func update_indicators(world,player):
-	$GodSign.update_indicator(world)
+func update_indicators(the_world,player):
+	$GodSign.update_indicator(the_world)
 	$PlayerGodSign.update_indicator(player)
 	
 func play_coin_gain_for(player):

@@ -37,38 +37,49 @@ static func chance(percent:int)->bool:
 func timer(var delay:float)->SceneTreeTimer:
 	return get_tree().create_timer(delay)
 	
-func play_sound(channel,sounds,volume_db:int=-999):
+func play_sound(channel,sounds=null,volume_db:int=-999,pitch_scale:int=-999):
 	if channel:
-		var volume=channel.volume_db
-		if sounds is Array:
-			channel.stream=Utils.choose(sounds) as AudioStream
-		else:
-			channel.stream=sounds as AudioStream
-		if channel.stream==null:
+		var new_channel=channel.duplicate()
+		randomize()
+		new_channel.name="%s-DUP-%s"%[new_channel.name,randi()%99999]
+		GameData.world.effects_node().add_child(new_channel)
+		if sounds:
+			if sounds is Array:
+				new_channel.stream=Utils.choose(sounds) as AudioStream
+			else:
+				new_channel.stream=sounds as AudioStream
+		if new_channel.stream==null:
 			DEBUG.error("Sound is null : %s"%sounds)
-		if volume_db!=-999:channel.volume_db=volume_db
-		channel.play()
-		channel.volume_db=volume
-	
+			new_channel.queue_free()
+		else:
+			if volume_db>0.0:new_channel.volume_db=volume_db
+			if pitch_scale>0.0:new_channel.pitch_scale=pitch_scale
+			new_channel.play()
+			new_channel.connect("finished",new_channel,"queue_free")
+			return new_channel
+	return null
+			 
 func play_effect_once(effect,effect_node:Node2D,global_pos:Vector2):
 	var effect_duration
 	var effect_to_play=effect
 	if effect is Particles2D:
-		print("playing %s"%effect.name)
+		#print("playing effect %s"%effect.name)
 		effect_duration=effect.lifetime+effect.randomness
 		if effect_node.find_node(effect.name,true,false):
 			effect_to_play=effect.duplicate()
+			randomize()
+			effect_to_play.name="%s-DUP-%s"%[effect_to_play.name,randi()%99999]
 		effect_node.add_child(effect_to_play)
 		effect_to_play.position=effect_node.to_local(global_pos) 
 		effect_to_play.visible=true
 		effect_to_play.emitting=true
-		played_effects[effect_to_play]=effect_node
+		played_effects[effect_to_play]=effect_node	
 	Utils.timer(effect_duration).connect("timeout",self,"remove_effect",[effect_to_play,true if effect!=effect_to_play else false])
 
 func remove_effect(effect:Node2D,queue:bool):
 	if(is_instance_valid(effect)):
 		played_effects[effect].remove_child(effect)
-	if queue:effect.free()
+	if is_instance_valid(effect) and queue:effect.queue_free()
 		
 func rand_animation_track(animPlayer:AnimationPlayer,anim:String,tracks:Dictionary):
 	var chosen:String
@@ -79,7 +90,8 @@ func rand_animation_track(animPlayer:AnimationPlayer,anim:String,tracks:Dictiona
 				chosen=key
 				itrack=tracks[key][0]
 				break
-		# warning-ignore:narrowing_conversion
+# warning-ignore:narrowing_conversion
+# warning-ignore:integer_division
 		elif Utils.chance(100/len(tracks)):
 			chosen=key
 			itrack=tracks[key]

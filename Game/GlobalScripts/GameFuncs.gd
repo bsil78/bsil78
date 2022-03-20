@@ -20,6 +20,7 @@ func load_next_level():
 	transition()
 
 func init_new_game():
+	findout_levels_config()
 	GameData.current_player=null	
 	GameData.players={}
 	GameData.players_slots={"PlayerOne":1,"PlayerTwo":2}
@@ -29,6 +30,25 @@ func init_new_game():
 	GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 	GameData.current_level=GameData.startLevel
 	transition()
+
+func findout_levels_config():
+	var l:=1
+	if !DEBUG.debuglevel:
+		l=0
+		var dir = Directory.new()
+		if dir.open("res://Game/GameScenes/Levels/") == OK:
+			dir.list_dir_begin()
+			var file_name:String= "ANY_FILE"
+			while file_name != "":
+				file_name= dir.get_next()
+				if !dir.current_is_dir():
+					if file_name.matchn("Level*"):
+						var id=int(file_name.trim_prefix("Level"))
+						if id>l: l=id
+		else:
+			printerr("An error occurred when trying to access the levels path.")
+	DEBUG.push("Max level is : %s"%l)
+	GameData.max_levels=l
 
 func object_type_of(obj:Node2D):
 	if is_block(obj): return GameEnums.OBJECT_TYPE.BLOCK
@@ -41,8 +61,6 @@ func is_block(obj:Node2D,types:Array=[])->bool:
 		if types.empty(): return obj.is_block()
 		for type in types:
 			if obj.is_block(type): return true
-	for block in GameEnums.BLOCKS_MAP.values():
-		if obj.name.matchn(block): return true
 	return false
 
 func is_actor(obj:Node2D,types:Array=[])->bool:
@@ -50,8 +68,6 @@ func is_actor(obj:Node2D,types:Array=[])->bool:
 		if types.empty(): return obj.is_actor()
 		for type in types:
 			if obj.is_actor(type): return true
-	for actor in GameEnums.ACTORS_MAP.values():
-		if obj.name.matchn(actor): return true
 	return false
 
 func is_item(obj:Node2D,types:Array=[])->bool:
@@ -59,14 +75,11 @@ func is_item(obj:Node2D,types:Array=[])->bool:
 		if types.empty(): return obj.is_item()
 		for type in types:
 			if obj.is_item(type): return true
-	for item in GameEnums.ITEMS_MAP.values():
-		if obj.name.matchn(item): return true
 	return false
 
 func are_in_hit_distance(obj1,obj2)->bool:
 	return (obj1 as Node2D).global_position.distance_to((obj2 as Node2D).global_position)<GameData.MAX_HIT_DISTANCE
 
-		
 
 func grid_pos(position:Vector2)->Vector2:
 	return Vector2(floor(position.x/GameData.cell_size),floor(position.y/GameData.cell_size))
@@ -102,7 +115,7 @@ func change_active_player()->bool:
 
 func exit_player(player:Node2D,exit_name:String):	
 	DEBUG.push("%s took %s" % [player.name,exit_name])
-	if !exit_name.begins_with("Exit"):
+	if !exit_name.matchn("*exit*"):
 		printerr("%s is not an exit !" % exit_name)
 		return
 	switch_of_player_disabled=true
@@ -120,6 +133,7 @@ func exit_player(player:Node2D,exit_name:String):
 			GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 		take_over_playercam(player)
 		player.remove_from_world()
+# warning-ignore:return_value_discarded
 		Utils.timer(1.0).connect("timeout",self,"end_world",[true])
 	else:
 		take_over_playercam(player)
@@ -131,18 +145,18 @@ func exit_player(player:Node2D,exit_name:String):
 		
 		
 func end_world(with_change_level:bool=false):
-	var player=GameData.current_player
 	GameData.current_player=null
 	#GameData.world.set_process(false)
 	#GameData.world.set_physics_process(false)
 	GameData.world.remove_all_actors()
 	var still_active:=true
 	while(still_active):
+		still_active=false
 		print("waiting for cleanup")
 		yield(Utils.timer(0.1),"timeout")
 		for p in GameData.players_saves.values():
 			var processing=(p as Node2D).is_physics_processing()
-			still_active=still_active and processing
+			still_active=still_active or processing
 			if processing:
 				DEBUG.push("%s still processing..." % p.name) 
 				p.freeze()

@@ -1,9 +1,6 @@
 extends "res://Game/BaseScripts/BreakableBlock.gd"
 
 export(bool) var is_good:=true
-export(int) var damaged_frame:int
-export(NodePath) var sprite_node
-var sprite:Sprite
 
 enum { GOOD=1, BAD=0 }
 
@@ -12,9 +9,6 @@ var godsign_items:={
 	BAD:preload("res://Game/Items/GodSignBad.tscn")
 }
 
-func _ready():
-	sprite=get_node(sprite_node) as Sprite
-	assert(sprite!=null)
 
 func hit(from,amount:int=1):
 	if GameFuncs.is_actor(from,[GameEnums.ACTORS.ANY_PLAYER]):
@@ -35,5 +29,3 @@ func is_block(block:int=-1)->bool:
 			or (!is_good and GameEnums.BLOCKS.GOD_SIGN_BLOCK_BAD==block)
 			)
 
-func show_broken_block():
-	sprite.frame=damaged_frame

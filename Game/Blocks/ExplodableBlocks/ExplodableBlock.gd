@@ -1,4 +1,4 @@
-extends "res://Game/BaseScripts/BreakableBlock.gd"
+extends "res://Game/BaseScripts/Block.gd"
 
 export(PoolIntArray) var variant_frames:=[]
 export(bool) var explodeV:=false
@@ -11,29 +11,33 @@ var explosion:Node2D=preload("res://Game/Effects/BigExplosion.tscn").instance()
 
 func _ready():
 	$Block.frame=Utils.choose(variant_frames)
+	assert(explosion!=null)
 
-func hit(from,amount:int=1):
-	if GameFuncs.is_actor(from,[GameEnums.ACTORS.BOMB]) or \
-		GameFuncs.is_block(from,[GameEnums.BLOCKS.ANY_EXPLODABLE]):
-		.hit(from,amount)
-		if alive(): printerr("%s should not be alive"%name)
-		if explodeV:
-			for dir in dirs_v:
-				hit_dir(dir)
-		if explodeH:
-			for dir in dirs_h:
-				hit_dir(dir)
-
+func destroy(from,remove_instantly:bool=false)->bool:
+	if explosion==null:return true
+	if .destroy(from,false):
+		.dead()
+		explosion.connect("sides_exploding",self,"explode_things")
+		play_exploding_effect()
+	return true		
+			
+func explode_things():
+	randomize()
+	yield(Utils.timer(rand_range(0.0,0.3)),"timeout")
+	if explodeV:
+		for dir in dirs_v:
+			hit_dir(dir)
+	if explodeH:
+		for dir in dirs_h:
+			hit_dir(dir)
+	hit_dir(Vector2.ZERO)
+			
 func hit_dir(dir:Vector2):
 	var objs:Dictionary=detect_things(next_pos(dir))
-	var actor=objs.get(GameEnums.OBJECT_TYPE.ACTOR)
-	var block=objs.get(GameEnums.OBJECT_TYPE.BLOCK)
-	if block:
-		if GameEnums.CAPABILITIES.HIT in block.capabilities():
-			block.hit(self,9999)
-	elif actor:
-		if GameEnums.CAPABILITIES.HIT in actor.capabilities():
-			actor.hit(self,9999)
+	var types=[GameEnums.OBJECT_TYPE.ACTOR,GameEnums.OBJECT_TYPE.BLOCK,GameEnums.OBJECT_TYPE.ITEM]
+	for type in types:
+		var obj=objs.get(type)
+		if obj and obj!=self:obj.destroy(self)
 			
 func next_pos(dir:Vector2)->Vector2:
 	return position+dir*GameData.cell_size
@@ -47,18 +51,20 @@ func detect_things(at:Vector2)->Dictionary:
 	return things
 
 func play_exploding_effect():
-	var explosion=$BigExplosion
-	remove_child(explosion)	
+	explosion.name=explosion.name+"-Of_"+name
+	explosion.vertical=explodeV
+	explosion.horizontal=explodeH
 	GameData.world.effects_node().add_child(explosion)
-	explosion.connect("explosion_finished",self,"cleanup",[explosion])
-	explosion.explode()
-
-func cleanup(explosion):
-	explosion.queue_free()
-	.remove_from_world()
+	explosion.global_position=global_position
+	explosion.connect("center_ending",self,"remove_from_world")
+	explosion.explode_with_sides()
+	explosion=null
 	
 func is_block(block:int=-1)->bool:
 	return ( .is_block(block) or GameEnums.BLOCKS.ANY_EXPLODABLE==block)
 
-func show_broken_block():
-	pass
+func behaviors()->Array:
+	var bhvs:=.behaviors().duplicate(true)
+	bhvs.append(GameEnums.BEHAVIORS.CAN_BE_DESTROYED)
+	return bhvs
+	

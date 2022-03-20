@@ -1,99 +1,165 @@
-[gd_scene load_steps=64 format=2]
+[gd_scene load_steps=37 format=2]
 
 [ext_resource path="res://Game/Actors/Players/Player.gd" type="Script" id=1]
-[ext_resource path="res://Game/BaseScripts/Animator/Animator.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Game/BaseScripts/AnimManager.gd" type="Script" id=2]
 [ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=3]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/mhm.ogg" type="AudioStream" id=4]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/step2.ogg" type="AudioStream" id=5]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/step1.ogg" type="AudioStream" id=6]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/haan.ogg" type="AudioStream" id=7]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/chop1.ogg" type="AudioStream" id=8]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/chop2.ogg" type="AudioStream" id=9]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_soda1.ogg" type="AudioStream" id=10]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_soda2.ogg" type="AudioStream" id=11]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/aaaaah.ogg" type="AudioStream" id=12]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_fruit1.ogg" type="AudioStream" id=13]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_fruit2.ogg" type="AudioStream" id=14]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_die.ogg" type="AudioStream" id=15]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/humhum.ogg" type="AudioStream" id=16]
-[ext_resource path="res://Game/Assets/Audio/ogg/enemies/sproutch.ogg" type="AudioStream" id=18]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/backpack.ogg" type="AudioStream" id=19]
 [ext_resource path="res://Game/Effects/Lights/Torch.tscn" type="PackedScene" id=20]
 [ext_resource path="res://Game/Actors/Players/Inventory.tscn" type="PackedScene" id=21]
 
-[sub_resource type="OccluderPolygon2D" id=56]
+[sub_resource type="OccluderPolygon2D" id=1]
 polygon = PoolVector2Array( 5.55764, 7.84711, 2.3174, 2.54619, 6.93965, 1.65008, 6.29169, -9.68925, 4.75278, -12.4431, 1.91795, -13.739, -0.187744, -13.6993, -3.10376, -12.2811, -5.20963, -9.68925, -5.76188, 1.5459, -0.298752, 2.77703, -3.53076, 7.77848 )
 
-[sub_resource type="AnimationNodeAnimation" id=57]
-animation = "ExitLevel"
+[sub_resource type="Animation" id=2]
+length = 0.25
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("AnimatedSprite:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.25 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ "chop", "default" ]
+}
+tracks/1/type = "audio"
+tracks/1/path = NodePath("../SoundsEffects")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = false
+tracks/1/keys = {
+"clips": [ {
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource( 8 )
+} ],
+"times": PoolRealArray( 0.05 )
+}
+tracks/2/type = "audio"
+tracks/2/path = NodePath("../SoundsEffects")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/keys = {
+"clips": [ {
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource( 9 )
+} ],
+"times": PoolRealArray( 0.15 )
+}
+tracks/3/type = "method"
+tracks/3/path = NodePath("..")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ 0.25 ],
+"method": "hide_torch_temporarily"
+} ]
+}
 
-[sub_resource type="AnimationNodeAnimation" id=58]
-animation = "chop"
+[sub_resource type="Animation" id=3]
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("AnimatedSprite:animation")
+tracks/0/interp = 0
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.3 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 3,
+"values": [ "hit", "default" ]
+}
+tracks/1/type = "audio"
+tracks/1/path = NodePath("../Voice")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"clips": [ {
+"end_offset": 1.77968,
+"start_offset": 0.0,
+"stream": ExtResource( 15 )
+} ],
+"times": PoolRealArray( 0 )
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath("..")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"values": [ {
+"args": [ false ],
+"method": "set_physics_process"
+}, {
+"args": [  ],
+"method": "dead"
+} ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("..:visible")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 1,
+"values": [ true, false ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("AnimatedSprite:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0.3, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/5/type = "method"
+tracks/5/path = NodePath("..")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ 5.0 ],
+"method": "hide_torch_temporarily"
+} ]
+}
 
-[sub_resource type="AnimationNodeAnimation" id=59]
-animation = "hit"
-
-[sub_resource type="AnimationNodeAnimation" id=60]
-animation = "idle"
-
-[sub_resource type="AnimationNodeAnimation" id=61]
-animation = "killed"
-
-[sub_resource type="AnimationNodeAnimation" id=62]
-animation = "init"
-
-[sub_resource type="AnimationNodeAnimation" id=63]
-animation = "walk"
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=64]
-auto_advance = true
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=65]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=66]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=67]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=68]
-switch_mode = 2
-auto_advance = true
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=69]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=70]
-switch_mode = 2
-auto_advance = true
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=71]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=72]
-
-[sub_resource type="AnimationNodeStateMachineTransition" id=73]
-
-[sub_resource type="AnimationNodeStateMachine" id=74]
-resource_local_to_scene = true
-states/ExitLevel/node = SubResource( 57 )
-states/ExitLevel/position = Vector2( 820, 59 )
-states/chop/node = SubResource( 58 )
-states/chop/position = Vector2( 538, 285 )
-states/hit/node = SubResource( 59 )
-states/hit/position = Vector2( 723, 285 )
-states/idle/node = SubResource( 60 )
-states/idle/position = Vector2( 627, 167 )
-states/killed/node = SubResource( 61 )
-states/killed/position = Vector2( 820, 167 )
-states/start/node = SubResource( 62 )
-states/start/position = Vector2( 421, 167 )
-states/walk/node = SubResource( 63 )
-states/walk/position = Vector2( 627, 59 )
-transitions = [ "start", "idle", SubResource( 64 ), "idle", "walk", SubResource( 65 ), "walk", "idle", SubResource( 66 ), "idle", "chop", SubResource( 67 ), "chop", "idle", SubResource( 68 ), "idle", "hit", SubResource( 69 ), "hit", "idle", SubResource( 70 ), "idle", "killed", SubResource( 71 ), "walk", "ExitLevel", SubResource( 72 ), "idle", "ExitLevel", SubResource( 73 ) ]
-start_node = "start"
-graph_offset = Vector2( -121, 49.648 )
-
-[sub_resource type="AnimationNodeStateMachinePlayback" id=75]
-
-[sub_resource type="Animation" id=76]
-resource_name = "ExitLevel"
+[sub_resource type="Animation" id=4]
+resource_name = "exit_level"
 length = 2.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("..:scale")
@@ -158,8 +224,9 @@ tracks/4/keys = {
 "values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 0, 0, 0, 0 ), Color( 1, 1, 1, 1 ) ]
 }
 
-[sub_resource type="Animation" id=77]
-length = 0.5
+[sub_resource type="Animation" id=5]
+length = 0.25
+step = 0.05
 tracks/0/type = "value"
 tracks/0/path = NodePath("AnimatedSprite:animation")
 tracks/0/interp = 1
@@ -167,171 +234,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 1,
-"values": [ "chop" ]
-}
-tracks/1/type = "audio"
-tracks/1/path = NodePath("../SoundsEffects")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = false
-tracks/1/keys = {
-"clips": [ {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 8 )
-} ],
-"times": PoolRealArray( 0.1 )
-}
-tracks/2/type = "audio"
-tracks/2/path = NodePath("../SoundsEffects")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = false
-tracks/2/keys = {
-"clips": [ {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 9 )
-} ],
-"times": PoolRealArray( 0.2 )
-}
-tracks/3/type = "method"
-tracks/3/path = NodePath("Animator")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [ "chop", {
-"chop1": 1,
-"chop2": 2
-} ],
-"method": "rand_animation_track"
-} ]
-}
-tracks/4/type = "method"
-tracks/4/path = NodePath("Torch")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [  ],
-"method": "visuals_hidden"
-} ]
-}
-
-[sub_resource type="Animation" id=78]
-length = 0.75
-tracks/0/type = "value"
-tracks/0/path = NodePath("AnimatedSprite:animation")
-tracks/0/interp = 0
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 3,
-"values": [ "hit" ]
-}
-tracks/1/type = "audio"
-tracks/1/path = NodePath("../Voice")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"clips": [ {
-"end_offset": 1.77968,
-"start_offset": 0.0,
-"stream": ExtResource( 15 )
-} ],
-"times": PoolRealArray( 0 )
-}
-tracks/2/type = "method"
-tracks/2/path = NodePath("..")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = true
-tracks/2/keys = {
-"times": PoolRealArray( 0, 0.7 ),
-"transitions": PoolRealArray( 1, 1 ),
-"values": [ {
-"args": [ true ],
-"method": "set_physics_process"
-}, {
-"args": [  ],
-"method": "dead"
-} ]
-}
-tracks/3/type = "method"
-tracks/3/path = NodePath("Torch")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
-"times": PoolRealArray( 0, 0.5 ),
-"transitions": PoolRealArray( 1, 1 ),
-"values": [ {
-"args": [  ],
-"method": "visuals_visible"
-}, {
-"args": [  ],
-"method": "visuals_hidden"
-} ]
-}
-tracks/4/type = "value"
-tracks/4/path = NodePath("..:visible")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/keys = {
-"times": PoolRealArray( 0, 0.7 ),
+"times": PoolRealArray( 0, 0.25 ),
 "transitions": PoolRealArray( 1, 1 ),
 "update": 1,
-"values": [ true, false ]
-}
-tracks/5/type = "value"
-tracks/5/path = NodePath("AnimatedSprite:modulate")
-tracks/5/interp = 1
-tracks/5/loop_wrap = true
-tracks/5/imported = false
-tracks/5/enabled = true
-tracks/5/keys = {
-"times": PoolRealArray( 0.5, 0.7 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
-}
-
-[sub_resource type="Animation" id=79]
-length = 0.5
-tracks/0/type = "value"
-tracks/0/path = NodePath("AnimatedSprite:animation")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"update": 1,
-"values": [ "hit" ]
+"values": [ "hit", "default" ]
 }
 tracks/1/type = "audio"
 tracks/1/path = NodePath("../Steps")
@@ -348,7 +254,7 @@ tracks/1/keys = {
 "times": PoolRealArray( 0 )
 }
 tracks/2/type = "method"
-tracks/2/path = NodePath("Torch")
+tracks/2/path = NodePath("..")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/imported = false
@@ -357,13 +263,13 @@ tracks/2/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "values": [ {
-"args": [  ],
-"method": "visuals_hidden"
+"args": [ 0.25 ],
+"method": "hide_torch_temporarily"
 } ]
 }
 
-[sub_resource type="Animation" id=80]
-length = 10.0
+[sub_resource type="Animation" id=6]
+length = 0.1
 tracks/0/type = "value"
 tracks/0/path = NodePath("AnimatedSprite:animation")
 tracks/0/interp = 1
@@ -376,25 +282,11 @@ tracks/0/keys = {
 "update": 1,
 "values": [ "idle" ]
 }
-tracks/1/type = "method"
-tracks/1/path = NodePath("..")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [  ],
-"method": "manage_torch_visibility"
-} ]
-}
 
-[sub_resource type="Animation" id=81]
+[sub_resource type="Animation" id=7]
 length = 0.1
 tracks/0/type = "method"
-tracks/0/path = NodePath("Torch")
+tracks/0/path = NodePath("AnimatedSprite/Torch")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/imported = false
@@ -416,7 +308,7 @@ tracks/1/enabled = true
 tracks/1/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
-"update": 0,
+"update": 1,
 "values": [ Color( 1, 1, 1, 1 ) ]
 }
 tracks/2/type = "value"
@@ -455,9 +347,22 @@ tracks/4/keys = {
 "update": 0,
 "values": [ Color( 1, 1, 1, 1 ) ]
 }
+tracks/5/type = "value"
+tracks/5/path = NodePath("AnimatedSprite:animation")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ "idle" ]
+}
 
-[sub_resource type="Animation" id=82]
-length = 0.75
+[sub_resource type="Animation" id=8]
+length = 0.5
+step = 0.01
 tracks/0/type = "value"
 tracks/0/path = NodePath("AnimatedSprite:animation")
 tracks/0/interp = 0
@@ -465,10 +370,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PoolRealArray( 0, 0.3 ),
+"transitions": PoolRealArray( 1, 1 ),
 "update": 3,
-"values": [ "hit" ]
+"values": [ "hit", "default" ]
 }
 tracks/1/type = "audio"
 tracks/1/path = NodePath("../Voice")
@@ -478,7 +383,7 @@ tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
 "clips": [ {
-"end_offset": 1.77968,
+"end_offset": 1.97364,
 "start_offset": 0.0,
 "stream": ExtResource( 15 )
 } ],
@@ -491,7 +396,7 @@ tracks/2/loop_wrap = true
 tracks/2/imported = false
 tracks/2/enabled = true
 tracks/2/keys = {
-"times": PoolRealArray( 0, 0.5, 0.7 ),
+"times": PoolRealArray( 0, 0.25, 0.5 ),
 "transitions": PoolRealArray( 1, 1, 1 ),
 "values": [ {
 "args": [ false ],
@@ -504,8 +409,8 @@ tracks/2/keys = {
 "method": "dead"
 } ]
 }
-tracks/3/type = "method"
-tracks/3/path = NodePath("Torch")
+tracks/3/type = "value"
+tracks/3/path = NodePath("..:visible")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/imported = false
@@ -513,38 +418,39 @@ tracks/3/enabled = true
 tracks/3/keys = {
 "times": PoolRealArray( 0.5 ),
 "transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [  ],
-"method": "visuals_hidden"
-} ]
+"update": 1,
+"values": [ false ]
 }
 tracks/4/type = "value"
-tracks/4/path = NodePath("..:visible")
+tracks/4/path = NodePath("AnimatedSprite:modulate")
 tracks/4/interp = 1
 tracks/4/loop_wrap = true
 tracks/4/imported = false
 tracks/4/enabled = true
 tracks/4/keys = {
-"times": PoolRealArray( 0.7 ),
-"transitions": PoolRealArray( 1 ),
-"update": 1,
-"values": [ false ]
+"times": PoolRealArray( 0.25, 0.5 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
 }
-tracks/5/type = "value"
-tracks/5/path = NodePath("AnimatedSprite:modulate")
+tracks/5/type = "method"
+tracks/5/path = NodePath("..")
 tracks/5/interp = 1
 tracks/5/loop_wrap = true
 tracks/5/imported = false
 tracks/5/enabled = true
 tracks/5/keys = {
-"times": PoolRealArray( 0.5, 0.7 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 0,
-"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+"times": PoolRealArray( 0.01 ),
+"transitions": PoolRealArray( 1 ),
+"values": [ {
+"args": [ 5.0 ],
+"method": "hide_torch_temporarily"
+} ]
 }
 
-[sub_resource type="Animation" id=83]
-step = 0.02
+[sub_resource type="Animation" id=9]
+length = 0.25
+step = 0.05
 tracks/0/type = "value"
 tracks/0/path = NodePath("AnimatedSprite:animation")
 tracks/0/interp = 1
@@ -552,10 +458,10 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
+"times": PoolRealArray( 0, 0.25 ),
+"transitions": PoolRealArray( 1, 1 ),
 "update": 1,
-"values": [ "walk" ]
+"values": [ "walk", "default" ]
 }
 tracks/1/type = "audio"
 tracks/1/path = NodePath("../Steps")
@@ -568,12 +474,8 @@ tracks/1/keys = {
 "end_offset": 0.0,
 "start_offset": 0.0,
 "stream": ExtResource( 6 )
-}, {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 5 )
 } ],
-"times": PoolRealArray( 0.04, 0.24 )
+"times": PoolRealArray( 0.04 )
 }
 tracks/2/type = "audio"
 tracks/2/path = NodePath("../Steps")
@@ -586,182 +488,140 @@ tracks/2/keys = {
 "end_offset": 0.0,
 "start_offset": 0.0,
 "stream": ExtResource( 5 )
-}, {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 6 )
 } ],
-"times": PoolRealArray( 0.06, 0.26 )
-}
-tracks/3/type = "method"
-tracks/3/path = NodePath("Animator")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [ "walk", {
-"step1": 1,
-"step2": 2
-} ],
-"method": "rand_animation_track"
-} ]
-}
-tracks/4/type = "method"
-tracks/4/path = NodePath("..")
-tracks/4/interp = 1
-tracks/4/loop_wrap = true
-tracks/4/imported = false
-tracks/4/enabled = true
-tracks/4/keys = {
-"times": PoolRealArray( 0 ),
-"transitions": PoolRealArray( 1 ),
-"values": [ {
-"args": [  ],
-"method": "manage_torch_visibility"
-} ]
+"times": PoolRealArray( 0.15 )
 }
 
-[sub_resource type="AtlasTexture" id=55]
+[sub_resource type="AtlasTexture" id=10]
 atlas = ExtResource( 3 )
 region = Rect2( 0, 0, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=84]
+[sub_resource type="AtlasTexture" id=11]
 atlas = ExtResource( 3 )
 region = Rect2( 0, 0, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=85]
+[sub_resource type="AtlasTexture" id=12]
 atlas = ExtResource( 3 )
 region = Rect2( 32, 0, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=86]
+[sub_resource type="AtlasTexture" id=13]
 atlas = ExtResource( 3 )
 region = Rect2( 64, 0, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=87]
+[sub_resource type="AtlasTexture" id=14]
 atlas = ExtResource( 3 )
 region = Rect2( 96, 0, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=88]
-atlas = ExtResource( 3 )
-region = Rect2( 128, 0, 32, 32 )
-
-[sub_resource type="AtlasTexture" id=89]
-atlas = ExtResource( 3 )
-region = Rect2( 160, 0, 32, 32 )
-
-[sub_resource type="AtlasTexture" id=90]
-atlas = ExtResource( 3 )
-region = Rect2( 96, 0, 32, 32 )
-
-[sub_resource type="AtlasTexture" id=91]
+[sub_resource type="AtlasTexture" id=15]
 atlas = ExtResource( 3 )
 region = Rect2( 192, 160, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=92]
+[sub_resource type="AtlasTexture" id=16]
 atlas = ExtResource( 3 )
 region = Rect2( 224, 160, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=93]
+[sub_resource type="AtlasTexture" id=17]
 atlas = ExtResource( 3 )
 region = Rect2( 0, 160, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=94]
+[sub_resource type="AtlasTexture" id=18]
 atlas = ExtResource( 3 )
 region = Rect2( 32, 160, 32, 32 )
 
-[sub_resource type="AtlasTexture" id=95]
+[sub_resource type="AtlasTexture" id=19]
 atlas = ExtResource( 3 )
 region = Rect2( 0, 0, 32, 32 )
 
-[sub_resource type="SpriteFrames" id=96]
+[sub_resource type="AtlasTexture" id=20]
+atlas = ExtResource( 3 )
+region = Rect2( 128, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=21]
+atlas = ExtResource( 3 )
+region = Rect2( 160, 0, 32, 32 )
+
+[sub_resource type="AtlasTexture" id=22]
+atlas = ExtResource( 3 )
+region = Rect2( 96, 0, 32, 32 )
+
+[sub_resource type="SpriteFrames" id=23]
 animations = [ {
-"frames": [ SubResource( 55 ) ],
+"frames": [ SubResource( 10 ) ],
 "loop": true,
 "name": "default",
 "speed": 5.0
 }, {
-"frames": [ SubResource( 84 ), SubResource( 85 ), SubResource( 86 ), SubResource( 87 ) ],
+"frames": [ SubResource( 11 ), SubResource( 12 ), SubResource( 13 ), SubResource( 14 ) ],
 "loop": true,
 "name": "idle",
 "speed": 4.5
 }, {
-"frames": [ SubResource( 88 ), SubResource( 89 ), SubResource( 90 ) ],
-"loop": true,
-"name": "walk",
-"speed": 7.0
-}, {
-"frames": [ SubResource( 91 ), SubResource( 92 ) ],
+"frames": [ SubResource( 15 ), SubResource( 16 ) ],
 "loop": true,
 "name": "hit",
 "speed": 5.0
 }, {
-"frames": [ SubResource( 93 ), SubResource( 94 ), SubResource( 95 ) ],
+"frames": [ SubResource( 17 ), SubResource( 18 ), SubResource( 19 ) ],
 "loop": true,
 "name": "chop",
 "speed": 6.0
+}, {
+"frames": [ SubResource( 20 ), SubResource( 21 ), SubResource( 22 ) ],
+"loop": true,
+"name": "walk",
+"speed": 7.0
 } ]
 
-[sub_resource type="RectangleShape2D" id=97]
+[sub_resource type="RectangleShape2D" id=24]
 extents = Vector2( 14, 14 )
 
 [node name="PlayerOne" type="KinematicBody2D"]
 visible = false
 light_mask = 0
+z_index = 1
 collision_layer = 2
 collision_mask = 11
 collision/safe_margin = 2.0
 script = ExtResource( 1 )
-run_speed = 192
-walk_speed = 16
+run_speed = 128
+walk_speed = 48
 onUpFlip = 4
 onDownFlip = 4
 onIdleFlip = 4
-animator = NodePath("Animation/Animator")
+animator = NodePath("Animation/AnimationPlayer")
+visual = NodePath("Animation/AnimatedSprite")
 tween = NodePath("Animation/Tween")
-debug = true
-soda1 = ExtResource( 10 )
-soda2 = ExtResource( 11 )
-food1 = ExtResource( 13 )
-food2 = ExtResource( 14 )
-lifegain = ExtResource( 12 )
-humhum = ExtResource( 16 )
-sproutch = ExtResource( 18 )
-mhm = ExtResource( 4 )
+ENERGY_LOSED_ON_CHOP = 2
+ENERGY_LOSED_ON_RUN = 1
 
 [node name="Animation" type="Node2D" parent="."]
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Animation"]
 visible = false
 light_mask = 3
-occluder = SubResource( 56 )
+occluder = SubResource( 1 )
 light_mask = 3
 
-[node name="AnimationTree" type="AnimationTree" parent="Animation"]
-tree_root = SubResource( 74 )
-anim_player = NodePath("../AnimationPlayer")
-active = true
-parameters/playback = SubResource( 75 )
-
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Animation"]
-autoplay = "init"
 playback_process_mode = 0
 method_call_mode = 1
-anims/ExitLevel = SubResource( 76 )
-anims/chop = SubResource( 77 )
-anims/dying_no_energy = SubResource( 78 )
-anims/hit = SubResource( 79 )
-anims/idle = SubResource( 80 )
-anims/init = SubResource( 81 )
-anims/killed = SubResource( 82 )
-anims/walk = SubResource( 83 )
+anims/chop = SubResource( 2 )
+anims/dying_no_energy = SubResource( 3 )
+anims/exit_level = SubResource( 4 )
+anims/hit = SubResource( 5 )
+anims/idle = SubResource( 6 )
+anims/init = SubResource( 7 )
+anims/killed = SubResource( 8 )
+anims/walk = SubResource( 9 )
+script = ExtResource( 2 )
+loop_anims = PoolStringArray( "idle", "walk" )
+unstoppable_anims = PoolStringArray( "chop", "killed", "hit", "dying_no_energy", "exit_level", "init" )
+anims_autochaining = PoolStringArray( "init>idle", "chop>idle", "hit>idle" )
+start_anim = "init"
 
 [node name="AnimatedSprite" type="AnimatedSprite" parent="Animation"]
 light_mask = 0
-frames = SubResource( 96 )
+frames = SubResource( 23 )
 animation = "walk"
 frame = 2
 playing = true
@@ -769,21 +629,17 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Torch" parent="Animation" instance=ExtResource( 20 )]
+[node name="Torch" parent="Animation/AnimatedSprite" instance=ExtResource( 20 )]
 position = Vector2( 15, 4 )
+flamming = false
 TORCH_DELAY_SEC = 300
-
-[node name="Animator" parent="Animation" instance=ExtResource( 2 )]
-animTree = NodePath("../AnimationTree")
-visual = NodePath("../AnimatedSprite")
-looping_anims = PoolStringArray( "idle" )
 
 [node name="Tween" type="Tween" parent="Animation"]
 
 [node name="PlayerBody" type="CollisionShape2D" parent="."]
 visible = false
 light_mask = 0
-shape = SubResource( 97 )
+shape = SubResource( 24 )
 
 [node name="FrontEffects" type="Node2D" parent="."]
 
@@ -798,19 +654,24 @@ editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="Steps" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 7 )
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 15 )
 
 [node name="SoundsEffects" type="AudioStreamPlayer" parent="."]
-stream = ExtResource( 9 )
 
 [node name="LoseEnergyTimer" type="Timer" parent="."]
-wait_time = 10.0
+wait_time = 20.0
 autostart = true
 
 [node name="Inventory" parent="." instance=ExtResource( 21 )]
 visible = false
 backpack = ExtResource( 19 )
+
+[node name="Reminder" type="Timer" parent="."]
+wait_time = 2.0
+one_shot = true
+
+[node name="RevertHidingTorchTimer" type="Timer" parent="."]
+one_shot = true
 [connection signal="timeout" from="LoseEnergyTimer" to="." method="loseEnergy" binds= [ 1 ]]
+[connection signal="timeout" from="RevertHidingTorchTimer" to="." method="_on_RevertHidingTorchTimer_timeout"]

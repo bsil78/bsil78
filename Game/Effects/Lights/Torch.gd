@@ -6,7 +6,7 @@ export(int) var TORCH_DELAY_SEC:=120
 var max_delay:float=TORCH_DELAY_SEC
 
 func _ready():
-	shutdown()
+	shutdown(false)
 
 func set_flamming(value:bool):
 	if is_instance_valid($Light):
@@ -21,9 +21,6 @@ func is_flammed()->bool:
 func remaing_time()->float:
 	return $Timer.time_left
 
-func max_delay()->float:
-	return max_delay
-
 func queue_free():
 	$Timer.stop()
 	shutdown()
@@ -35,24 +32,26 @@ func freeze():
 func unfreeze():
 	$Timer.paused=false
 
-func shutdown():
+func shutdown(withsound:=true):
 	flamming=false
 	hide()
 	$Light.hide()		
 	$Flammes.emitting=false
 	$Timer.stop()
+	if withsound:$SoundTorchOff.play()
 
 func flamme_it():
 	if !$Timer.is_stopped():
 		DEBUG.error("Torch already flamming !")
 		return
+	$SoundTorchOn.play()
 	$Timer.paused=false
 	flamming=true
 	show()
 	$Light.show()	
 	$Flammes.emitting=true
 	var delay=TORCH_DELAY_SEC
-	max_delay*=randfpct(20)
+	max_delay=delay*randfpct(20)
 	$Timer.start(max_delay)
 
 func randfpct(pct:int=50)->float:

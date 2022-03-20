@@ -1,0 +1,318 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=1]
+[ext_resource path="res://Game/Assets/Audio/ogg/effects/rock_moving.ogg" type="AudioStream" id=2]
+[ext_resource path="res://Game/Actors/Runners/Crusher/CrusherBlock.gd" type="Script" id=4]
+[ext_resource path="res://Game/BaseScripts/AnimManager.gd" type="Script" id=5]
+
+[sub_resource type="OccluderPolygon2D" id=1]
+cull_mode = 1
+polygon = PoolVector2Array( -12.8539, -13.057, 12.8992, -13.0109, 12.9448, 12.9687, -12.9492, 12.9405 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 14, 14 )
+
+[sub_resource type="Animation" id=3]
+resource_name = "GoingDown"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CrusherBlockSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 14 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CrusherBlockSprite/Arrow:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CrusherBlockSprite/Arrow:flip_h")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CrusherBlockSprite/Arrow:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.4, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.156863 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.156863 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CrusherBlockSprite/Arrow:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 16 ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "GoingLeft"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CrusherBlockSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 12 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CrusherBlockSprite/Arrow:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -90.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CrusherBlockSprite/Arrow:flip_h")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CrusherBlockSprite/Arrow:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.4, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.156863 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.156863 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CrusherBlockSprite/Arrow:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 11 ]
+}
+
+[sub_resource type="Animation" id=5]
+resource_name = "GoingRight"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CrusherBlockSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 15 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CrusherBlockSprite/Arrow:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -90.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CrusherBlockSprite/Arrow:flip_h")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CrusherBlockSprite/Arrow:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.4, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.156863 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.156863 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CrusherBlockSprite/Arrow:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 16 ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "GoingUp"
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("CrusherBlockSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 13 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("CrusherBlockSprite/Arrow:rotation_degrees")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("CrusherBlockSprite/Arrow:flip_h")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ false ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("CrusherBlockSprite/Arrow:self_modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.4, 0.5, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0.156863 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.156863 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("CrusherBlockSprite/Arrow:frame")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 11 ]
+}
+
+[node name="CrusherBlock" type="KinematicBody2D"]
+collision_layer = 8
+collision_mask = 11
+collision/safe_margin = 2.0
+script = ExtResource( 4 )
+run_speed = 192
+onLeftFlip = 0
+do_adjust_facing = false
+animator = NodePath("Animation/AnimationPlayer")
+visual = NodePath("Animation/CrusherBlockSprite")
+one_step_on_push = true
+audio_player_path = NodePath("RockSound")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+light_mask = 3
+occluder = SubResource( 1 )
+light_mask = 3
+
+[node name="CrusherBlockBody" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
+
+[node name="Animation" type="Node2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Animation"]
+anims/GoingDown = SubResource( 3 )
+anims/GoingLeft = SubResource( 4 )
+anims/GoingRight = SubResource( 5 )
+anims/GoingUp = SubResource( 6 )
+script = ExtResource( 5 )
+loop_anims = PoolStringArray( "GoingDown", "GoingUp", "GoingLeft", "GoingRight" )
+
+[node name="CrusherBlockSprite" type="Sprite" parent="Animation"]
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 10
+frame = 14
+
+[node name="Arrow" type="Sprite" parent="Animation/CrusherBlockSprite"]
+self_modulate = Color( 1, 1, 1, 0.156863 )
+texture = ExtResource( 1 )
+flip_h = true
+vframes = 10
+hframes = 10
+frame = 16
+
+[node name="RockSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 2 )
+mix_target = 2

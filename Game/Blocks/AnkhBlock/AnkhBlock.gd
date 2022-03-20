@@ -1,8 +1,8 @@
-extends "res://Game/BaseScripts/BreakableBlock.gd"
+extends "res://Game/BaseScripts/SolidBlock.gd"
 
 func hit(from:Node2D,amount:int)->bool:
 	if !from.is_actor(GameEnums.ACTORS.ANY_PLAYER): return false
-	var done=.hit(from,amount)
+	var done:=.hit(from,amount)
 	if !done: return false
 	$BlockBackground.frame=19
 	if !is_alive():
@@ -18,3 +18,8 @@ func hit(from:Node2D,amount:int)->bool:
 				new_player.position=position
 				remove_from_world()
 	return true
+	
+func behaviors()->Array:
+	var bhvs:=.behaviors().duplicate(true)
+	bhvs.erase(GameEnums.BEHAVIORS.CAN_BE_DESTROYED)
+	return bhvs

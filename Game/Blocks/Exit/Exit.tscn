@@ -1,18 +1,18 @@
-[gd_scene load_steps=9 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://Game/Blocks/Exit/Exit.gd" type="Script" id=1]
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=2]
 [ext_resource path="res://Game/Assets/Fonts/Pixeled.ttf" type="DynamicFontData" id=3]
 [ext_resource path="res://Game/Effects/ExitFullFilled.tscn" type="PackedScene" id=4]
 
-[sub_resource type="DynamicFont" id=1]
+[sub_resource type="DynamicFont" id=2]
 size = 18
 outline_size = 1
 outline_color = Color( 0, 0, 0, 1 )
 extra_spacing_top = -11
 font_data = ExtResource( 3 )
 
-[sub_resource type="Animation" id=4]
+[sub_resource type="Animation" id=3]
 resource_name = "alreaydy_fullfilled"
 step = 0.05
 tracks/0/type = "value"
@@ -40,7 +40,7 @@ tracks/1/keys = {
 "values": [ true, false ]
 }
 
-[sub_resource type="Animation" id=3]
+[sub_resource type="Animation" id=4]
 resource_name = "fullfilled"
 length = 2.0
 step = 0.05
@@ -69,8 +69,84 @@ tracks/1/keys = {
 "values": [ true, false ]
 }
 
-[sub_resource type="Animation" id=2]
-resource_name = "opening"
+[sub_resource type="Animation" id=5]
+resource_name = "init"
+length = 0.1
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("DisabledSprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("DisabledSprite:visible")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("FulFilledSprite:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 0, 0 ) ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("FulFilledSprite:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("FulFilledSprite:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ) ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("FulFilledSprite:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+
+[sub_resource type="Animation" id=6]
 length = 2.0
 tracks/0/type = "value"
 tracks/0/path = NodePath("FulFilledSprite:visible")
@@ -139,8 +215,6 @@ frame = 45
 region_rect = Rect2( 160, 96, 32, 32 )
 
 [node name="DisabledSprite" type="Sprite" parent="."]
-visible = false
-modulate = Color( 1, 1, 1, 0 )
 texture = ExtResource( 2 )
 vframes = 10
 hframes = 10
@@ -162,7 +236,7 @@ margin_left = -64.0
 margin_top = -19.0
 margin_right = 64.0
 margin_bottom = 21.0
-custom_fonts/font = SubResource( 1 )
+custom_fonts/font = SubResource( 2 )
 custom_colors/font_color = Color( 1, 0, 0, 1 )
 custom_colors/font_outline_modulate = Color( 0, 0, 0, 0.32549 )
 custom_colors/font_color_shadow = Color( 0, 0, 0, 0.780392 )
@@ -175,7 +249,12 @@ __meta__ = {
 }
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-anims/alreaydy_fullfilled = SubResource( 4 )
-anims/fullfilled = SubResource( 3 )
-anims/opening = SubResource( 2 )
+autoplay = "init"
+anims/alreaydy_fullfilled = SubResource( 3 )
+anims/fullfilled = SubResource( 4 )
+anims/init = SubResource( 5 )
+anims/opening = SubResource( 6 )
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+mix_target = 2
 [connection signal="timeout" from="TextTimer" to="." method="hide_text"]

@@ -49,6 +49,10 @@ GameData="*res://Game/GlobalScripts/GameData.gd"
 GameFuncs="*res://Game/GlobalScripts/GameFuncs.gd"
 DEBUG="*res://Utils/Debug/DEBUG.gd"
 
+[debug]
+
+gdscript/warnings/return_value_discarded=false
+
 [display]
 
 window/size/width=640
@@ -57,6 +61,13 @@ window/size/resizable=false
 window/size/always_on_top=true
 window/vsync/vsync_via_compositor=true
 window/stretch/aspect="keep"
+
+[importer_defaults]
+
+ogg_vorbis={
+"loop": false,
+"loop_offset": 0
+}
 
 [input]
 
@@ -142,9 +153,15 @@ ui_switch={
 2d_physics/layer_5="sfx"
 2d_physics/layer_6="gui"
 
+[locale]
+
+locale_filter=[ 0, [ "en", "fr" ] ]
+translations=PoolStringArray( "res://messages.en.translation", "res://messages.fr.translation" )
+
 [logging]
 
 file_logging/enable_file_logging=true
+file_logging/log_path="c:\\Temp\\godot_logs\\log.txt"
 
 [rendering]
 

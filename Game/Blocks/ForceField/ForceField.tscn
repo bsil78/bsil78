@@ -1,8 +1,11 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://Game/Blocks/ForceField/ForceField.gd" type="Script" id=1]
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=2]
 [ext_resource path="res://Game/Effects/ForceFieldDisappear.tscn" type="PackedScene" id=3]
+[ext_resource path="res://Game/Assets/Images/Characters/mini-bat.png" type="Texture" id=4]
+[ext_resource path="res://Game/Assets/Audio/ogg/effects/bats.ogg" type="AudioStream" id=5]
+[ext_resource path="res://Game/Assets/Images/Environment/tilesmap.png" type="Texture" id=6]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -130,11 +133,58 @@ shader_param/min_alpha = 0.0
 shader_param/max_alpha = 0.5
 shader_param/FLASH_SCALE = 0.9
 shader_param/min_color_dist = 0.0
-shader_param/max_color_dist = 1.0
+shader_param/max_color_dist = 0.5
 shader_param/FLASH_OFFSET = 0.0
 
-[sub_resource type="Animation" id=3]
-resource_name = "anim"
+[sub_resource type="AtlasTexture" id=3]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 0, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=4]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 11, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=5]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 22, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=6]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 33, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=7]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 44, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=8]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 55, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=9]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 66, 0, 11, 11 )
+
+[sub_resource type="AtlasTexture" id=10]
+flags = 4
+atlas = ExtResource( 4 )
+region = Rect2( 77, 0, 11, 11 )
+
+[sub_resource type="SpriteFrames" id=11]
+animations = [ {
+"frames": [ SubResource( 3 ), SubResource( 4 ), SubResource( 5 ), SubResource( 6 ), SubResource( 7 ), SubResource( 8 ), SubResource( 9 ), SubResource( 10 ) ],
+"loop": true,
+"name": "default",
+"speed": 20.0
+} ]
+
+[sub_resource type="Animation" id=12]
 length = 2.0
 loop = true
 tracks/0/type = "value"
@@ -178,21 +228,30 @@ tracks/2/keys = {
 script = ExtResource( 1 )
 effect = ExtResource( 3 )
 
-[node name="Spider" type="Sprite" parent="."]
+[node name="Background" type="Sprite" parent="."]
 texture = ExtResource( 2 )
 vframes = 10
 hframes = 10
-frame = 20
+frame = 24
 region_rect = Rect2( 160, 96, 32, 32 )
 
 [node name="BlockFace" type="Sprite" parent="."]
 material = SubResource( 2 )
-texture = ExtResource( 2 )
+texture = ExtResource( 6 )
 vframes = 10
 hframes = 10
+frame = 5
+
+[node name="BatsPlaceHolder" type="Node2D" parent="."]
+
+[node name="BatPrototype" type="AnimatedSprite" parent="."]
+visible = false
+frames = SubResource( 11 )
+frame = 4
+playing = true
 
 [node name="Arrows" type="Sprite" parent="."]
-scale = Vector2( 1, 0.933597 )
+scale = Vector2( 1, 0.940408 )
 texture = ExtResource( 2 )
 vframes = 10
 hframes = 10
@@ -201,4 +260,8 @@ frame = 30
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 autoplay = "anim"
 playback_speed = 0.75
-anims/anim = SubResource( 3 )
+anims/anim = SubResource( 12 )
+
+[node name="BatsSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+mix_target = 1

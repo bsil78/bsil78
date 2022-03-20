@@ -1,0 +1,500 @@
+[gd_scene load_steps=13 format=2]
+
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=1]
+[ext_resource path="res://Game/BaseScripts/AnimManager.gd" type="Script" id=2]
+[ext_resource path="res://Game/Actors/Runners/Bomb/BombGoldenScarab.gd" type="Script" id=3]
+[ext_resource path="res://Game/Effects/BigExplosion.tscn" type="PackedScene" id=4]
+[ext_resource path="res://Game/Assets/Audio/ogg/effects/rock_moving.ogg" type="AudioStream" id=5]
+
+[sub_resource type="OccluderPolygon2D" id=1]
+cull_mode = 1
+polygon = PoolVector2Array( -3.1256, -12.2617, 1.0509, -12.3611, 2.34363, -9.77567, 5.12797, -7.38909, 6.12238, -2.51651, 5.32685, 10.1124, 1.44867, 15.0845, -3.42392, 14.985, -7.10322, 10.4108, -7.7993, -2.61595, -6.60602, -7.58797, -4.12, -9.77567 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 14, 14 )
+
+[sub_resource type="Animation" id=3]
+resource_name = "GoingDown"
+length = 2.0
+loop = true
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("ScarabSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 27 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("ScarabSprite/RedLight/RedLightSkull:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 0.588235, 0, 0, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("ScarabSprite/RedLight:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.15, 0.25, 0.35 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 47, 57, 67, 47 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("ScarabSprite/RedLight:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.911029 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.969617 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("ScarabSprite/RedLight:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("ScarabSprite/RedLight/RedLightSkull:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("ScarabSprite/RedLight/RedLightSkull:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 37 ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("../LightOccluder2D:rotation_degrees")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 180.0 ]
+}
+
+[sub_resource type="Animation" id=4]
+resource_name = "GoingLeft"
+length = 2.0
+loop = true
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("ScarabSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 29 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("ScarabSprite/RedLight/RedLightSkull:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 0.145098, 0.196078, 0.470588, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("ScarabSprite/RedLight:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.15, 0.25, 0.35 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 49, 59, 69, 49 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("ScarabSprite/RedLight:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.911029 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.969617 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("ScarabSprite/RedLight:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("ScarabSprite/RedLight/RedLightSkull:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("ScarabSprite/RedLight/RedLightSkull:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 39 ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("../LightOccluder2D:rotation_degrees")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ -90.0 ]
+}
+
+[sub_resource type="Animation" id=5]
+resource_name = "GoingRight"
+length = 2.0
+loop = true
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("ScarabSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 28 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("ScarabSprite/RedLight/RedLightSkull:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 0.145098, 0.196078, 0.470588, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("ScarabSprite/RedLight:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.15, 0.25, 0.35 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 48, 58, 68, 48 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("ScarabSprite/RedLight:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0.911029 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0.969617 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("ScarabSprite/RedLight:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("ScarabSprite/RedLight/RedLightSkull:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("ScarabSprite/RedLight/RedLightSkull:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 38 ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("../LightOccluder2D:rotation_degrees")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 90.0 ]
+}
+
+[sub_resource type="Animation" id=6]
+resource_name = "GoingUp"
+length = 2.0
+loop = true
+step = 0.05
+tracks/0/type = "value"
+tracks/0/path = NodePath("ScarabSprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 26 ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("ScarabSprite/RedLight/RedLightSkull:self_modulate")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 0.588235, 0, 0, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("ScarabSprite/RedLight:frame")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray( 0, 0.15, 0.25, 0.35 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 1,
+"values": [ 46, 56, 66, 46 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("ScarabSprite/RedLight:modulate")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/keys = {
+"times": PoolRealArray( 0, 0.6, 0.75, 1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("ScarabSprite/RedLight:visible")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/5/type = "value"
+tracks/5/path = NodePath("ScarabSprite/RedLight/RedLightSkull:visible")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ true ]
+}
+tracks/6/type = "value"
+tracks/6/path = NodePath("ScarabSprite/RedLight/RedLightSkull:frame")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 1,
+"values": [ 36 ]
+}
+tracks/7/type = "value"
+tracks/7/path = NodePath("../LightOccluder2D:rotation_degrees")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/keys = {
+"times": PoolRealArray( 0 ),
+"transitions": PoolRealArray( 1 ),
+"update": 0,
+"values": [ 0.0 ]
+}
+
+[sub_resource type="Animation" id=7]
+resource_name = "exploding"
+length = 0.5
+tracks/0/type = "value"
+tracks/0/path = NodePath("ScarabSprite:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/keys = {
+"times": PoolRealArray( 0, 0.4 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+
+[node name="BombGoldenScarab" type="KinematicBody2D"]
+collision_layer = 8
+collision_mask = 11
+collision/safe_margin = 2.0
+script = ExtResource( 3 )
+run_speed = 192
+walk_speed = 8
+onLeftFlip = 0
+do_adjust_facing = false
+animator = NodePath("Animation/AnimationPlayer")
+visual = NodePath("Animation/ScarabSprite")
+one_step_on_push = true
+always_running = true
+initial_dir = "Right"
+audio_player_path = NodePath("RockSound")
+
+[node name="LightOccluder2D" type="LightOccluder2D" parent="."]
+light_mask = 3
+rotation = 3.14159
+occluder = SubResource( 1 )
+light_mask = 3
+
+[node name="BombBody" type="CollisionShape2D" parent="."]
+shape = SubResource( 2 )
+
+[node name="BigExplosion" parent="." instance=ExtResource( 4 )]
+
+[node name="Animation" type="Node2D" parent="."]
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Animation"]
+anims/GoingDown = SubResource( 3 )
+anims/GoingLeft = SubResource( 4 )
+anims/GoingRight = SubResource( 5 )
+anims/GoingUp = SubResource( 6 )
+anims/exploding = SubResource( 7 )
+script = ExtResource( 2 )
+loop_anims = PoolStringArray( "GoingDown", "GoingLeft", "GoingRight", "GoingUp" )
+unstoppable_anims = PoolStringArray( "exploding" )
+
+[node name="ScarabSprite" type="Sprite" parent="Animation"]
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 10
+frame = 27
+
+[node name="RedLight" type="Sprite" parent="Animation/ScarabSprite"]
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 10
+frame = 47
+
+[node name="RedLightSkull" type="Sprite" parent="Animation/ScarabSprite/RedLight"]
+self_modulate = Color( 1, 1, 1, 0 )
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 10
+frame = 37
+
+[node name="RockSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+mix_target = 2

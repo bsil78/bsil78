@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=2]
 
-[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlock.gd" type="Script" id=1]
+[ext_resource path="res://Game/Blocks/GodSignBlocks/GodSignBlockBad.gd" type="Script" id=1]
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=2]
 [ext_resource path="res://Game/Effects/BlockExploding.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Game/Effects/HitBlock.tscn" type="PackedScene" id=4]
@@ -9,11 +9,10 @@
 script = ExtResource( 1 )
 hitEffect = ExtResource( 4 )
 explodingEffect = ExtResource( 3 )
-max_hit_points = 15
-hit_points = 15
+max_hit_points = 25
+broken_limit = 10
+hit_points = 25
 is_good = false
-damaged_frame = 32
-sprite_node = NodePath("Block")
 
 [node name="Block" type="Sprite" parent="."]
 texture = ExtResource( 2 )

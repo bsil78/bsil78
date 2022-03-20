@@ -10,12 +10,25 @@ var exits:=[]
 func _ready():
 	$ContextOfLevels.fill(size)
 	scan_objects()
-	for node in $BlocksLayer.get_children():
-		if !node.has_method("is_block"):continue
-		if node.is_block(GameEnums.BLOCKS.EXIT):
-			node.connect("exit_fullfilled",self,"check_exits")
-			exits.append(node)
 
+func connect_exit(exit:Node2D):
+	exit.connect("exit_fullfilled",self,"check_exits")
+	exits.append(exit)
+
+func has_actor_at(at,object=null)->bool:
+	return has_thing_at(at,object,GameEnums.OBJECT_TYPE.ACTOR)
+	
+func has_item_at(at,object=null)->bool:
+	return has_thing_at(at,object,GameEnums.OBJECT_TYPE.ITEM)
+
+func has_block_at(at,object=null)->bool:
+	return has_thing_at(at,object,GameEnums.OBJECT_TYPE.BLOCK)
+
+func has_thing_at(at,object,type_of_thing)->bool:
+	var thing=objects_at(at).get(type_of_thing)
+	if !thing: return false
+	if !object: return true
+	return object==thing
 
 func check_exits():
 	# if one has not been fullfilled : cannot exit yet
@@ -27,7 +40,7 @@ func check_exits():
 
 func lock_grid():
 	while grid_lock.try_lock()==ERR_BUSY:
-		DEBUG.push("Waiting grid lock")
+		DEBUG.push("Waiting for grid lock")
 		yield(Utils.timer(0.1),"timeout")
 
 func unlock_grid():
@@ -41,7 +54,7 @@ func scan_objects():
 	
 func add_scanned_objects(level_node:Node2D):
 	for node in level_node.get_children():
-		if((node as Node2D).name.matchn("*layer*")):
+		if((node as Node2D).name.match("*Layer")):
 			add_scanned_objects(node)
 		else:
 			var type:int=GameFuncs.object_type_of(node)
@@ -90,7 +103,7 @@ func sub_grid(pos:Vector2,dir:Vector2)->Dictionary:
 	else:
 		return {dir:value}
 	
-func remove_object_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->bool:
+func remove_type_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->bool:
 	lock_grid()
 	var done:=false
 	var grid_pos=GameFuncs.grid_pos(pos)
@@ -102,6 +115,20 @@ func remove_object_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)
 	unlock_grid()
 	return done
 	
+func remove_object_at(pos:Vector2,object)->bool:
+	lock_grid()
+	var done:=false
+	var grid_pos=GameFuncs.grid_pos(pos)
+	if objects.has(grid_pos):
+		var dic:=(objects[grid_pos] as Dictionary)
+		if dic.values().has(object):
+			var key_to_erase=-1
+			for key in dic:
+				if dic[key]==object: key_to_erase=key
+			done=(key_to_erase!=-1) and dic.erase(key_to_erase)
+			if len(dic)==0:objects.erase(grid_pos)
+	unlock_grid()
+	return done	
 
 #func ifmatch_remove_object(mask:String,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->Vector2:
 #	var found_pos:Vector2
@@ -124,13 +151,17 @@ func remove_object_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)
 	
 func remove_object(object:Node2D)->bool:
 	lock_grid()
+	var remove_count:=0
 	var new_dics:={}
 	var to_remove:=[]
 	for grid_pos in objects:
 		var dic:Dictionary=objects[grid_pos] as Dictionary
 		var new_dic:={}
 		for key in dic:
-			if object!=dic[key]: new_dic[key]=dic[key]
+			if object!=dic[key]: 
+				new_dic[key]=dic[key]
+			else:
+				remove_count+=1
 		if new_dic.empty():
 			to_remove.push_back(grid_pos)
 		else:
@@ -144,8 +175,9 @@ func remove_object(object:Node2D)->bool:
 #		var dic:Dictionary=objects[grid_pos] as Dictionary
 #		for key in dic:
 #			if object==dic[key]: printerr("Remove object failed")
+#	print_debug("Removed %s of %s"%[remove_count,object.name])
 	unlock_grid()
-	return true
+	return remove_count>0
 	
 func remaining_good_godsigns_items()->int:
 	var remaining:=0
@@ -181,8 +213,8 @@ func objects_at(at:Vector2)->Dictionary:
 	return found
 
 func matching_object_at(mask:String,at:Vector2)->Node2D:
-	var objects:=objects_at(at)
-	for obj in objects.values():
+	var all_objects:=objects_at(at)
+	for obj in all_objects.values():
 		if obj.name.matchn(mask):
 			return obj
 	return null

@@ -2,70 +2,98 @@ extends Node2D
 
 var itself:Node2D=self
 var alive=true
-var debug=null
 var frozen:=false
 
-func _init(itself:Node2D=self):
-	self.itself=itself
-	if itself.debug:debug=DEBUG.ON
+export(bool) var debug:=false
+var messages:=[]
+
+func _init(the_self:Node2D=self):
+	self.itself=the_self
+
+func dbgmsg(msg,error:bool=false):
+	if(itself.debug):
+		itself.messages.push_back(msg)
+		if itself.messages.size()>10: itself.messages.pop_front()
+		if error:
+			DEBUG.error("%s %s" % [itself.name,msg])
+		else:
+			DEBUG.push("%s %s" % [itself.name,msg])
 
 func is_alive()->bool:
 	return alive
 	
-func alive():
+func make_alive():
 	alive=true
 
 func dead():
 	alive=false
 
 func freeze():
-	if(debug):debug.push("%s frozen" % itself.name)
-	frozen=true
-	itself.set_physics_process(false)
-	itself.set_process(false)
-
+	if !frozen:
+		dbgmsg("frozen")
+		frozen=true
+		itself.set_physics_process(false)
+		itself.set_process(false)
+	else:
+		dbgmsg("already frozen [PHI_PS : %s, PS : %s]"%[itself.is_physics_processing(),itself.is_processing()])
+		
 func unfreeze():
-	frozen=false
-	if(debug):debug.push("%s not frozen" % itself.name)
-	itself.set_physics_process(true)
-	itself.set_process(true)
+	if frozen:
+		dbgmsg("no more frozen")
+		frozen=false
+		itself.set_physics_process(true)
+		itself.set_process(true)
+	else:
+		dbgmsg("already not frozen [PHI_PS : %s, PS : %s]"%[itself.is_physics_processing(),itself.is_processing()])
 	
 func remove_from_level_objects():
 	GameData.world.level.remove_object(itself)
 
-func push_to(who:Node2D,dir:Vector2)->bool:
-	return false
+func push_to(_who:Node2D,_dir:Vector2)->bool:
+	return GameEnums.BEHAVIORS.PUSH in itself.behaviors()
 	
 func hit(from:Node2D,amount:int)->bool:
-	if alive:
-		if(debug):debug.push("%s was hit by %s for %s points"%[itself.name,from.name,amount])
+	if alive and GameEnums.BEHAVIORS.HIT in itself.behaviors() and itself.can_be_hit_by(from):
+		dbgmsg("was hit by %s for %s points"%[from.name,amount])
 		return true
 	else:
 		return false
 
-func pickup(who:Node2D)->bool:
+func can_be_hit_by(from:Node2D)->bool:
 	return false
 
-func use_in_place(who:Node2D)->bool:
-	return false
+func destroy(from:Node2D,remove_instantly:bool=true)->bool:
+	if alive and GameEnums.BEHAVIORS.CAN_BE_DESTROYED in itself.behaviors():
+		alive=false
+		dbgmsg("was destroyed by %s"%from.name)
+		if remove_instantly:remove_from_world()
+		return true
+	else:
+		return false
 
-func step_on(who:Node2D)->bool:
-	return false
+func pickup(_who:Node2D)->bool:
+	return GameEnums.BEHAVIORS.PICKUP in itself.behaviors()
+
+func use_in_place(_who:Node2D)->bool:
+	return GameEnums.BEHAVIORS.USE_IN_PLACE in itself.behaviors()
+
+func step_on(_who:Node2D)->bool:
+	return GameEnums.BEHAVIORS.STEP_ON in itself.behaviors()
 	
-func capabilities()->Array:
-	return []
+func behaviors()->Array:
+	return [GameEnums.BEHAVIORS.CAN_BE_DESTROYED]
 
-func is_actor(actor:int=-1)->bool:
+func is_actor(_actor:int=-1)->bool:
 	return false
 
-func is_item(item:int=-1)->bool:
+func is_item(_item:int=-1)->bool:
 	return false
 
-func is_block(block:int=-1)->bool:
+func is_block(_block:int=-1)->bool:
 	return false
 
 func remove_from_world():
-	if(debug):debug.push("removing %s from world" % itself.name)
+	dbgmsg("is removing itself from world")
 	var parent=itself.get_parent()
 	alive=false
 	freeze()	
@@ -76,3 +104,6 @@ func remove_from_world():
 	
 func remove_from_game():
 	Utils.timer(0.5).connect("timeout",itself,"queue_free")
+
+func type_id()->int:
+	return -1

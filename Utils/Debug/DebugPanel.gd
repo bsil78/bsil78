@@ -61,4 +61,5 @@ func _input(event):
 		if key.scancode==KEY_KP_ADD:
 			idx+=1
 		if key.scancode==KEY_KP_SUBTRACT:
+# warning-ignore:narrowing_conversion
 			idx=max(idx-1,0)

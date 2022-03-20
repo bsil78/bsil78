@@ -4,51 +4,75 @@ class_name Inventory
 #signals
 signal inventory_changed
 	
-var sodas:=0
+var jar:=0
 var food:=0
-var medkit:=0
+var ankh:=0
 var torch:=1
 var god_signs:=0
 var maps:={}
 
 export(AudioStream) var backpack
 
-func store(item:int,item_node:Node2D):
-	backpack_sound()
+func store(item:int,item_node:Node2D,backpack_play_sound:bool=true)->bool:
+	var taken:=false
+	
 	match item:
 		GameEnums.ITEMS.GOD_SIGN_GOOD:
 			god_signs+=1
 			update()
-			return
-		GameEnums.ITEMS.SODA:
-			sodas+=1
+			taken= true
+		GameEnums.ITEMS.JAR:
+			jar+=1
 			update()
-			return
+			taken= true
 		GameEnums.ITEMS.FOOD:
 			food+=1
 			update()
-			return
-		GameEnums.ITEMS.MEDKIT:
-			medkit+=1
+			taken= true
+		GameEnums.ITEMS.ANKH:
+			ankh+=1
 			update()
-			return
+			taken= true
 		GameEnums.ITEMS.TORCH:
 			torch+=1
 			update()
-			return
+			taken= true
 		GameEnums.ITEMS.MAP:
 			if !maps.has(GameData.current_level):maps[GameData.current_level]=[]
 			maps[GameData.current_level].push_back(item_node)
 			update()
-			return
+			taken= true
 		_:
 			printerr("Unknown item %s of name %s" % [item,item_node.name])
-			
+			taken= false
+	if taken and backpack_play_sound:backpack_sound()
+	return taken
+
+func duplicate(flags:int=6):
+	var new_inv=.duplicate(DUPLICATE_GROUPS+DUPLICATE_SCRIPTS)
+	new_inv.jar=jar
+	new_inv.ankh=ankh
+	new_inv.food=food
+	new_inv.torch=torch
+	new_inv.god_signs=god_signs
+	new_inv.maps=maps.duplicate(true)
+	return new_inv
+	
+
+
+func reset():
+	jar=0
+	food=0
+	ankh=0
+	torch=1
+	god_signs=0
+	maps={}
+				
 func use(item:int):
 	match item:
-		GameEnums.ITEMS.SODA:
-			if sodas>0:
-				sodas-=1
+		GameEnums.ITEMS.JAR:
+			if jar>0:
+				jar-=1
 				update()
 				return true
 		GameEnums.ITEMS.FOOD:
@@ -56,9 +80,9 @@ func use(item:int):
 				food-=1
 				update()
 				return true
-		GameEnums.ITEMS.MEDKIT:
-			if medkit>0:
-				medkit-=1
+		GameEnums.ITEMS.ANKH:
+			if ankh>0:
+				ankh-=1
 				update()
 				return true
 		GameEnums.ITEMS.TORCH:
@@ -77,4 +101,4 @@ func update():
 	emit_signal("inventory_changed")
 		
 func backpack_sound():
-	Utils.play_sound($SoundsEffects,backpack,-10)
+	if backpack:Utils.play_sound($SoundsEffects,backpack,-10)

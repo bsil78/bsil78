@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/ambient_hunted_sound.ogg-75231cecf47ac5d4b5ac90d832958777.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/ambient_hunted_sound.ogg"
+dest_files=[ "res://.import/ambient_hunted_sound.ogg-75231cecf47ac5d4b5ac90d832958777.oggstr" ]
+
+[params]
+
+loop=true
+loop_offset=0

@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/Hansjörg-Malthaner (@httpopengameart.orgusersvarkalandar) hjm-big_explosion_3.ogg-831b50a15bf98b6063c73ff6e424cf43.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/Hansjörg-Malthaner (@httpopengameart.orgusersvarkalandar) hjm-big_explosion_3.ogg"
+dest_files=[ "res://.import/Hansjörg-Malthaner (@httpopengameart.orgusersvarkalandar) hjm-big_explosion_3.ogg-831b50a15bf98b6063c73ff6e424cf43.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

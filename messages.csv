@@ -1,0 +1,8 @@
+clés,fr,en
+GAME_OVER,"Jeu terminé...\n\nretour au menu","Game over...\n\nback to menu"
+GAME_WON,"B R A V O !\nVous avez réussi à sortir\naprès %s jour%s !","W E L L   D O N E !\nYou succedded to find final exit\nafter %s day%s !"
+ENTER_LEVEL,"Jour %s","Day %s"
+DEAD_AFTER,"Vous êtes mort\n%s\naprès %s jour%s.","You died\n%s\nafter %s day%s."
+OF_NO_ENERGY,"épuisé","exhausted"
+OF_NO_LIFE,"de blessures","of wounds"
+START,"Explorer","START"

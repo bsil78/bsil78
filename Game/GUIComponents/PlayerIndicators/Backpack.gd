@@ -10,12 +10,12 @@ var _bphelp:Label
 var _labels:={}
 var is_open:=false
 
-enum ITEMS { NONE=-1,MEDKIT=1,TORCH,FOOD,SODA }
+enum ITEMS { NONE=-1,ANKH=1,TORCH,FOOD,JAR }
 
-var help_text:Dictionary={ ITEMS.MEDKIT: 
+var help_text:Dictionary={ ITEMS.ANKH: 
 									{ 
 									true: "Il faut peut-être se soigner ? [M]/[1]", 
-									false:"Pas de medkit !"
+									false:"Pas d'Ankh !"
 									},
 							ITEMS.TORCH:
 									{
@@ -27,10 +27,10 @@ var help_text:Dictionary={ ITEMS.MEDKIT:
 										true:"La faim est proche ? [E]/[3]",
 										false:"Pas de repas !"
 									},
-							ITEMS.SODA:
+							ITEMS.JAR:
 									{
 										true:"On s'en jette un petit dans le gosier ? [D]/[4]",
-										false:"Pas de boisson !"
+										false:"Pas de jarre !"
 									}	
 									
 						}
@@ -47,10 +47,10 @@ func _ready():
 	_bpview=$View
 	_bpviewport.size=Vector2(1,64)
 	_bpview.hide()
-	_labels[ITEMS.MEDKIT]=_bpviewport.get_node("Items/MedkitCount")
+	_labels[ITEMS.ANKH]=_bpviewport.get_node("Items/AnkhCount")
 	_labels[ITEMS.TORCH]=_bpviewport.get_node("Items/TorchCount")
 	_labels[ITEMS.FOOD]=_bpviewport.get_node("Items/FoodCount")
-	_labels[ITEMS.SODA]=_bpviewport.get_node("Items/SodasCount")
+	_labels[ITEMS.JAR]=_bpviewport.get_node("Items/JarCount")
 	
 func _process(_delta):
 	
@@ -82,6 +82,7 @@ func close():
 	hide_help_item()
 	_bp_open.get_node("ItemsSensors").hide()
 	_bptween.remove_all()
+# warning-ignore:narrowing_conversion
 	_bptween.interpolate_property(_bp_open,"rect_size",Vector2(184,48),Vector2(0,48),0.5,Tween.TRANS_SINE,0.01)
 	_bptween.interpolate_property(_bpviewport,"size",Vector2(168,32),Vector2(0,32),0.5,Tween.TRANS_LINEAR,Tween.EASE_IN_OUT)
 	_bptween.start()
@@ -113,10 +114,10 @@ func click_item(_viewport, event:InputEventMouse, _shape_idx,item):
 func use_item(item:int):
 	if GameData.current_player:
 		match item:
-			ITEMS.MEDKIT:GameData.current_player.use_medkit()
+			ITEMS.ANKH:GameData.current_player.use_ankh()
 			ITEMS.TORCH:GameData.current_player.use_torch()
 			ITEMS.FOOD:GameData.current_player.consume_food()
-			ITEMS.SODA:GameData.current_player.consume_soda()
+			ITEMS.JAR:GameData.current_player.consume_jar()
 				
 
 func show_help_item(item):
@@ -135,8 +136,8 @@ func player_item_count(item):
 	if GameData.current_player:
 		var inv=GameData.current_player.get_node("Inventory")
 		match item:
-			ITEMS.MEDKIT:return inv.medkit
+			ITEMS.ANKH:return inv.ankh
 			ITEMS.TORCH:return inv.torch
 			ITEMS.FOOD:return inv.food
-			ITEMS.SODA:return inv.sodas
+			ITEMS.JAR:return inv.jar
 

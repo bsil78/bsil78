@@ -1,20 +1,19 @@
-[gd_scene load_steps=14 format=2]
+[gd_scene load_steps=36 format=2]
 
 [ext_resource path="res://Game/GUIComponents/Menu/Menu.gd" type="Script" id=1]
 [ext_resource path="res://Game/GlobalScripts/GameData.gd" type="Script" id=2]
 [ext_resource path="res://Utils/Debug/DebugConfig.gd" type="Script" id=3]
 [ext_resource path="res://Game/Assets/Images/UI/close-normal.png" type="Texture" id=4]
 [ext_resource path="res://Game/Assets/Images/UI/close-hover.png" type="Texture" id=5]
+[ext_resource path="res://Game/Assets/Images/main_pic.png" type="Texture" id=6]
+[ext_resource path="res://Game/Assets/Images/Explosion.png" type="Texture" id=8]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0, 0, 0, 1 )
 
 [sub_resource type="StyleBoxFlat" id=2]
 bg_color = Color( 0.00784314, 0, 0.180392, 1 )
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
+draw_center = false
 border_color = Color( 0.890196, 0.623529, 0, 0.654902 )
 border_blend = true
 corner_radius_top_left = 3
@@ -22,46 +21,184 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id=3]
-bg_color = Color( 0.00392157, 0, 0.0588235, 1 )
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color( 0.329412, 0.231373, 0, 0.654902 )
+[sub_resource type="DynamicFontData" id=3]
+font_path = "res://Game/Assets/Fonts/PressStart2P-Regular.ttf"
+
+[sub_resource type="DynamicFont" id=4]
+size = 24
+outline_size = 1
+outline_color = Color( 0.843137, 0.792157, 0.235294, 1 )
+font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFontData" id=5]
+font_path = "res://Game/Assets/Fonts/PressStart2P.ttf"
+
+[sub_resource type="DynamicFont" id=6]
+size = 10
+font_data = SubResource( 5 )
+
+[sub_resource type="StyleBoxFlat" id=7]
+bg_color = Color( 0.14902, 0.117647, 0.0980392, 1 )
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color( 0.478431, 0.776471, 0.329412, 0.654902 )
 border_blend = true
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="DynamicFontData" id=4]
-font_path = "res://Game/Assets/Fonts/PressStart2P-Regular.ttf"
-
-[sub_resource type="DynamicFont" id=5]
+[sub_resource type="DynamicFont" id=8]
 size = 12
-outline_color = Color( 0, 0, 0, 1 )
-font_data = SubResource( 4 )
+outline_size = 1
+outline_color = Color( 0.109804, 0.0745098, 0.0588235, 0.803922 )
+font_data = SubResource( 3 )
 
-[sub_resource type="DynamicFont" id=6]
-size = 24
-outline_color = Color( 0, 0, 0, 1 )
-font_data = SubResource( 4 )
-
-[sub_resource type="StyleBoxFlat" id=7]
-bg_color = Color( 0, 0.00784314, 0.180392, 1 )
+[sub_resource type="StyleBoxFlat" id=9]
+bg_color = Color( 0.14902, 0.117647, 0.0980392, 1 )
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color( 1, 0.447059, 0, 1 )
+border_color = Color( 0.364706, 0.478431, 0.227451, 1 )
 border_blend = true
-shadow_color = Color( 1, 0.513726, 0, 0.6 )
-shadow_size = 2
+shadow_color = Color( 0.0392157, 0.0392157, 0.0392157, 0.92549 )
+shadow_size = 11
 
-[sub_resource type="StyleBoxFlat" id=8]
+[sub_resource type="DynamicFont" id=10]
+size = 12
+outline_size = 2
+outline_color = Color( 0.0594, 0.11, 0.0754233, 0.803922 )
+font_data = SubResource( 3 )
+
+[sub_resource type="StyleBoxFlat" id=11]
 bg_color = Color( 0.6, 0.6, 0.6, 0 )
 draw_center = false
+
+[sub_resource type="DynamicFont" id=12]
+size = 18
+outline_size = 2
+outline_color = Color( 0.109804, 0.0745098, 0.0588235, 0.803922 )
+font_data = SubResource( 3 )
+
+[sub_resource type="DynamicFontData" id=13]
+font_path = "res://Game/Assets/Fonts/PressStart2P.ttf"
+
+[sub_resource type="DynamicFont" id=14]
+size = 12
+font_data = SubResource( 13 )
+
+[sub_resource type="Gradient" id=15]
+offsets = PoolRealArray( 0, 0.104072, 0.468326, 0.995475 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.08, 0, 0, 0.494118, 0.05, 0.034, 0.034, 0.67451, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=16]
+gradient = SubResource( 15 )
+
+[sub_resource type="Curve" id=17]
+_data = [ Vector2( 0, 0.0090909 ), 0.0, 5.51383, 0, 0, Vector2( 1, 0 ), -3.11483, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=18]
+curve = SubResource( 17 )
+
+[sub_resource type="ParticlesMaterial" id=19]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 64, 16, 1 )
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 180.0
+gravity = Vector3( 0, -5, 0 )
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_random = 0.23
+scale_curve = SubResource( 18 )
+color_ramp = SubResource( 16 )
+
+[sub_resource type="Gradient" id=20]
+offsets = PoolRealArray( 0, 0.106335, 0.524887, 0.995475 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.12, 0.0288, 0.0288, 0.0784314, 0.1435, 0.339675, 0.35, 0.0705882, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=21]
+gradient = SubResource( 20 )
+
+[sub_resource type="ParticlesMaterial" id=22]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 64, 16, 1 )
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 180.0
+gravity = Vector3( 0, -5, 0 )
+initial_velocity = 4.0
+initial_velocity_random = 0.5
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_random = 0.23
+scale_curve = SubResource( 18 )
+color_ramp = SubResource( 21 )
+
+[sub_resource type="Gradient" id=23]
+offsets = PoolRealArray( 0, 0.156109, 0.660634, 0.995475 )
+colors = PoolColorArray( 0, 0, 0, 0, 0.05475, 0.09, 0.045, 1, 0.45182, 0.58, 0.4292, 0.411765, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=24]
+gradient = SubResource( 23 )
+
+[sub_resource type="ParticlesMaterial" id=25]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 64, 16, 1 )
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 180.0
+gravity = Vector3( 0, -1, 0 )
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_random = 0.23
+scale_curve = SubResource( 18 )
+color_ramp = SubResource( 24 )
+
+[sub_resource type="Gradient" id=26]
+offsets = PoolRealArray( 0, 0.106335, 0.660634, 0.995475 )
+colors = PoolColorArray( 0, 0, 0, 0, 0, 0, 0, 0.419608, 0.114, 0.76, 0, 0.572549, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=27]
+gradient = SubResource( 26 )
+
+[sub_resource type="ParticlesMaterial" id=28]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 48, 48, 1 )
+flag_disable_z = true
+direction = Vector3( 0, -1, 0 )
+spread = 180.0
+gravity = Vector3( 0, -5, 0 )
+initial_velocity = 4.0
+initial_velocity_random = 0.6
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_random = 0.23
+scale_curve = SubResource( 18 )
+color_ramp = SubResource( 27 )
 
 [node name="Menu" type="CanvasLayer"]
 script = ExtResource( 1 )
@@ -74,41 +211,25 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="OpenDebugDialog" type="Button" parent="Panel"]
-anchor_left = 0.363
-anchor_top = 0.636
-anchor_right = 0.636
-anchor_bottom = 0.636
-margin_bottom = 25.6
-rect_min_size = Vector2( 160, 32 )
-rect_clip_content = true
-mouse_default_cursor_shape = 2
-size_flags_horizontal = 4
-size_flags_vertical = 4
-custom_styles/hover = SubResource( 2 )
-custom_styles/pressed = SubResource( 2 )
-custom_styles/focus = SubResource( 2 )
-custom_styles/disabled = SubResource( 2 )
-custom_styles/normal = SubResource( 3 )
-custom_fonts/font = SubResource( 5 )
-custom_colors/font_color = Color( 0.239216, 0.152941, 0.0509804, 1 )
-custom_colors/font_color_hover = Color( 1, 0.737255, 0.109804, 1 )
-custom_colors/font_color_pressed = Color( 0.682353, 0.176471, 0, 1 )
-shortcut_in_tooltip = false
-text = "CONFIG DEBUG"
+[node name="TextureRect" type="TextureRect" parent="Panel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource( 6 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
 [node name="StartButton" type="Button" parent="Panel"]
-anchor_left = 0.376
-anchor_top = 0.476
+anchor_left = 0.375
+anchor_top = 0.575
 anchor_right = 0.625
-anchor_bottom = 0.525
-margin_right = -80.0
-margin_bottom = -16.0
+anchor_bottom = 0.637
+margin_left = -1.52588e-05
+margin_top = -3.05176e-05
+margin_bottom = 0.319977
 rect_min_size = Vector2( 160, 32 )
 rect_clip_content = true
+focus_mode = 0
 mouse_default_cursor_shape = 2
 size_flags_horizontal = 0
 size_flags_vertical = 0
@@ -117,31 +238,108 @@ custom_styles/pressed = SubResource( 2 )
 custom_styles/focus = SubResource( 2 )
 custom_styles/disabled = SubResource( 2 )
 custom_styles/normal = SubResource( 2 )
-custom_fonts/font = SubResource( 6 )
-custom_colors/font_color = Color( 0.760784, 0.407843, 0, 1 )
-custom_colors/font_color_hover = Color( 1, 0.737255, 0.109804, 1 )
-custom_colors/font_color_pressed = Color( 0.682353, 0.176471, 0, 1 )
+custom_fonts/font = SubResource( 4 )
+custom_colors/font_color = Color( 0.45098, 0.368627, 0, 1 )
+custom_colors/font_color_hover = Color( 0.32549, 0.490196, 0, 1 )
+custom_colors/font_color_pressed = Color( 0.24, 0.2114, 0.084, 1 )
 shortcut_in_tooltip = false
 text = "START"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="WindowDialog" type="WindowDialog" parent="Panel"]
+[node name="helpStartButton" type="Label" parent="Panel"]
+light_mask = 0
+anchor_left = 0.375
+anchor_top = 0.637
+anchor_right = 0.625
+anchor_bottom = 0.675
+margin_left = -1.52588e-05
+margin_top = 0.319977
+custom_fonts/font = SubResource( 6 )
+custom_colors/font_color = Color( 0.360784, 0.298039, 0.101961, 1 )
+text = "[Enter]"
+align = 1
+valign = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OpenDebugDialog" type="Button" parent="Panel"]
+anchor_left = 0.363
+anchor_top = 0.925
+anchor_right = 0.635
+anchor_bottom = 0.975
+margin_left = -0.320007
+margin_top = -6.10352e-05
+margin_right = 0.319946
+rect_min_size = Vector2( 160, 32 )
+rect_clip_content = true
+focus_mode = 0
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 7 )
+custom_styles/focus = SubResource( 7 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 7 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover = Color( 0.6142, 0.83, 0.682537, 1 )
+custom_colors/font_color_pressed = Color( 0.109804, 0.235294, 0.0941176, 1 )
+shortcut_in_tooltip = false
+text = "CONFIG DEBUG"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="OpenCreditsWindow" type="Button" parent="Panel"]
+anchor_left = 0.363
+anchor_top = 0.925
+anchor_right = 0.635
+anchor_bottom = 0.975
+margin_left = -0.320007
+margin_top = -40.0
+margin_right = 0.600006
+margin_bottom = -40.0
+rect_min_size = Vector2( 160, 32 )
+rect_clip_content = true
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+custom_styles/hover = SubResource( 7 )
+custom_styles/pressed = SubResource( 7 )
+custom_styles/focus = SubResource( 7 )
+custom_styles/disabled = SubResource( 7 )
+custom_styles/normal = SubResource( 7 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color = Color( 0.51, 0.50235, 0.051, 1 )
+custom_colors/font_color_hover = Color( 0.83, 0.81755, 0.083, 1 )
+custom_colors/font_color_pressed = Color( 0.24, 0.2364, 0.024, 1 )
+shortcut_in_tooltip = false
+text = "Credits"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DebugDialog" type="WindowDialog" parent="Panel"]
 anchor_left = 0.2
 anchor_top = 0.3
 anchor_right = 0.8
 anchor_bottom = 0.7
+margin_top = -32.0
+margin_bottom = 128.0
 mouse_default_cursor_shape = 2
 size_flags_horizontal = 2
 size_flags_vertical = 2
 custom_icons/close_highlight = ExtResource( 5 )
 custom_icons/close = ExtResource( 4 )
-custom_styles/panel = SubResource( 7 )
-custom_fonts/title_font = SubResource( 5 )
-custom_colors/title_color = Color( 1, 0.537255, 0, 1 )
-custom_constants/close_h_ofs = 17
-custom_constants/close_v_ofs = 23
+custom_styles/panel = SubResource( 9 )
+custom_fonts/title_font = SubResource( 10 )
+custom_colors/title_color = Color( 0.298039, 0.54902, 0.376471, 1 )
+custom_constants/close_h_ofs = 216
+custom_constants/close_v_ofs = -346
 custom_constants/title_height = 32
 popup_exclusive = true
 window_title = "Debug configuration"
@@ -149,7 +347,158 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Control" type="Control" parent="Panel/WindowDialog"]
+[node name="Control" type="Control" parent="Panel/DebugDialog"]
+anchor_left = 0.086
+anchor_right = 0.914
+margin_right = 0.0480042
+margin_bottom = 352.0
+rect_min_size = Vector2( 0, 256 )
+size_flags_vertical = 4
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="DebugActivated" type="CheckButton" parent="Panel/DebugDialog/Control"]
+anchor_right = 1.0
+margin_top = 16.0
+margin_right = -0.000244141
+margin_bottom = 80.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 11 )
+custom_styles/focus = SubResource( 11 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/hover_pressed = SubResource( 11 )
+custom_styles/normal = SubResource( 11 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color_disabled = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover_pressed = Color( 0.0705882, 0.14902, 0.0980392, 1 )
+custom_colors/font_color = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover = Color( 0.517647, 0.709804, 0.580392, 1 )
+custom_colors/font_color_pressed = Color( 0, 1, 0.317647, 1 )
+text = "DEBUG ACTIVATED"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Console messages" type="CheckButton" parent="Panel/DebugDialog/Control"]
+anchor_right = 1.0
+margin_top = 80.0
+margin_bottom = 144.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 11 )
+custom_styles/focus = SubResource( 11 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/hover_pressed = SubResource( 11 )
+custom_styles/normal = SubResource( 11 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color_disabled = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover_pressed = Color( 0.0705882, 0.14902, 0.0980392, 1 )
+custom_colors/font_color = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover = Color( 0.517647, 0.709804, 0.580392, 1 )
+custom_colors/font_color_pressed = Color( 0, 1, 0.317647, 1 )
+text = "CONSOLE MESSAGES"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Panel messages" type="CheckButton" parent="Panel/DebugDialog/Control"]
+anchor_right = 1.0
+margin_top = 144.0
+margin_bottom = 208.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 11 )
+custom_styles/focus = SubResource( 11 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/hover_pressed = SubResource( 11 )
+custom_styles/normal = SubResource( 11 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color_disabled = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover_pressed = Color( 0.0705882, 0.14902, 0.0980392, 1 )
+custom_colors/font_color = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover = Color( 0.5183, 0.71, 0.579005, 1 )
+custom_colors/font_color_pressed = Color( 0, 1, 0.317647, 1 )
+text = "PANEL MESSAGES"
+__meta__ = {
+"_edit_use_anchors_": false,
+"_editor_description_": ""
+}
+
+[node name="Objects panels" type="CheckButton" parent="Panel/DebugDialog/Control"]
+anchor_right = 1.0
+margin_top = 208.0
+margin_bottom = 272.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 11 )
+custom_styles/focus = SubResource( 11 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/hover_pressed = SubResource( 11 )
+custom_styles/normal = SubResource( 11 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color_disabled = Color( 0.298039, 0.54902, 0.376471, 1 )
+custom_colors/font_color_hover_pressed = Color( 0.0705882, 0.14902, 0.0980392, 1 )
+custom_colors/font_color = Color( 0.298039, 0.54902, 0.376471, 1 )
+custom_colors/font_color_hover = Color( 0.5183, 0.71, 0.579005, 1 )
+custom_colors/font_color_pressed = Color( 0, 1, 0.317647, 1 )
+text = "OBJECTS PANELS"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Debug Level" type="CheckButton" parent="Panel/DebugDialog/Control"]
+anchor_right = 1.0
+margin_top = 272.0
+margin_bottom = 336.0
+rect_min_size = Vector2( 0, 64 )
+focus_mode = 0
+custom_styles/hover = SubResource( 11 )
+custom_styles/pressed = SubResource( 11 )
+custom_styles/focus = SubResource( 11 )
+custom_styles/disabled = SubResource( 11 )
+custom_styles/hover_pressed = SubResource( 11 )
+custom_styles/normal = SubResource( 11 )
+custom_fonts/font = SubResource( 8 )
+custom_colors/font_color_disabled = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover_pressed = Color( 0.0705882, 0.14902, 0.0980392, 1 )
+custom_colors/font_color = Color( 0.247059, 0.513726, 0.329412, 1 )
+custom_colors/font_color_hover = Color( 0.5183, 0.71, 0.579005, 1 )
+custom_colors/font_color_pressed = Color( 0, 1, 0.317647, 1 )
+text = "DEBUG LEVEL"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CreditsDialog" type="WindowDialog" parent="Panel"]
+anchor_left = 0.2
+anchor_top = 0.3
+anchor_right = 0.8
+anchor_bottom = 0.7
+margin_bottom = 128.0
+mouse_default_cursor_shape = 2
+size_flags_horizontal = 2
+size_flags_vertical = 2
+custom_icons/close_highlight = ExtResource( 5 )
+custom_icons/close = ExtResource( 4 )
+custom_styles/panel = SubResource( 9 )
+custom_fonts/title_font = SubResource( 12 )
+custom_colors/title_color = Color( 1, 0.854902, 0, 1 )
+custom_constants/close_h_ofs = 216
+custom_constants/close_v_ofs = -316
+custom_constants/title_height = 32
+popup_exclusive = true
+window_title = "Credits"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Control" type="Control" parent="Panel/CreditsDialog"]
 anchor_left = 0.086
 anchor_right = 0.914
 rect_min_size = Vector2( 0, 256 )
@@ -158,91 +507,80 @@ __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="DebugActivated" type="CheckButton" parent="Panel/WindowDialog/Control"]
-anchor_right = 1.0
-margin_right = -0.000244141
-rect_min_size = Vector2( 0, 64 )
-custom_styles/hover = SubResource( 8 )
-custom_styles/pressed = SubResource( 8 )
-custom_styles/focus = SubResource( 8 )
-custom_styles/disabled = SubResource( 8 )
-custom_styles/hover_pressed = SubResource( 8 )
-custom_styles/normal = SubResource( 8 )
-custom_fonts/font = SubResource( 5 )
-custom_colors/font_color_disabled = Color( 0.458824, 0.458824, 0.458824, 1 )
-custom_colors/font_color_hover_pressed = Color( 0.65098, 0, 0, 1 )
-custom_colors/font_color = Color( 1, 0.494118, 0.00392157, 1 )
-custom_colors/font_color_hover = Color( 1, 0, 0, 1 )
-custom_colors/font_color_pressed = Color( 1, 0.764706, 0.290196, 1 )
-text = "DEBUG ACTIVATED"
+[node name="Label" type="Label" parent="Panel/CreditsDialog/Control"]
+anchor_left = -0.053
+anchor_top = 0.062
+anchor_right = 1.05
+anchor_bottom = 1.312
+margin_left = -0.148546
+margin_top = -15.872
+margin_right = 1.15045
+margin_bottom = -19.872
+custom_fonts/font = SubResource( 14 )
+custom_colors/font_color = Color( 1, 0.854902, 0, 1 )
+custom_colors/font_color_shadow = Color( 0.0509804, 0.0431373, 0.0431373, 0.905882 )
+custom_constants/shadow_offset_x = 3
+custom_constants/shadow_offset_y = 3
+text = "SUPPORT :
+
+my familly
+
+
+GFX :
+
+PD brooch @deviantart.com
+cmalidore @deviantart.com
+<unknown> @afrikaiswoke.com
+
+
+SOUND DESIGN :
+
+my awful voice
+onlinesequencer.net"
+align = 1
+valign = 1
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="Console messages" type="CheckButton" parent="Panel/WindowDialog/Control"]
-anchor_right = 1.0
-margin_top = 64.0
-rect_min_size = Vector2( 0, 64 )
-custom_styles/hover = SubResource( 8 )
-custom_styles/pressed = SubResource( 8 )
-custom_styles/focus = SubResource( 8 )
-custom_styles/disabled = SubResource( 8 )
-custom_styles/hover_pressed = SubResource( 8 )
-custom_styles/normal = SubResource( 8 )
-custom_fonts/font = SubResource( 5 )
-custom_colors/font_color_disabled = Color( 0.458824, 0.458824, 0.458824, 1 )
-custom_colors/font_color_hover_pressed = Color( 0.65098, 0, 0, 1 )
-custom_colors/font_color = Color( 1, 0.494118, 0.00392157, 1 )
-custom_colors/font_color_hover = Color( 1, 0, 0, 1 )
-custom_colors/font_color_pressed = Color( 1, 0.764706, 0.290196, 1 )
-text = "CONSOLE MESSAGES"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="BottomFog" type="Particles2D" parent="Panel"]
+modulate = Color( 0.878431, 0.0980392, 0.0980392, 0.172549 )
+position = Vector2( 552, 632 )
+amount = 100
+lifetime = 4.0
+randomness = 1.0
+process_material = SubResource( 19 )
+texture = ExtResource( 8 )
 
-[node name="Panel messages" type="CheckButton" parent="Panel/WindowDialog/Control"]
-anchor_right = 1.0
-margin_top = 128.0
-margin_bottom = 192.0
-rect_min_size = Vector2( 0, 64 )
-custom_styles/hover = SubResource( 8 )
-custom_styles/pressed = SubResource( 8 )
-custom_styles/focus = SubResource( 8 )
-custom_styles/disabled = SubResource( 8 )
-custom_styles/hover_pressed = SubResource( 8 )
-custom_styles/normal = SubResource( 8 )
-custom_fonts/font = SubResource( 5 )
-custom_colors/font_color_disabled = Color( 0.458824, 0.458824, 0.458824, 1 )
-custom_colors/font_color_hover_pressed = Color( 0.65098, 0, 0, 1 )
-custom_colors/font_color = Color( 1, 0.494118, 0.00392157, 1 )
-custom_colors/font_color_hover = Color( 1, 0, 0, 1 )
-custom_colors/font_color_pressed = Color( 1, 0.764706, 0.290196, 1 )
-text = "PANEL MESSAGES"
-__meta__ = {
-"_edit_use_anchors_": false,
-"_editor_description_": ""
-}
+[node name="SmokingFog" type="Particles2D" parent="Panel"]
+position = Vector2( 552, 584 )
+amount = 100
+lifetime = 7.0
+preprocess = 40.48
+explosiveness = 0.19
+randomness = 0.57
+process_material = SubResource( 22 )
+texture = ExtResource( 8 )
 
-[node name="Objects panels" type="CheckButton" parent="Panel/WindowDialog/Control"]
-anchor_right = 1.0
-margin_top = 192.0
-rect_min_size = Vector2( 0, 64 )
-custom_styles/hover = SubResource( 8 )
-custom_styles/pressed = SubResource( 8 )
-custom_styles/focus = SubResource( 8 )
-custom_styles/disabled = SubResource( 8 )
-custom_styles/hover_pressed = SubResource( 8 )
-custom_styles/normal = SubResource( 8 )
-custom_fonts/font = SubResource( 5 )
-custom_colors/font_color_disabled = Color( 0.458824, 0.458824, 0.458824, 1 )
-custom_colors/font_color_hover_pressed = Color( 0.65098, 0, 0, 1 )
-custom_colors/font_color = Color( 1, 0.494118, 0.00392157, 1 )
-custom_colors/font_color_hover = Color( 1, 0, 0, 1 )
-custom_colors/font_color_pressed = Color( 1, 0.764706, 0.290196, 1 )
-text = "OBJECTS PANELS"
-__meta__ = {
-"_edit_use_anchors_": false
-}
+[node name="BatsBottomFog" type="Particles2D" parent="Panel"]
+modulate = Color( 0, 0.501961, 0.223529, 0.0392157 )
+position = Vector2( 48, 640 )
+amount = 100
+lifetime = 4.0
+randomness = 1.0
+process_material = SubResource( 25 )
+texture = ExtResource( 8 )
+
+[node name="BatsSmokingFog" type="Particles2D" parent="Panel"]
+modulate = Color( 0.129412, 1, 0.521569, 0.0509804 )
+position = Vector2( 40, 592 )
+amount = 100
+lifetime = 6.0
+preprocess = 40.48
+explosiveness = 0.19
+randomness = 0.57
+process_material = SubResource( 28 )
+texture = ExtResource( 8 )
 
 [node name="GameConfig" type="Node" parent="."]
 script = ExtResource( 2 )
@@ -253,9 +591,11 @@ short_transition_delay = 1
 script = ExtResource( 3 )
 active = true
 console = true
-[connection signal="pressed" from="Panel/OpenDebugDialog" to="." method="_on_OpenDebugDialog_pressed"]
 [connection signal="pressed" from="Panel/StartButton" to="." method="_on_StartButton_pressed"]
-[connection signal="toggled" from="Panel/WindowDialog/Control/DebugActivated" to="." method="_on_DebugActivated_toggled"]
-[connection signal="toggled" from="Panel/WindowDialog/Control/Console messages" to="." method="_on_Console_messages_toggled"]
-[connection signal="toggled" from="Panel/WindowDialog/Control/Panel messages" to="." method="_on_Panel_messages_toggled"]
-[connection signal="toggled" from="Panel/WindowDialog/Control/Objects panels" to="." method="_on_Objects_panels_toggled"]
+[connection signal="pressed" from="Panel/OpenDebugDialog" to="." method="_on_OpenDebugDialog_pressed"]
+[connection signal="pressed" from="Panel/OpenCreditsWindow" to="." method="_on_OpenCreditsWindow_pressed"]
+[connection signal="toggled" from="Panel/DebugDialog/Control/DebugActivated" to="." method="_on_DebugActivated_toggled"]
+[connection signal="toggled" from="Panel/DebugDialog/Control/Console messages" to="." method="_on_Console_messages_toggled"]
+[connection signal="toggled" from="Panel/DebugDialog/Control/Panel messages" to="." method="_on_Panel_messages_toggled"]
+[connection signal="toggled" from="Panel/DebugDialog/Control/Objects panels" to="." method="_on_Objects_panels_toggled"]
+[connection signal="toggled" from="Panel/DebugDialog/Control/Debug Level" to="." method="_on_Debug_Level_toggled"]

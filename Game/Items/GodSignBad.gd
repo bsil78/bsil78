@@ -1,8 +1,9 @@
 extends "res://Game/BaseScripts/Pickable.gd"
 
 func pickup(who:Node2D)->bool:
-	if who.is_actor(GameEnums.ACTORS.ANY_PLAYER):
+	if .pickup(who):
 		who.lose_torch()
+		Utils.play_sound($BadGodSignTakenSound)
 		remove_from_world()
 		return true
 	else:

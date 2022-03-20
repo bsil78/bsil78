@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/scarab.ogg-5093f9267773b10a1853ebd2b633e0f9.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/scarab.ogg"
+dest_files=[ "res://.import/scarab.ogg-5093f9267773b10a1853ebd2b633e0f9.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

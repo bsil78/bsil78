@@ -28,7 +28,9 @@ func play_coin_gain_for(player):
 	emit_signal("player_gained_coin",player)
 
 func init_level():
-	var level_path="res://Game/GameScenes/Levels/Level%s.tscn" % GameData.current_level
+# warning-ignore:incompatible_ternary
+	var level_id=GameData.current_level if !DEBUG.debuglevel else "Debug"
+	var level_path="res://Game/GameScenes/Levels/Level%s.tscn" % level_id
 	var level_scene:=load(level_path) as PackedScene
 	if level_scene:
 		level=level_scene.instance()
@@ -85,6 +87,8 @@ func place_players():
 			GameData.world.level.add_object(player)
 			var pos_data:PoolStringArray=player_pos.name.split("_")
 			if len(pos_data)>1:
+				if pos_data[pos_data.size()-1].matchn("*debug*"):
+					player.debug=true
 				var dir=pos_data[1]
 				var facing_dir:=facing_dir(dir)
 				#print_debug("Adjusting facing of {} to {} according to {}".format([player.name,facing_dir,player_pos.name],"{}"))
@@ -101,7 +105,7 @@ func place_players():
 			print_debug("No player to activate !")
 		else:
 			GameData.current_player=GameData.players[GameData.players.keys()[0]]
-	GameData.current_player.activate()
+	GameData.current_player.activate(true)
 	
 func facing_dir(facing:String)->Vector2:
 	match(facing):

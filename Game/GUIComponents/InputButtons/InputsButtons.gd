@@ -25,11 +25,11 @@ func _physics_process(_delta):
 #	capture_active_player()
 	manage_input_of_connected_player()
 	
-func connect_to_world(world):
+func connect_to_world(the_world):
 	print("connecting input to world..")
-	self.world=world
+	self.world=the_world
 	GameFuncs.connect("players_switched",self,"capture_active_player")
-	world.connect("ready",self,"capture_active_player")
+	the_world.connect("ready",self,"capture_active_player")
 	
 func capture_active_player():
 	print("capturing active player")

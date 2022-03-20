@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/exit.ogg-6322d4940521de0a8ef7c40eb3869285.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/exit.ogg"
+dest_files=[ "res://.import/exit.ogg-6322d4940521de0a8ef7c40eb3869285.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

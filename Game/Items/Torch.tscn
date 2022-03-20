@@ -1,10 +1,13 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=1]
+[ext_resource path="res://Game/Items/Torch.gd" type="Script" id=2]
 
-[node name="Torch" type="Sprite"]
-position = Vector2( 336, 48 )
+[node name="Torch" type="Node2D"]
+script = ExtResource( 2 )
+
+[node name="Sprite" type="Sprite" parent="."]
 texture = ExtResource( 1 )
 vframes = 10
 hframes = 10
-frame = 2
+frame = 10

@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/rock_moving.ogg-4dda54e3c973c87a46d1c9667da8047a.oggstr"
+
+[deps]
+
+source_file="res://Game/Assets/Audio/ogg/effects/rock_moving.ogg"
+dest_files=[ "res://.import/rock_moving.ogg-4dda54e3c973c87a46d1c9667da8047a.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

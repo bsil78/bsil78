@@ -10,12 +10,12 @@ var debug_obj:Object
 
 
 func _ready():
-	visible=(GameData.world!=null and !hide_me and DEBUG.active and DEBUG.objects)
 	var parent:=get_parent()
 	if parent is Node2D:
 		debug_obj=parent as Node2D
 
 func _process(_delta):
+	visible=(GameData.world!=null and !hide_me and DEBUG.active and DEBUG.objects)
 	if is_instance_valid(debug_obj):
 		var text:=""
 		if debug_obj.has_method("state_str"):

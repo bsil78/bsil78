@@ -3,16 +3,15 @@
 [ext_resource path="res://Game/Assets/Fonts/Pixeled.ttf" type="DynamicFontData" id=1]
 [ext_resource path="res://Game/Assets/Images/backpack.png" type="Texture" id=2]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/Backpack.gd" type="Script" id=3]
-[ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=4]
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=4]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.239216, 0.184314, 0.133333, 1 )
 
 [sub_resource type="DynamicFont" id=2]
-size = 7
+size = 8
+outline_size = 1
 outline_color = Color( 0, 0, 0, 1 )
-use_mipmaps = true
-use_filter = true
 extra_spacing_top = -2
 extra_spacing_char = 1
 font_data = ExtResource( 1 )
@@ -84,14 +83,14 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Medkit" type="Sprite" parent="View/Viewport/Items/Visuals"]
+[node name="Ankh" type="Sprite" parent="View/Viewport/Items/Visuals"]
 light_mask = 0
 position = Vector2( 8, 0 )
 texture = ExtResource( 4 )
 centered = false
 vframes = 10
-hframes = 8
-frame = 56
+hframes = 10
+frame = 17
 __meta__ = {
 "_editor_description_": ""
 }
@@ -102,8 +101,8 @@ position = Vector2( 48, 0 )
 texture = ExtResource( 4 )
 centered = false
 vframes = 10
-hframes = 8
-frame = 79
+hframes = 10
+frame = 10
 __meta__ = {
 "_editor_description_": ""
 }
@@ -114,34 +113,34 @@ position = Vector2( 88, 0 )
 texture = ExtResource( 4 )
 centered = false
 vframes = 10
-hframes = 8
-frame = 72
+hframes = 10
+frame = 1
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="Sodas" type="Sprite" parent="View/Viewport/Items/Visuals"]
+[node name="Jar" type="Sprite" parent="View/Viewport/Items/Visuals"]
 light_mask = 0
 position = Vector2( 128, 0 )
 texture = ExtResource( 4 )
 centered = false
 vframes = 10
-hframes = 8
-frame = 64
+hframes = 10
+frame = 3
 __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="MedkitCount" type="Label" parent="View/Viewport/Items"]
+[node name="AnkhCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.048
 anchor_top = 0.539
 anchor_right = 0.238
 anchor_bottom = 1.0
 margin_left = -0.0640001
-margin_top = -0.625
+margin_top = -2.248
 margin_right = 0.0159988
-margin_bottom = 2.375
+margin_bottom = 4.0
 custom_fonts/font = SubResource( 2 )
 text = "10"
 align = 1
@@ -158,9 +157,9 @@ anchor_top = 0.539
 anchor_right = 0.476
 anchor_bottom = 1.125
 margin_left = -0.0480042
-margin_top = -0.625
+margin_top = -2.248
 margin_right = 0.0319977
-margin_bottom = -1.125
+margin_bottom = 3.8147e-06
 custom_fonts/font = SubResource( 2 )
 text = "10"
 align = 1
@@ -177,9 +176,9 @@ anchor_top = 0.539
 anchor_right = 0.714
 anchor_bottom = 1.125
 margin_left = -0.0320053
-margin_top = -0.625
+margin_top = -2.248
 margin_right = 0.0479889
-margin_bottom = -1.125
+margin_bottom = 3.8147e-06
 custom_fonts/font = SubResource( 2 )
 text = "10"
 align = 1
@@ -189,16 +188,16 @@ __meta__ = {
 "_editor_description_": ""
 }
 
-[node name="SodasCount" type="Label" parent="View/Viewport/Items"]
+[node name="JarCount" type="Label" parent="View/Viewport/Items"]
 light_mask = 0
 anchor_left = 0.718
 anchor_top = 0.539
 anchor_right = 0.952
 anchor_bottom = 1.125
 margin_left = 7.37599
-margin_top = -0.625
+margin_top = -2.248
 margin_right = 0.0639954
-margin_bottom = -1.125
+margin_bottom = 3.8147e-06
 custom_fonts/font = SubResource( 2 )
 text = "10"
 align = 1
