@@ -14,10 +14,12 @@ func dbgmsg(msg,error:bool=false):
 	if(itself.debug):
 		itself.messages.push_back(msg)
 		if itself.messages.size()>10: itself.messages.pop_front()
+		var scene_frame=itself.get_tree().get_frame() if itself.is_inside_tree() else "NOT_IN_TREE"
+		var formated_msg="[%s] %s %s" % [scene_frame,itself.name,msg]
 		if error:
-			DEBUG.error("%s %s" % [itself.name,msg])
+			DEBUG.error(formated_msg)
 		else:
-			DEBUG.push("%s %s" % [itself.name,msg])
+			DEBUG.push(formated_msg)
 
 func is_alive()->bool:
 	return alive

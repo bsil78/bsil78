@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=2]
+[gd_scene load_steps=35 format=2]
 
 [ext_resource path="res://Game/Actors/Players/Player.gd" type="Script" id=1]
 [ext_resource path="res://Game/BaseScripts/AnimManager.gd" type="Script" id=2]
@@ -6,8 +6,6 @@
 [ext_resource path="res://Game/Assets/Audio/ogg/player/step2.ogg" type="AudioStream" id=5]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/step1.ogg" type="AudioStream" id=6]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/haan.ogg" type="AudioStream" id=7]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/chop1.ogg" type="AudioStream" id=8]
-[ext_resource path="res://Game/Assets/Audio/ogg/player/chop2.ogg" type="AudioStream" id=9]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/scavengers_die.ogg" type="AudioStream" id=15]
 [ext_resource path="res://Game/Assets/Audio/ogg/player/backpack.ogg" type="AudioStream" id=19]
 [ext_resource path="res://Game/Effects/Lights/Torch.tscn" type="PackedScene" id=20]
@@ -31,47 +29,30 @@ tracks/0/keys = {
 "update": 1,
 "values": [ "chop", "default" ]
 }
-tracks/1/type = "audio"
-tracks/1/path = NodePath("../SoundsEffects")
+tracks/1/type = "method"
+tracks/1/path = NodePath("..")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
-tracks/1/enabled = false
+tracks/1/enabled = true
 tracks/1/keys = {
-"clips": [ {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 8 )
-} ],
-"times": PoolRealArray( 0.05 )
-}
-tracks/2/type = "audio"
-tracks/2/path = NodePath("../SoundsEffects")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = false
-tracks/2/keys = {
-"clips": [ {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 9 )
-} ],
-"times": PoolRealArray( 0.15 )
-}
-tracks/3/type = "method"
-tracks/3/path = NodePath("..")
-tracks/3/interp = 1
-tracks/3/loop_wrap = true
-tracks/3/imported = false
-tracks/3/enabled = true
-tracks/3/keys = {
 "times": PoolRealArray( 0 ),
 "transitions": PoolRealArray( 1 ),
 "values": [ {
 "args": [ 0.25 ],
 "method": "hide_torch_temporarily"
 } ]
+}
+tracks/2/type = "method"
+tracks/2/path = NodePath("..")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/keys = {
+"times": PoolRealArray(  ),
+"transitions": PoolRealArray(  ),
+"values": [  ]
 }
 
 [sub_resource type="Animation" id=3]
@@ -468,7 +449,7 @@ tracks/1/path = NodePath("../Steps")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
-tracks/1/enabled = true
+tracks/1/enabled = false
 tracks/1/keys = {
 "clips": [ {
 "end_offset": 0.0,
@@ -576,7 +557,6 @@ animations = [ {
 extents = Vector2( 14, 14 )
 
 [node name="PlayerOne" type="KinematicBody2D"]
-visible = false
 light_mask = 0
 z_index = 1
 collision_layer = 2
@@ -591,8 +571,7 @@ onIdleFlip = 4
 animator = NodePath("Animation/AnimationPlayer")
 visual = NodePath("Animation/AnimatedSprite")
 tween = NodePath("Animation/Tween")
-ENERGY_LOSED_ON_CHOP = 2
-ENERGY_LOSED_ON_RUN = 1
+idle_after_moved = false
 
 [node name="Animation" type="Node2D" parent="."]
 
@@ -603,6 +582,7 @@ occluder = SubResource( 1 )
 light_mask = 3
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Animation"]
+autoplay = "init"
 playback_process_mode = 0
 method_call_mode = 1
 anims/chop = SubResource( 2 )
@@ -622,7 +602,7 @@ start_anim = "init"
 [node name="AnimatedSprite" type="AnimatedSprite" parent="Animation"]
 light_mask = 0
 frames = SubResource( 23 )
-animation = "walk"
+animation = "idle"
 frame = 2
 playing = true
 __meta__ = {
@@ -631,7 +611,6 @@ __meta__ = {
 
 [node name="Torch" parent="Animation/AnimatedSprite" instance=ExtResource( 20 )]
 position = Vector2( 15, 4 )
-flamming = false
 TORCH_DELAY_SEC = 300
 
 [node name="Tween" type="Tween" parent="Animation"]
@@ -644,20 +623,20 @@ shape = SubResource( 24 )
 [node name="FrontEffects" type="Node2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="."]
-current = true
 process_mode = 0
-limit_left = -128
-limit_top = -128
-limit_right = 768
-limit_bottom = 768
 editor_draw_limits = true
 editor_draw_drag_margin = true
 
 [node name="Steps" type="AudioStreamPlayer" parent="."]
+volume_db = -3.0
+bus = "Effects"
 
 [node name="Voice" type="AudioStreamPlayer" parent="."]
+bus = "Voices"
 
 [node name="SoundsEffects" type="AudioStreamPlayer" parent="."]
+volume_db = -3.0
+bus = "Effects"
 
 [node name="LoseEnergyTimer" type="Timer" parent="."]
 wait_time = 20.0
@@ -666,10 +645,6 @@ autostart = true
 [node name="Inventory" parent="." instance=ExtResource( 21 )]
 visible = false
 backpack = ExtResource( 19 )
-
-[node name="Reminder" type="Timer" parent="."]
-wait_time = 2.0
-one_shot = true
 
 [node name="RevertHidingTorchTimer" type="Timer" parent="."]
 one_shot = true

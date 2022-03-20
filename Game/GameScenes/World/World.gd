@@ -1,29 +1,34 @@
-extends Node2D
+extends Control
 
 signal level_ready
 signal player_gained_coin
 
 var level:Node2D
-
+var playerIndicators:CanvasLayer
 
 func _init() -> void:
 	GameData.world=self
 
 func _ready():
+	connect("ready",self,"init")
+	
+func init():
+	playerIndicators=get_viewport().find_node("PlayerIndicators",true,false)
 	if GameData.current_level<1:
 		printerr("Current level must be at least 1")
 		Utils.quit_from(self,1)
 	init_level()
-	place_players()
-	GameData.players_slots={}
-	GameData.players_saves.clear()
-	$InputButtons.get_node("InputsHandler").connect_to_world(self)
+	init_players()
+	get_viewport().find_node("InputsHandler",true,false).connect_to_world(self)
 	GameFuncs.connect("players_switched",self,"update_indicators")
 	emit_signal("level_ready")
 	update_indicators()
 
+func playerIndicators():
+	return playerIndicators
+	
 func update_indicators():
-	$PlayerIndicators.update_indicators(self,GameData.current_player)
+	playerIndicators.update_indicators(self,GameData.current_player)
 
 func play_coin_gain_for(player):
 	emit_signal("player_gained_coin",player)
@@ -54,7 +59,7 @@ func effects_node():
 	return $EffectsLayer
 
 		
-func place_players():
+func init_players():
 	var slots=[]
 	var level_children:Array=$LevelPlaceholder.get_child(0).get_children()
 	for node in level_children:
@@ -99,6 +104,7 @@ func place_players():
 				if len(pos_data)>2:
 					var active:=(pos_data[2]=="ACTIVE")
 					if active:GameData.current_player=player
+			if slots.empty():break
 		
 	if not GameData.current_player:
 		printerr("No active player in %s" % GameFuncs.level_as_string())
@@ -107,6 +113,11 @@ func place_players():
 		else:
 			GameData.current_player=GameData.players[GameData.players.keys()[0]]
 	GameData.current_player.activate(true)
+	GameData.players_slots={}
+	GameData.players_saves.clear()
+	
+func players()->Array:
+	return $PlayersPlaceholder.get_children()
 	
 func facing_dir(facing:String)->Vector2:
 	match(facing):

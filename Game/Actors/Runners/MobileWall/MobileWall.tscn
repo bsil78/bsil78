@@ -84,6 +84,7 @@ light_mask = 3
 [node name="RockSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 3 )
 mix_target = 2
+bus = "Effects"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 autoplay = "anim"

@@ -258,4 +258,5 @@ anims/opening = SubResource( 5 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 mix_target = 2
+bus = "Effects"
 [connection signal="timeout" from="TextTimer" to="." method="hide_text"]

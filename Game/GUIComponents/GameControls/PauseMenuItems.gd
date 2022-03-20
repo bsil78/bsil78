@@ -42,16 +42,23 @@ func _draw()->void:
 
 
 func _input(event)->void:
-	if $KeyDelay.time_left==0 and event is InputEventKey and event.is_pressed():
-		var key_pressed=event.scancode
-		if key_pressed==KEY_UP:
+	
+	var input:=Utils.input_from_event(event)
+	
+	if $KeyDelay.time_left==0:
+		if is_item_up(input):
 			nxt_pos=clamp(nxt_pos-1,0,max_pos)
 			$KeyDelay.start()
 			update()
 			return
-		if key_pressed==KEY_DOWN:
+		if is_item_down(input):
 			nxt_pos=clamp(nxt_pos+1,0,max_pos)
 			$KeyDelay.start()
 			update()
 			return
-		
+	
+func is_item_up(input):
+	return input.key_pressed==KEY_UP or input.pad_button in [JOY_DPAD_UP,JOY_DPAD_LEFT,JOY_L,JOY_L2,JOY_L3]	
+
+func is_item_down(input):
+	return input.key_pressed==KEY_DOWN or input.pad_button in [JOY_DPAD_DOWN,JOY_DPAD_RIGHT,JOY_R,JOY_R2,JOY_R3]

@@ -1,0 +1,47 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Game/Effects/BlockExploding.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Game/Assets/Images/Environment/tilesmap.png" type="Texture" id=2]
+[ext_resource path="res://Game/Effects/HitBlock.tscn" type="PackedScene" id=3]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends \"res://Game/BaseScripts/BreakableBlock.gd\"
+
+
+func hit(from,amount:int=1)->bool:
+	if GameFuncs.is_actor(from,[GameEnums.ACTORS.ANY_PLAYER]):
+		.hit(from,amount)
+		if !is_alive():	remove_from_world()
+		return true
+	return false
+	
+
+func is_block(block:int=-1)->bool:
+	return ( .is_block(block) 
+			or GameEnums.BLOCKS.ANY_GOD_SIGN_BLOCK==block
+			or GameEnums.BLOCKS.BREAKABLE_WALL==block
+			)
+
+func behaviors()->Array:
+	var bhvs:=.behaviors().duplicate(true)
+	bhvs.append(GameEnums.BEHAVIORS.CAN_BE_DESTROYED)
+	return bhvs
+
+func show_broken_block():
+	$Block.frame=38
+"
+
+[node name="BreakableBlock" type="Node2D"]
+script = SubResource( 1 )
+hitEffect = ExtResource( 3 )
+explodingEffect = ExtResource( 1 )
+max_hit_points = 15
+broken_limit = 5
+hit_points = 15
+
+[node name="Block" type="Sprite" parent="."]
+texture = ExtResource( 2 )
+vframes = 10
+hframes = 10
+frame = 39
+region_rect = Rect2( 128.501, 127.864, 0.499268, 0.136368 )

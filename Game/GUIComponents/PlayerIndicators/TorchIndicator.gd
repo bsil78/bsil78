@@ -3,7 +3,7 @@ extends Node2D
 func _ready():
 	visible=false
 
-func _process(_delta):
+func _on_TorchUpdateTimer_timeout() -> void:
 	if (GameData.current_player and 
 		GameData.current_player.torch() and
 		GameData.current_player.torch().is_flammed()):

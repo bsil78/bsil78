@@ -1,14 +1,18 @@
 extends "res://Game/BaseScripts/Pickable.gd"
 
+var parts_node
 
 func _ready() -> void:
-	$Parts.hide()
+	var partname="%sParts"%name
+	parts_node=get_viewport().find_node(partname,true,false)
+	assert(parts_node!=null)
+	parts_node.hide()
 
 
 var my_parts=[]
 func parts()->Array:
 	if my_parts.empty():
-		my_parts=$Parts.get_used_cells()
+		my_parts=parts_node.get_used_cells()
 	return my_parts
 
 func pickup(who)->bool:

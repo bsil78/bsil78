@@ -1,0 +1,28 @@
+[gd_scene load_steps=2 format=2]
+
+[ext_resource path="res://Game/GUIComponents/PlayerIndicators/Minimap.gd" type="Script" id=1]
+
+[node name="Minimap" type="ColorRect"]
+grow_horizontal = 2
+grow_vertical = 2
+rect_pivot_offset = Vector2( 64, 64 )
+size_flags_horizontal = 2
+size_flags_vertical = 2
+color = Color( 0, 0, 0, 0 )
+script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+coin_col = Color( 0.905882, 1, 0.188235, 1 )
+mobile_col = Color( 0, 0.560784, 0.458824, 1 )
+fix_col = Color( 0.0784314, 0.2, 0.054902, 1 )
+bad_col = Color( 0, 0.0588235, 0.388235, 1 )
+walls_col = Color( 0.211765, 0.172549, 0.0941176, 1 )
+bg_col = Color( 0.439216, 0.356863, 0.184314, 1 )
+enemies_col = Color( 0.419608, 0, 0, 1 )
+exit_col = Color( 1, 1, 1, 1 )
+
+[node name="UpdateTimer" type="Timer" parent="."]
+wait_time = 0.25
+autostart = true
+[connection signal="timeout" from="UpdateTimer" to="." method="update_minimap"]

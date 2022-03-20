@@ -169,3 +169,4 @@ visible = false
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 mix_target = 1
+bus = "Effects"

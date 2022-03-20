@@ -64,7 +64,7 @@ func play_center_explosion():
 	emit_center(true)
 	randomize()
 	yield(Utils.timer(rand_range(0.0,0.2)),"timeout")
-	Utils.play_sound($AudioStreamPlayer,sound,rand_range(-5,+5),rand_range(-5,+5))
+	Utils.play_sound($AudioStreamPlayer,sound,rand_range(-5,+5),rand_range(0.75,1.25))
 
 func end_explosion():
 	print("%s ends at %s"%[name,OS.get_unix_time()])

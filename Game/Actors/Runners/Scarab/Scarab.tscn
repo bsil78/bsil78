@@ -775,3 +775,4 @@ virtual_anims = PoolStringArray( "GoingLeft:orientLeft>walk", "GoingRight:orient
 [node name="ScreamSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 8 )
 mix_target = 2
+bus = "Effects"

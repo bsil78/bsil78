@@ -33,6 +33,7 @@ func _on_Area2D_body_entered(body: Node) -> void:
 	dbgmsg("detected entry of %s"%body.name)
 	if !body.is_actor(GameEnums.ACTORS.ANY_PLAYER):return
 	activator=body as Node2D
+	activator.into_block=self
 	activator.torch_should_be_visible=false
 	stop_distord_sound()
 	current_distord_sound=Utils.play_sound($SoundWhenPlayerInto)
@@ -40,7 +41,9 @@ func _on_Area2D_body_entered(body: Node) -> void:
 func _on_Area2D_body_exited(body: Node) -> void:
 	dbgmsg("detected exit of %s"%body.name)
 	if !body.is_actor(GameEnums.ACTORS.ANY_PLAYER):return
-	activator.torch_should_be_visible=true
+	if activator.into_block==self:
+		activator.into_block=null
+		activator.torch_should_be_visible=true
 	activator=null
 	stop_distord_sound()
 

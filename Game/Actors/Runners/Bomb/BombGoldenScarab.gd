@@ -76,7 +76,7 @@ func is_actor(actor:int=-1):
 func hit_and_explode(obj):
 	can_move=false
 	explode()
-	obj.hit(self,GameData.KILLER_HIT)
+	obj.destroy(self)
 	return true
 
 func behaviors()->Array:

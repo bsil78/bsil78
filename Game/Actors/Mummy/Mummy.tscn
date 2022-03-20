@@ -1,11 +1,8 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://Game/Assets/Audio/ogg/enemies/scavengers_enemy1.ogg" type="AudioStream" id=1]
-[ext_resource path="res://Game/Assets/Audio/ogg/enemies/scavengers_footstep2.ogg" type="AudioStream" id=2]
-[ext_resource path="res://Game/Assets/Audio/ogg/enemies/sproutch.ogg" type="AudioStream" id=3]
 [ext_resource path="res://Game/Assets/Images/Scavengers_SpriteSheet.png" type="Texture" id=4]
 [ext_resource path="res://Game/Assets/Audio/ogg/enemies/wueh.ogg" type="AudioStream" id=5]
-[ext_resource path="res://Game/Assets/Audio/ogg/enemies/scavengers_footstep1.ogg" type="AudioStream" id=6]
 [ext_resource path="res://Game/Actors/Mummy/Mummy.gd" type="Script" id=7]
 [ext_resource path="res://Game/BaseScripts/AnimManager.gd" type="Script" id=8]
 
@@ -105,26 +102,24 @@ tracks/0/keys = {
 "update": 3,
 "values": [ 8, 10, 8, 9, 8, 9, 10 ]
 }
-tracks/1/type = "audio"
-tracks/1/path = NodePath("../Voice")
+tracks/1/type = "value"
+tracks/1/path = NodePath("../Voice:pitch_scale")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/imported = false
-tracks/1/enabled = false
+tracks/1/enabled = true
 tracks/1/keys = {
-"clips": [ {
-"end_offset": 0.0,
-"start_offset": 0.0,
-"stream": ExtResource( 1 )
-} ],
-"times": PoolRealArray( 0.3 )
+"times": PoolRealArray( 0.9, 1.35 ),
+"transitions": PoolRealArray( 1, 1 ),
+"update": 0,
+"values": [ 0.76, 1.0 ]
 }
 tracks/2/type = "audio"
 tracks/2/path = NodePath("../Voice")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/imported = false
-tracks/2/enabled = false
+tracks/2/enabled = true
 tracks/2/keys = {
 "clips": [ {
 "end_offset": 0.0,
@@ -133,17 +128,19 @@ tracks/2/keys = {
 } ],
 "times": PoolRealArray( 1 )
 }
-tracks/3/type = "value"
-tracks/3/path = NodePath("../Voice:pitch_scale")
+tracks/3/type = "audio"
+tracks/3/path = NodePath("../Voice")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/imported = false
 tracks/3/enabled = true
 tracks/3/keys = {
-"times": PoolRealArray( 0.9, 1.35 ),
-"transitions": PoolRealArray( 1, 1 ),
-"update": 1,
-"values": [ 0.76, 1.0 ]
+"clips": [ {
+"end_offset": 0.0,
+"start_offset": 0.0,
+"stream": ExtResource( 1 )
+} ],
+"times": PoolRealArray( 0.3 )
 }
 
 [sub_resource type="Animation" id=5]
@@ -224,7 +221,7 @@ tracks/5/keys = {
 
 [sub_resource type="Animation" id=6]
 resource_name = "killed"
-length = 0.02
+length = 0.2
 step = 0.01
 tracks/0/type = "method"
 tracks/0/path = NodePath("..")
@@ -233,7 +230,7 @@ tracks/0/loop_wrap = true
 tracks/0/imported = false
 tracks/0/enabled = true
 tracks/0/keys = {
-"times": PoolRealArray( 0, 0.01 ),
+"times": PoolRealArray( 0, 0.2 ),
 "transitions": PoolRealArray( 1, 1 ),
 "values": [ {
 "args": [  ],
@@ -250,7 +247,7 @@ tracks/1/loop_wrap = true
 tracks/1/imported = false
 tracks/1/enabled = true
 tracks/1/keys = {
-"times": PoolRealArray( 0.01 ),
+"times": PoolRealArray( 0.2 ),
 "transitions": PoolRealArray( 1 ),
 "update": 1,
 "values": [ false ]
@@ -271,34 +268,6 @@ tracks/0/keys = {
 "transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
 "update": 3,
 "values": [ 8, 7, 8, 10, 9 ]
-}
-tracks/1/type = "audio"
-tracks/1/path = NodePath("../Steps")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/imported = false
-tracks/1/enabled = false
-tracks/1/keys = {
-"clips": [ {
-"end_offset": 0.601856,
-"start_offset": 0.0,
-"stream": ExtResource( 6 )
-} ],
-"times": PoolRealArray( 0.03 )
-}
-tracks/2/type = "audio"
-tracks/2/path = NodePath("../Steps")
-tracks/2/interp = 1
-tracks/2/loop_wrap = true
-tracks/2/imported = false
-tracks/2/enabled = false
-tracks/2/keys = {
-"clips": [ {
-"end_offset": 0.759843,
-"start_offset": 0.0,
-"stream": ExtResource( 2 )
-} ],
-"times": PoolRealArray( 0.3 )
 }
 
 [sub_resource type="RectangleShape2D" id=8]
@@ -348,7 +317,7 @@ onDownFlip = 4
 onIdleFlip = 4
 animator = NodePath("Animation/AnimationPlayer")
 visual = NodePath("Animation/Sprite")
-sproutch = ExtResource( 3 )
+idle_after_moved = false
 
 [node name="Animation" type="Node2D" parent="."]
 
@@ -369,11 +338,12 @@ anims_autochaining = PoolStringArray( "init>idle", "attack>idle", "hit>idle" )
 start_anim = "init"
 
 [node name="Sprite" type="Sprite" parent="Animation"]
+visible = false
 texture = ExtResource( 4 )
 flip_h = true
 vframes = 10
 hframes = 8
-frame = 6
+frame = 8
 
 [node name="MummyBody" type="CollisionShape2D" parent="."]
 light_mask = 0
@@ -382,22 +352,24 @@ shape = SubResource( 8 )
 [node name="SoundRayCast" type="RayCast2D" parent="."]
 enabled = true
 cast_to = Vector2( 32, 0 )
-collision_mask = 2
+collision_mask = 11
 
 [node name="FrontEffects" type="Node2D" parent="."]
 light_mask = 3
 
-[node name="SoundEffects" type="AudioStreamPlayer2D" parent="."]
+[node name="SoundEffects" type="AudioStreamPlayer" parent="."]
+volume_db = -6.0
+bus = "Effects"
 
-[node name="Steps" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource( 6 )
-max_distance = 128.0
-attenuation = 0.25
+[node name="Voice" type="AudioStreamPlayer" parent="."]
+stream = ExtResource( 5 )
+volume_db = -60.0
+pitch_scale = 0.894194
+bus = "Effects"
 
-[node name="Voice" type="AudioStreamPlayer2D" parent="."]
-stream = ExtResource( 1 )
-max_distance = 128.0
-attenuation = 1.93187
+[node name="Steps" type="AudioStreamPlayer" parent="."]
+volume_db = -60.0
+bus = "Effects"
 
 [node name="UI" type="Control" parent="."]
 margin_left = -10.0
@@ -438,6 +410,11 @@ one_shot = true
 [node name="CalmDownTimer" type="Timer" parent="."]
 wait_time = 2.0
 one_shot = true
+
+[node name="ThinkTimer" type="Timer" parent="."]
+wait_time = 0.25
+autostart = true
 [connection signal="timeout" from="UI/LifeBar/HideTimer" to="." method="hide_life_bar"]
 [connection signal="timeout" from="CoolDownTimer" to="." method="set_can_attack" binds= [ true ]]
 [connection signal="timeout" from="CalmDownTimer" to="." method="set_attack" binds= [ false ]]
+[connection signal="timeout" from="ThinkTimer" to="." method="think_update"]

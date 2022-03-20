@@ -9,8 +9,18 @@ const two_offset=Vector2(2,2)
 var map_elements:={}
 
 func _ready():
-	GameData.world.connect("ready",self,"_on_level_ready")
 	GameFuncs.connect("players_switched",self,"update_minimap")
+	connect_to_world()
+		
+func connect_to_world():
+	var world=GameData.world
+	if world:
+		if world.level:
+			_on_level_ready()
+		else:
+			world.connect("level_ready",self,"_on_level_ready")
+	else:
+		Utils.timer(0.5).connect("timeout",self,"connect_to_world")
 
 func _on_level_ready():
 	var size=GameData.world.level.size
@@ -105,10 +115,11 @@ var filters:Dictionary={
 												GameEnums.ACTORS.MOBILE_WALL ],
 				GameEnums.OBJECT_TYPE.BLOCK: [	GameEnums.BLOCKS.FORCE_FIELD ] },
 		2 : { 	GameEnums.OBJECT_TYPE.BLOCK: [	GameEnums.BLOCKS.FAKE_WALL,
-												GameEnums.BLOCKS.EXIT, 
-												GameEnums.BLOCKS.TELEPORTER ] },
+												GameEnums.BLOCKS.TELEPORTER,
+												GameEnums.BLOCKS.BREAKABLE_WALL ] },
 		3 : {	GameEnums.OBJECT_TYPE.BLOCK: [ GameEnums.BLOCKS.GOD_SIGN_BLOCK_BAD ],
-				GameEnums.OBJECT_TYPE.ITEM: [ GameEnums.ITEMS.GOD_SIGN_BAD ] }
+				GameEnums.OBJECT_TYPE.ITEM: [ GameEnums.ITEMS.GOD_SIGN_BAD ] },
+		4 : { 	GameEnums.OBJECT_TYPE.BLOCK: [	GameEnums.BLOCKS.EXIT ] }
 	}
 	
 
@@ -116,13 +127,15 @@ var filters:Dictionary={
 export(Color) var walls_col
 export(Color) var bg_col
 export(Color) var enemies_col
+export(Color) var exit_col
 
 func map_color_at(pixels_pos):
 	var colors:Dictionary={
 		0:coin_col,
 		1:mobile_col,
 		2:fix_col,
-		3:bad_col
+		3:bad_col,
+		4:exit_col
 	}
 	var enemies:Array=GameData.world.level.matching_objects_at({ GameEnums.OBJECT_TYPE.ACTOR: [	GameEnums.ACTORS.ANY_ENEMY]},pixels_pos)
 	if enemies and GameFuncs.grid_pos(enemies[0].position)==GameFuncs.grid_pos(pixels_pos): return enemies_col

@@ -1,6 +1,6 @@
 extends ProgressBar
 
-func _process(_delta):
+func _on_EnergyBarUpdateTimer_timeout() -> void:
 	if GameData.current_player:
 		max_value=GameData.current_player.max_energy
 		value=GameData.current_player.energy

@@ -176,7 +176,8 @@ tracks/5/keys = {
 "values": [ false ]
 }
 
-[sub_resource type="RectangleShape2D" id=8]
+[sub_resource type="CircleShape2D" id=8]
+radius = 8.0
 
 [node name="Teleporter" type="Node2D"]
 script = ExtResource( 4 )
@@ -240,10 +241,11 @@ anims/idle = SubResource( 7 )
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 2 )
+volume_db = -6.0
 mix_target = 1
+bus = "Effects"
 
 [node name="Area2D" type="Area2D" parent="."]
-visible = false
 collision_layer = 4
 collision_mask = 2
 

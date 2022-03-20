@@ -3,15 +3,15 @@ extends "res://Game/GameScenes/Levels/GameObjectsReifier.gd"
 const exit:PackedScene=preload("res://Game/Blocks/Exit/Exit.tscn")
 const force_field:PackedScene=preload("res://Game/Blocks/ForceField/ForceField.tscn")
 const fake_wall:PackedScene=preload("res://Game/Blocks/FakeWallField/FakeWallField.tscn")
-const good_gs:PackedScene=preload("res://Game/Blocks/GodSignBlocks/GodSignBlockGood.tscn")
-const bad_gs:PackedScene=preload("res://Game/Blocks/GodSignBlocks/GodSignBlockBad.tscn")
+const good_gs:PackedScene=preload("res://Game/Blocks/BreakableBlocks/GodSignBlockGood.tscn")
+const bad_gs:PackedScene=preload("res://Game/Blocks/BreakableBlocks/GodSignBlockBad.tscn")
 const green:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockGreen.tscn")
 const red:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockRed.tscn")
 const purple:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockPurple.tscn")
 const blue:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockBlue.tscn")
 const blank:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockBlank.tscn")
 const teleporter:PackedScene=preload("res://Game/Blocks/Teleporter/Teleporter.tscn")
-
+const breakable:PackedScene=preload("res://Game/Blocks/BreakableBlocks/BreakableWall.tscn")
 
 func _ready()->void:
 	var dic:={
@@ -21,7 +21,8 @@ func _ready()->void:
 		GameEnums.BLOCKS.GOD_SIGN_BLOCK_GOOD:"Good_GodSign",
 		GameEnums.BLOCKS.GOD_SIGN_BLOCK_BAD:"Bad_GodSign",
 		GameEnums.BLOCKS.ANY_EXPLODABLE:"Explodable_([^_]*)_?[A-Z]*",
-		GameEnums.BLOCKS.TELEPORTER:"Teleporter"
+		GameEnums.BLOCKS.TELEPORTER:"Teleporter",
+		GameEnums.BLOCKS.BREAKABLE_WALL:"BreakableWall"
 	}
 	instantiate_objects(dic,get_parent().size)
 	
@@ -32,19 +33,10 @@ func instantiate_object(id:int,args:Array,grid_pos:Vector2)->Node2D:
 	match id:
 		GameEnums.BLOCKS.EXIT:
 			node=exit.instance(1)
-			if has_property("params",tilemap()):
-				for anExit in tilemap_params(GameEnums.BLOCKS.EXIT):
-					if anExit[0]==grid_pos: 
-						node.needed_god_signs=anExit[1]
-						node.name=anExit[2]
+		GameEnums.BLOCKS.BREAKABLE_WALL:
+			node=breakable.instance(1)
 		GameEnums.BLOCKS.TELEPORTER:
 			node=teleporter.instance(1)
-			if has_property("params",tilemap()):
-				for aTeleporter in tilemap_params(GameEnums.BLOCKS.TELEPORTER):
-					if aTeleporter[0]==grid_pos: 
-						node.teleporter_id=aTeleporter[1]
-						node.teleporter_target=aTeleporter[2]
-						node.name="Teleporter%s"%node.teleporter_id
 		GameEnums.BLOCKS.FORCE_FIELD:
 			node=force_field.instance(1)
 			node.horizontal= (args[0]=="Horizontal")

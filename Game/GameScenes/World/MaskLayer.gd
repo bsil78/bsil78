@@ -19,11 +19,10 @@ func update():
 	var activep=GameData.current_player
 	if is_instance_valid(activep):
 		show_active_fow(activep)
-		for pname in GameData.players_names:
-			if pname==activep.name: continue
-			if GameData.players.has(pname):
-				show_inactive_fow(GameData.players[pname])
-				return
+		for player in GameData.world.players():
+			if player.name==activep.name: continue
+			show_inactive_fow(player)
+			return
 	else:
 		hide_active_fow()
 	hide_inactive_fow()
@@ -31,7 +30,7 @@ func update():
 				
 func show_active_fow(player:Node2D):
 	var torch=player.torch()
-	$FogOfWar/Viewport/Active_FoW.position=large_fow_half_size+player_center_offset+offset
+	$FogOfWar/Viewport/Active_FoW.position=Vector2(24,40)
 	$FogOfWar/Viewport/Active_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.get_node(small_fow_subpath).visible=!torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.show()
@@ -43,7 +42,7 @@ func show_inactive_fow(player:Node2D):
 	var torch=player.torch()
 	var active_pos=GameData.current_player.position
 	var delta_pos=player.position-active_pos
-	var active_fow_pos=large_fow_half_size + player_center_offset+offset
+	var active_fow_pos=Vector2(24,40) #large_fow_half_size + player_center_offset+offset
 	$FogOfWar/Viewport/Inactive_FoW.position=  active_fow_pos +delta_pos 
 	$FogOfWar/Viewport/Inactive_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Inactive_FoW.show()

@@ -40,8 +40,11 @@ func receive(from_teleport,player):
 			Utils.timer(0.5).connect("timeout",self,"let_player_move",[player])
 			return
 	#else throw player back
-	Utils.play_sound($AudioStreamPlayer,error_sound)
-	from_teleport.throw_back(player)		
+	stop_sound()
+	yield(Utils.timer(1),"timeout")
+	Utils.play_sound($AudioStreamPlayer,error_sound,12.0)
+	yield(Utils.timer(1),"timeout")
+	from_teleport.throw_back(player)
 	disactivate()
 
 func let_player_move(player):
@@ -59,7 +62,7 @@ func available_position(player)->bool:
 
 func is_free_of_block(dir,block)->bool:
 	if block:
-		print("dir %s has block %s"%[dir,block.name])
+		#print("dir %s has block %s"%[dir,block.name])
 		if GameFuncs.is_block(block,[GameEnums.BLOCKS.FAKE_WALL,GameEnums.BLOCKS.TELEPORTER]):
 			return true
 		elif block.is_block(GameEnums.BLOCKS.EXIT) and block.is_open():
@@ -67,10 +70,10 @@ func is_free_of_block(dir,block)->bool:
 		elif block.is_block(GameEnums.BLOCKS.FORCE_FIELD):
 			if dir in [Vector2.UP,Vector2.DOWN] and !block.horizontal:return true
 			if dir in [Vector2.LEFT,Vector2.RIGHT] and block.horizontal:return true
-		print("blocking teleport")
+		#print("blocking teleport")
 		return false
 	else:
-		print("no block at dir %s"%dir)
+		#print("no block at dir %s"%dir)
 		return true
 	
 
@@ -112,7 +115,9 @@ func _on_Area2D_body_entered(body: Node) -> void:
 	dbgmsg("detected entry of %s"%body.name)
 	if !body.is_actor(GameEnums.ACTORS.ANY_PLAYER):return
 	activator=body as Node2D
+	body.into_block=self
 	activator.torch_should_be_visible=false
+	activator.manage_torch_visibility()
 	stop_sound()
 	current_sound=Utils.play_sound($AudioStreamPlayer)
 
@@ -120,7 +125,10 @@ func _on_Area2D_body_exited(body: Node) -> void:
 	if state in [ RECEIVING, THROWING_BACK ]:
 		dbgmsg("detected exit of %s"%body.name)
 		if !body.is_actor(GameEnums.ACTORS.ANY_PLAYER):return
-		body.torch_should_be_visible=true
+		if body.into_block==self:
+			body.into_block=null
+			body.torch_should_be_visible=true
+		body.manage_torch_visibility()
 		disactivate()
 
 func stop_sound():

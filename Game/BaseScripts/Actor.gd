@@ -3,6 +3,7 @@ class_name Actor
 
 #signals
 signal has_moved
+signal last_move_ended
 
 #GameData managed values :
 var cell_size:=32
@@ -25,6 +26,7 @@ export(bool) var do_adjust_facing:=true
 export(NodePath) var animator
 export(NodePath) var visual
 export(NodePath) var tween
+export(bool) var idle_after_moved:=true
 
 #protected values
 const NONE:=Vector2.ZERO
@@ -40,7 +42,8 @@ var last_pos:Vector2
 var _animator:Node
 var _visual:Node2D
 var _tween:Tween
-var pushed_thing:Node2D
+var followed_actor:Node2D
+var following_target_position=null
 var last_collision
 var cool_down:=false
 var is_idle:=false
@@ -55,6 +58,8 @@ const ERROR:=true
 export(bool) var debug:=false
 var messages:=[]
 
+onready var front_probe:Node2D=preload("res://Game/Actors/FrontProbe.tscn").instance()
+
 func _ready():
 	#init GameData managed values
 	cell_size=GameData.cell_size
@@ -65,12 +70,16 @@ func _ready():
 	max_speed=walk_speed
 	#_tween=get_node(tween) as Tween
 	is_ready=true
+	var probe_area:Area2D=front_probe.get_node("Area2D")
+	probe_area.collision_mask=self.collision_mask
+	probe_area.collision_layer=self.collision_layer
+	probe_area.name="%s_FrontProbeArea"%self.name
+	add_child(front_probe)
+	front_probe.hide()
 
 func _enter_tree() -> void:
 	lvl=GameData.world.level
 	dbgmsg("entered tree of level %s"%lvl.name)
-
-
 
 func init_animator():
 	if animator:
@@ -93,6 +102,7 @@ func init_tween():
 	else:
 		dbgmsg("has no tween configured")
 
+
 func knockback(hitdir:Vector2):
 	if !_visual: return
 	if _visual.position!=Vector2.ZERO:return
@@ -108,12 +118,14 @@ func knockback(hitdir:Vector2):
 	yield(Utils.timer(0.2),"timeout")
 	_visual.position.x=0
 	_visual.position.y=0
-		
 
 func _draw():
-	if debug and last_collision:
-		draw_string(CommonUI.get_node("DebugPanel/ObjectDebug").font,to_local(last_collision.position)+Vector2(0,-16),last_collision.collider.name,Color.white)
-		draw_line(Vector2(),to_local(last_collision.position),Color.red,1.0)
+	if debug:
+		if speed!=0 or current_dir!=NONE:
+			draw_rect(Rect2(Vector2(-16,-16),Vector2(32,32)),Color(1,0,0,0.5),true)
+		if last_collision and is_instance_valid(last_collision.collider):
+			draw_string(CommonUI.get_node("DebugPanel/ObjectDebug").font,to_local(last_collision.position)+Vector2(0,-16),last_collision.collider.name,Color.white)
+			draw_line(Vector2(),to_local(last_collision.position),Color.red,1.0)
 
 func state_str()->String:
 	return ("%s\nglobal pos:%s\ngrid pos:%s\nanim:%s\nLP: %s\nCD:%s\nND:%s\n%s" % [
@@ -128,11 +140,12 @@ func state_str()->String:
 									])
 
 func _physics_process(delta):
+	if !GameData.world:return
 	if debug:update()
 	if !can_move or Thing.frozen or !is_alive(): return
 	if was_killed(): return
-	var moved=manage_movement(delta)
-	if moved:think_of_next_action()
+	if !manage_following(delta):manage_movement(delta)
+
 
 func think_of_next_action():
 	if next_dir==NONE and current_dir==NONE and !is_idle:
@@ -151,14 +164,62 @@ func was_killed()->bool:
 
 func manage_movement(delta)->bool:
 	adjust_current_dir()
-	if do_adjust_facing:adjust_facing()
-	find_target_pos()
-	if (target_pos):
-#		move_to(target_pos)
-		adjust_speed()
-		return move(delta)
+	if current_dir:
+		if do_adjust_facing:adjust_facing()
+		find_target_pos()
+		if (target_pos):
+	#		move_to(target_pos)
+			adjust_speed()
+			return move(delta)
 	return false	
 
+func manage_following(delta)->bool:
+	if !followed_actor:return false
+	var distance:=position.distance_to(target_pos)
+	if distance<1.5:
+		#what to do now ?
+		if should_continue_following():
+			return follow(followed_actor)
+		else:
+			unfollow(followed_actor)
+			return true
+	dbgmsg("moving to follow %s"%followed_actor)
+	speed=followed_actor.speed
+	return move(delta)
+#	var followed_actor_pos=followed_actor.position if is_instance_valid(followed_actor) else null  
+#	if followed_actor_pos:
+#		var calc_dir= GameFuncs.grid_pos(followed_actor_pos)-GameFuncs.grid_pos(from)
+#		if calc_dir!=dir: return
+#	if fspeed>0:forced_speed=fspeed
+
+func should_continue_following():
+	return false
+
+func follow(who)->bool:
+	dbgmsg("following %s"%who.name)
+	var distance:=position.distance_to(who.position)
+	if distance>GameData.cell_size*2:
+		dbgmsg("cannot follow actor %s because too far (%s) !"%[who.name,distance])
+		return false
+	followed_actor=who
+	following_target_position=GameFuncs.grid_pos(followed_actor.position)
+	next_dir=following_target_position-GameFuncs.grid_pos(position)
+	if not next_dir in GameEnums.DIRS_MAP.keys():
+		unfollow(followed_actor)
+		return false
+	adjust_current_dir()
+	if do_adjust_facing:adjust_facing()
+	target_pos=next_pos(current_dir)
+	on_move(position,target_pos)
+	return true
+	
+func unfollow(who):
+	dbgmsg("UNfollowing %s"%who.name)
+	followed_actor=null
+	following_target_position=null
+	idle()
+
+# future tween movement to implement
 func move_to(_pos=NONE):
 	pass
 
@@ -191,12 +252,15 @@ func idle():
 	if is_idle:return
 	dbgmsg("was requested to idle")
 	is_idle=true
+	reset_move()
+	stop()
+
+func reset_move():
 	forced_speed=0
 	speed=0
 	target_pos=NONE
 	current_dir=NONE
-	next_dir=NONE
-
+	
 func is_actor(actor:int=-1)->bool:
 	return actor==-1
 
@@ -219,47 +283,40 @@ func remove_from_game():
 	Thing.remove_from_game()
 	
 func move(delta)->bool:
-	if (!is_alive() or speed==0 or current_dir==NONE): 
-		dbgmsg("not able to move ! %s/%s/%s"%[is_alive(),speed,current_dir])
+	if (!is_alive() or current_dir==NONE): 
+		dbgmsg("not able to move ! alive=%s/dir=%s"%[is_alive(),current_dir])
+		return false
+	if speed==0:
+		dbgmsg("cannot move with speed 0 !")
 		return false
 	is_idle=false
 	var path=target_pos-position
 	var distance=path.length()
-	if(distance>cell_size):dbgmsg("distance move too big : %s"%distance,ERROR)
+	if(distance>cell_size):
+		dbgmsg("distance move clamped to one cell length")
+		path=path.normalized()*cell_size
 	var delta_move:Vector2=path.normalized()*(speed*delta) 
 	var delta_len=delta_move.length()
 	#dbgmsg("moving with speed : %s"%speed)
-	if( delta_len>cell_size 
-		or delta_len>distance
-		or distance<1.0		
-		):
+	var toobig=delta_len>cell_size or delta_len>distance
+	if( toobig ):
+		dbgmsg("Delta length is big : %s"%delta_move)		
+	if(distance<1.0 or toobig):
 		delta_move=Vector2(floor(path.x),floor(path.y))
 		position=snapped_pos() #jump precisely
 		emit_signal("has_moved")
 		#dbgmsg("right in target position")
-		return on_moved(last_pos,position)
+		on_moved(last_pos,position)
+		return true
 	
-	if target_pos!=NONE:
-		move_and_collide(delta_move,true,true,false)
-		emit_signal("has_moved")
-		
-#		var _collision=move_and_collide(delta_move,false,true,true)
-#		var collider:Node2D
-#		if _collision:collider=_collision.collider as Node2D
-#		if !_collision or GameFuncs.is_item(collider):
-#			move_and_collide(delta_move,true,true,false)
-#			emit_signal("has_moved")
-#		else: # wall or block or actor
-#			dbgmsg("colliding %s at speed %s"%[collider.name,speed])
-#			move_and_collide(_collision.remainder,true,true,false)
-#			#check if we have to stop right now
-#			if collider_stop_me(collider):
-#				position=snapped_pos()
-#				target_pos=NONE #should find new target
-#				current_dir=NONE #and a new current dir
-#				speed=0
-#				forced_speed=0 
-#			emit_signal("has_moved")
+	var collision:=move_and_collide(delta_move,true,true,true)
+	if collision:
+		dbgmsg("collided to %s, remainder is :%s"%[collision.collider.name,collision.remainder])
+#		position+=collision.remainder
+		position=position+collision.travel
+	else:
+		position=position+delta_move
+	emit_signal("has_moved")
 	return on_moving(last_pos,target_pos)
 	
 func collider_stop_me(collider):
@@ -300,16 +357,14 @@ func flip(dir:Vector2,flip_type:int)->int:
 func adjust_current_dir():
 	if next_dir!=NONE and current_dir==NONE:
 		current_dir=next_dir
-		next_dir=NONE
 
 func find_target_pos():
 	if target_pos!=NONE: return
 	if current_dir!=NONE and target_pos==NONE and !can_go(next_pos_from(snapped_pos(),current_dir)) :
-		#NOTE: call idle() instead ?
-		dbgmsg("Cannot go, then rest")
-		target_pos=NONE
-		next_dir=NONE
-		current_dir=NONE
+		if idle_after_moved:
+			idle()
+		else:
+			reset_move()
 		return
 
 func can_go(my_next_pos:Vector2)->bool:
@@ -323,7 +378,10 @@ func can_go(my_next_pos:Vector2)->bool:
 
 func on_move(_from:Vector2,to:Vector2)->bool:
 	#dbgmsg("move from %s to %s"%[GameFuncs.grid_pos(_from),GameFuncs.grid_pos(to)])
-	return add_as_blocker(to)
+	front_probe.rotation=(to-_from).angle()
+	front_probe.show()
+	return true
+#	return add_as_blocker(to)
 	
 func next_pos(dir:Vector2)->Vector2:
 	return position+dir*cell_size
@@ -335,23 +393,28 @@ func next_pos_from(pos:Vector2,dir:Vector2)->Vector2:
 		
 func on_moving(from:Vector2,to:Vector2)->bool:
 # warning-ignore:integer_division
-	if global_position.distance_to(to)<(cell_size/2):
-		if lvl.has_actor_at(from,self):
-			var _done=lvl.remove_object_at(from,self) # remove self blocking old cell
-			if !_done: printerr("Cannot remove %s from game map at %s\n%s" % [name, from, GameFuncs.dump(lvl.objects)])
+#	if global_position.distance_to(to)<(cell_size/2):
+#		if lvl.has_actor_at(from,self):
+#			var _done=lvl.remove_object_at(from,self) # remove self blocking old cell
+#			if !_done: printerr("Cannot remove %s from game map at %s\n%s" % [name, from, GameFuncs.dump(lvl.objects)])
 	return true
 
 func on_moved(_from:Vector2,_to:Vector2):
 	dbgmsg("Ended move from %s to %s"%[_from,_to])
-	idle()
+	emit_signal("last_move_ended")
+	if !followed_actor:
+		if idle_after_moved:
+			idle()
+			think_of_next_action()
+		else:
+			reset_move()
 	
-	if pushed_thing:pushed_thing=null
-	Thing.remove_from_level_objects()
-	if not lvl.add_object(self):
-		dbgmsg("cannot add itself to %s"%GameFuncs.grid_pos(position),ERROR)
-		if debug:print(lvl.dump_grid_pos_and_neighbors(GameFuncs.grid_pos(position)))
-	else:
-		dbgmsg("added itself to %s"%GameFuncs.grid_pos(position))
+#	Thing.remove_from_level_objects()
+#	if not lvl.add_object(self):
+#		dbgmsg("cannot add itself to %s"%GameFuncs.grid_pos(position),ERROR)
+#		if debug:print(lvl.dump_grid_pos_and_neighbors(GameFuncs.grid_pos(position)))
+#	else:
+#		dbgmsg("added itself to %s"%GameFuncs.grid_pos(position))
 
 func push_to(who:Node2D,dir:Vector2)->bool:
 	return Thing.push_to(who,dir)
@@ -367,16 +430,16 @@ func behaviors()->Array:
 	bhvs.append(GameEnums.BEHAVIORS.HIT)
 	return bhvs
 
-func add_as_blocker(pos:Vector2)->bool:
-	var added:bool=GameData.world.level.add_object_at(self,pos)
-	var grid_pos:=GameFuncs.grid_pos(pos)
-	if not added:
-		dbgmsg("not able to add blocker at %s"%grid_pos,ERROR)
-		GameData.world.level.dump_grid_pos_and_neighbors(grid_pos)
-		return false
-	else:
-		dbgmsg("added blocker to %s"%grid_pos)
-		return true
+#func add_as_blocker(pos:Vector2)->bool:
+#	var added:bool=GameData.world.level.add_object_at(self,pos)
+#	var grid_pos:=GameFuncs.grid_pos(pos)
+#	if not added:
+#		dbgmsg("not able to add blocker at %s"%grid_pos,ERROR)
+#		if debug:print_debug(GameData.world.level.dump_grid_pos_and_neighbors(grid_pos))
+#		return false
+#	else:
+#		dbgmsg("added blocker to %s"%grid_pos)
+#		return true
 
 func is_alive()->bool:
 	return Thing.is_alive()
@@ -412,7 +475,7 @@ func collide_block(block:Node2D)->bool:
 func was_stopped(at:Vector2)->bool:
 	var obstacles:=detect_obstacles(at)
 	if obstacles.empty():return false
-	dbgmsg("sees %s at %s"%[GameFuncs.dump(obstacles),at])
+	#dbgmsg("sees %s at %s"%[GameFuncs.dump(obstacles),at])
 	if obstacles.has("WALL"):
 		return on_wall_collision(at)	
 	else:
@@ -425,6 +488,9 @@ func detect_obstacles(at:Vector2)->Dictionary:
 	if is_wall:
 		objects["WALL"]="YES"
 		return objects
+	var actor:=detect_actor(at)
+	if actor:
+		return { GameEnums.OBJECT_TYPE.ACTOR:actor }
 	return detect_things(at)
 	
 func detect_things(at:Vector2)->Dictionary:
@@ -432,25 +498,45 @@ func detect_things(at:Vector2)->Dictionary:
 	var objects:Dictionary=lvl.objects_at(at)
 	var things:={}
 	for type in objects:
-		if objects[type]==self: continue
+		if objects[type]==self or type==GameEnums.OBJECT_TYPE.ACTOR: continue
 		things[type]=objects[type]
 	return things
+
+func detect_actor(at:Vector2)->Node2D:
+	#dbgmsg("probing actor at %s"%at)
+	var halfw=GameData.cell_size/2
+	var collisions:=[ 	get_collision_at(at+Vector2(halfw,0)), # right side 
+						get_collision_at(at-Vector2(halfw,0)), # left side
+						get_collision_at(at+Vector2(0,halfw)), # down side
+						get_collision_at(at-Vector2(0,halfw))] # upper side
+	for collision_dict in collisions:
+		if collision_dict.empty(): continue
+		var collider=collision_dict.collider
+		if collider is KinematicBody2D:
+			return collider
+		var fbas="_FrontProbeArea"
+		if collider is Area2D and collider.name.matchn("*_FrontProbeArea"):
+			return collider.get_parent().get_parent()
+	return null
 	
+func get_collision_at(at:Vector2)->Dictionary:
+	if !GameData.world:return {}
+	var space_state:Physics2DDirectSpaceState = GameData.world.get_world_2d().direct_space_state
+	return space_state.intersect_ray(global_position,at,[self],collision_mask,true,false)	
 
 func detect_walls(at:Vector2)->bool:
 	#dbgmsg("probing walls at %s"%at)
 	has_detected_outerwall=false
 	last_collision=null
-	var space_state:Physics2DDirectSpaceState = GameData.world.get_world_2d().direct_space_state
-	var result = space_state.intersect_ray(global_position,at,[self],collision_mask,true,false)
-	if !result.empty():
-		var collider:=result.collider as Node2D
+	var collision_dict:=get_collision_at(at)
+	if !collision_dict.empty():
+		var collider:=collision_dict.collider as Node2D
 		var cname=collider.name
-		dbgmsg("raycast detection : %s"%cname)
-		last_collision=result
+		#dbgmsg("raycast detection : %s"%cname)
+		last_collision=collision_dict
 		has_detected_outerwall=cname.matchn("*outerwalls*")
 		if cname.matchn("*innerwalls*") or has_detected_outerwall:
-			dbgmsg("has detected wall : %s"%cname)
+			#dbgmsg("has detected wall : %s"%cname)
 			return true
 	return false
 	
@@ -470,7 +556,7 @@ func adjust_speed():
 		if abs(speed)<1.0:speed=0
 	else:
 		var target_speed=max_speed
-		if pushed_thing and forced_speed>0:
+		if followed_actor and forced_speed>0:
 			#dbgmsg("set its target speed to %s"%forced_speed)
 			target_speed=forced_speed
 		#dbgmsg("adjusting it speed to %s, from %s (max:%s,forced:%s)"%[target_speed,speed,max_speed,forced_speed])
@@ -490,6 +576,7 @@ func goto(from:Vector2,dir:Vector2):
 	
 func stop():
 	next_dir=NONE
+	front_probe.hide()
 	cool_down=false
 	
 func speedup():

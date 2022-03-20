@@ -6,7 +6,6 @@ var attack:=false
 var can_attack:=true
 var last_dir:Vector2=NONE
 
-export(AudioStream) var sproutch:AudioStream
 export(int) var ATTACK_POWER:=20
 
 var hitEffect:=preload("res://Game/Effects/EnemyHitGreenBlood.tscn").instance()
@@ -15,13 +14,16 @@ const CALM_DELAY_WHEN_HIT:=4
 const CALM_DELAY_WHEN_AFTER_ATTACK:=2
 const COOL_DOWN_ATTACK:=1
 
+var sproutch=preload("res://Game/Assets/Audio/ogg/enemies/sproutch.ogg")
+var step1=preload("res://Game/Assets/Audio/ogg/enemies/scavengers_footstep1.ogg")
+var step2=preload("res://Game/Assets/Audio/ogg/enemies/scavengers_footstep2.ogg")
 
 func _ready():
 	$UI/LifeBar.max_value=max_life_points
 	$UI/LifeBar.value=life_points
 	$UI/LifeBar.visible=false
 	
-func _physics_process(_delta):
+func think_update():
 	if !Thing.frozen and is_alive():
 		manage_sound_volume()
 		if thinking: return
@@ -33,21 +35,37 @@ func _physics_process(_delta):
 				if current_dir!=NONE and Utils.chance(90):  return
 				if Utils.chance(50):think_of_dir()
 
+
 func fliph(flip:bool):
 	$Animation/Sprite.flip_h=flip
 			
 func idle():
 	if is_alive():
 		.idle()
+		think_dir=NONE
 		_animator.trigger_anim("idle")
 		
 func on_move(from,to)->bool:
 	if .on_move(from,to):
 		_animator.trigger_anim("walk")
+		var step_sound=Utils.choose([step1,step2])
+		Utils.play_sound($Steps,step_sound)
 		return true
 	else:
 		think_dir=NONE
 		return false
+
+func on_moved(from,to):
+	.on_moved(from,to)
+	var step_sound=Utils.choose([step1,step2])
+	Utils.play_sound($Steps,step_sound)
+
+func on_moving(from,to):
+	.on_moving(from,to)
+	if Utils.chance(1):
+		var step_sound=Utils.choose([step1,step2])
+		Utils.play_sound($Steps,step_sound)
+	
 		
 func hit(from:Node2D,amount:int=1):
 	if .hit(from,amount):
@@ -79,7 +97,7 @@ func killed():
 		_animator.trigger_anim("killed")
 	
 func explode():
-	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
+	Utils.play_sound($Voice,sproutch,20)
 	Utils.play_effect_once(explodeEffect,GameData.world.effects_node(),global_position)
 			
 
@@ -92,10 +110,10 @@ func manage_sound_volume():
 	if GameData.current_player and GameData.current_player.is_inside_tree():
 		var player_pos:Vector2=GameData.current_player.global_position
 		$SoundRayCast.cast_to=(player_pos-global_position)
-		var volume_db=-1*global_position.distance_to(player_pos)/10
+		var volume_db=2-1*global_position.distance_to(player_pos)/10
 		var collider=$SoundRayCast.get_collider()
-		if collider and collider.name!="PlayerBody":volume_db*=2
-		$Steps.volume_db=volume_db-10
+		if collider and (collider is TileMap or !collider.is_actor(GameEnums.ACTORS.ANY_PLAYER)):volume_db=-20
+		$Steps.volume_db=volume_db-14
 		$Voice.volume_db=volume_db
 	else:
 		$Steps.volume_db=-60
@@ -112,7 +130,7 @@ func reset_think_dir():
 
 func collide_actor(actor:Node2D)->bool:
 	if (!actor.is_actor(GameEnums.ACTORS.ANY_ENEMY) or is_amok) and actor.can_be_hit_by(self):
-		if can_attack and (actor as Node2D).global_position.distance_to(global_position)<GameData.MAX_HIT_DISTANCE:
+		if can_attack and GameFuncs.are_in_hit_distance(self,actor):
 			_animator.trigger_anim("attack")
 			can_attack=false
 			can_move=false
@@ -155,9 +173,7 @@ func think_of_dir():
 		else:
 			blocked=is_something(next_pos(think_dir))			
 	dbgmsg("Choosed %s" % think_dir)
-	current_dir=NONE
-	next_dir=NONE
-	target_pos=NONE
+	if think_dir==NONE:idle()
 	thinking=false
 
 func is_something(at:Vector2)->bool:

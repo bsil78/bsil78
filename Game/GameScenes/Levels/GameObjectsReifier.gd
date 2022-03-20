@@ -15,10 +15,8 @@ func instantiate_objects(dic:Dictionary,size:int):
 			if obj:
 				add_child(obj)
 				obj.position=grid_pos*GameData.cell_size+Vector2(half,half)
-				GameFuncs.manage_debug_of(tilemap(),obj)
-	tilemap().hide()
-
-
+				GameFuncs.manage_debug_of(obj)
+	tilemap().queue_free()
 
 func tilemap()->TileMap:
 	if !_tilemap:

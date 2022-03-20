@@ -1,23 +1,61 @@
 extends Node
 
 var played_effects:={}
+var IMAP:Array
 
-static func pressed(event,action):
-	if not event is InputEventKey: return
-	if event.is_action_pressed(action):
-		#DEBUG.push("Pressed "+event.as_text())
-		return true
-	return false
-	
-static func released(event,action):
-	if not event is InputEventKey: return
-	if event.is_action_released(action):
-		#DEBUG.push("Released "+event.as_text())
-		return true
-	return false	
+
+func _ready()->void:
+	IMAP=InputMap.get_actions()
 
 func quit(exit_code:int=0):
 	Utils.get_tree().quit(exit_code)
+
+func input_from_event(event)->Dictionary:
+	
+	var detected:={
+		key_pressed=-1,
+		pad_button=-1,
+		axis=-1,
+		axis_val=-1.0,
+		action_pressed="",
+		action_released=""
+	}
+	
+	if event.is_action_type():
+		if event.is_pressed():
+			if event is InputEventAction:
+				detected.action_pressed=event.action
+			else:
+				for action in IMAP:
+					if Input.is_action_just_pressed(action):
+						detected.action_pressed=action
+						break
+		else:
+			if event is InputEventAction:
+				detected.action_released=event.action
+			else:
+				for action in IMAP:
+					if Input.is_action_just_released(action):
+						detected.action_released=action
+						break
+		
+	if event.is_pressed():
+		if event is InputEventKey and event.pressed:
+			detected.key_pressed=event.scancode
+		
+		if event is InputEventJoypadButton and event.pressed:
+			detected.pad_button=event.button_index
+			
+		if event is InputEventJoypadMotion:
+			detected.axis=event.axis
+			detected.axis_val=event.axis_value
+		
+#	if !(event is InputEventMouse or event is InputEventScreenTouch):
+#		print("Input : %s\n%s"%[event,detected])
+	
+	#print("InputEvent : %s"%event.as_text())
+	
+	return detected
 
 func quit_from(node,exit_code:int=0):
 	node.get_tree().quit(exit_code)
@@ -31,8 +69,8 @@ static func choose(choices:Array):
 	return choices[choice]
 	
 static func chance(percent:int)->bool:
-	if(percent<0 or percent>100):
-		DEBUG.error("Percent must be between 0 and 100 : %s"%percent)
+	if(percent<0):
+		DEBUG.error("Percent must be greater than 0 : %s"%percent)
 		Utils.quit(-1)
 	randomize()
 	var roll = randi()  % 101
@@ -65,28 +103,47 @@ func timer(var delay:float,node=null)->SceneTreeTimer:
 		return node.get_tree().create_timer(delay)
 	else:
 		return Utils.get_tree().create_timer(delay)
-	
-func play_sound(channel,sounds=null,volume_db:int=-999,pitch_scale:int=-999):
-	if channel:
-		var new_channel=channel.duplicate()
-		randomize()
-		new_channel.name="%s-DUP-%s"%[new_channel.name,randi()%99999]
-		GameData.world.effects_node().add_child(new_channel)
-		if sounds:
-			if sounds is Array:
-				new_channel.stream=Utils.choose(sounds) as AudioStream
-			else:
-				new_channel.stream=sounds as AudioStream
-		if new_channel.stream==null:
-			DEBUG.error("Sound is null : %s"%sounds)
-			new_channel.queue_free()
+
+# givenChannel ~AudioStreamPlayer is mandatory
+# sounds can be Array or AudioStream or null (channel should have stream to play then)
+func play_sound(givenChannel,sounds=null,volume_db:int=-999,pitch_scale:float=-999.0,effectsNode=null):
+	if !givenChannel:
+		print_debug("Should provide some AudioStreamPlayer compatible object")
+		return null
+	# channel provided :	
+	var isInWorld=(GameData.world!=null)
+	var channel=givenChannel
+	var effectsNodeToUse=effectsNode
+	if !effectsNodeToUse and isInWorld:effectsNodeToUse=GameData.world.effects_node()
+	if effectsNodeToUse:
+		channel=channel.duplicate()
+		channel.name="%s-DUP-%s"%[channel.name,randi()%99999]
+		effectsNodeToUse.add_child(channel)
+	if sounds:
+		if sounds is Array:
+			channel.stream=Utils.choose(sounds) as AudioStream
 		else:
-			if volume_db!=-999:new_channel.volume_db=volume_db
-			if pitch_scale!=-999:new_channel.pitch_scale=pitch_scale
-			new_channel.play()
-			new_channel.connect("finished",new_channel,"queue_free")
-			return new_channel
-	return null
+			channel.stream=sounds as AudioStream
+	elif channel.stream==null:
+		print_debug("Should provide some AudioStream in channel or as argument")
+	if channel.stream==null:
+		DEBUG.error("Sound is null : %s"%sounds)
+		if effectsNodeToUse:channel.queue_free()
+	else:
+		if volume_db!=-999:channel.volume_db=volume_db
+		if pitch_scale!=-999.0:channel.pitch_scale=pitch_scale
+		channel.play()
+		var ogg:=channel.stream as AudioStreamOGGVorbis
+		var loop:=ogg and ogg.loop
+		if effectsNodeToUse:
+			if !loop:
+				channel.connect("finished",channel,"queue_free")
+				return null
+			else:
+				return channel
+		else:
+			return givenChannel
+	
 			 
 func play_effect_once(effect,effect_node:Node2D,global_pos:Vector2):
 	var effect_duration

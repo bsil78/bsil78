@@ -30,7 +30,7 @@ func _ready():
 	add_child(push_reset_timer)
 
 func can_be_push_by(who:Node2D)->bool:
-	return who.is_actor(GameEnums.ACTORS.ANY_PLAYER)
+	return who==self or who.is_actor(GameEnums.ACTORS.ANY_PLAYER)
 
 func push_to(who:Node2D,pdir:Vector2)->bool:
 	if !can_be_push_by(who):return false
@@ -39,14 +39,13 @@ func push_to(who:Node2D,pdir:Vector2)->bool:
 	push_effort+=1
 	dbgmsg("pushed by %s with effort %s"%[who,push_effort])
 	pushdir=pdir
-	if push_effort<push_hardness: 
-		pushdir=pdir
+	if who!=self and push_effort<push_hardness: 
 		push_reset_timer.start(0.2)
 		return false
 	if was_stopped(next_pos(pdir)):
 		dbgmsg("pushed by %s but is blocked"%who)
 		return false
-	play_push_sound()
+	if who!=self:play_push_sound()
 	on_pushed(who)
 	return true
 	
@@ -63,14 +62,13 @@ func on_moved(_from,_to):
 			last_pushdir=NONE
 			is_running=false
 		else:	
-			pushdir=last_pushdir
-			on_pushed(self)
+			push_to(self,last_pushdir)
 	
 func on_moving(from:Vector2,to:Vector2):
-	if global_position.distance_to(to)<(cell_size-2):
-		if lvl.has_actor_at(from,self):
-			var _done=lvl.remove_object_at(from,self) # remove self blocking old cell
-			if !_done: printerr("Cannot remove %s from game map at %s\n%s" % [name, from, GameFuncs.dump(lvl.objects)])
+#	if global_position.distance_to(to)<(cell_size-2):
+#		if lvl.has_actor_at(from,self):
+#			var _done=lvl.remove_object_at(from,self) # remove self blocking old cell
+#			if !_done: printerr("Cannot remove %s from game map at %s\n%s" % [name, from, GameFuncs.dump(lvl.objects)])
 	return true
 
 func on_move(from,to)->bool:

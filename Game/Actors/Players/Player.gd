@@ -1,6 +1,4 @@
 extends "res://Game/BaseScripts/WeakActor.gd"
-class_name Player
-
 
 #signals
 signal light_changed
@@ -8,8 +6,10 @@ signal light_changed
 #exposed values
 export(int,0,1000,10) var max_energy:=100
 export(int,0,1000,10) var energy:=100
-export(int) var ENERGY_LOSED_ON_CHOP:=3
-export(int) var ENERGY_LOSED_ON_RUN:=2
+export(int) var ENERGY_LOSED_ON_PUSH:=1
+export(int) var ENERGY_LOSED_ON_CHOP:=1
+export(int) var ENERGY_LOSED_ON_ATTACK:=2
+export(int) var ENERGY_LOSED_ON_RUN:=1
 export(int) var ENERGY_LOSED_ON_TIME:=1
 
 var jar1=preload("res://Game/Assets/Audio/ogg/player/scavengers_soda1.ogg")
@@ -18,6 +18,10 @@ var food1=preload("res://Game/Assets/Audio/ogg/enemies/scavengers_footstep1.ogg"
 var food2=preload("res://Game/Assets/Audio/ogg/enemies/scavengers_footstep2.ogg")
 var lifegain=preload("res://Game/Assets/Audio/ogg/player/haan.ogg")
 var humhum=preload("res://Game/Assets/Audio/ogg/player/humhum.ogg")
+var chop1=preload("res://Game/Assets/Audio/ogg/player/scavengers_chop1.ogg")
+var chop2=preload("res://Game/Assets/Audio/ogg/player/scavengers_chop2.ogg")
+var step1=preload("res://Game/Assets/Audio/ogg/player/step1.ogg")
+var step2=preload("res://Game/Assets/Audio/ogg/player/step2.ogg")
 var sproutch=preload("res://Game/Assets/Audio/ogg/enemies/sproutch.ogg")
 var mhm=preload("res://Game/Assets/Audio/ogg/player/mhm.ogg")
 var pickhit=preload("res://Game/Assets/Audio/ogg/player/Pick_Hitting_Rock.ogg")
@@ -27,18 +31,16 @@ var letsgo=preload("res://Game/Assets/Audio/ogg/player/let-s-go-male.ogg")
 
 #protected values
 var active:=false
-var _mask_light_on:Sprite
-var _mask_light_off:Sprite
-var hum_occuring:=false
 var _torch:Node2D
 var god_signs_count:=0
 var taken_exit:String
 var _mask_layer:Node
 var torch_should_be_visible:=true
+var into_block
 var torch_is_temporarily_hidden:=false
+var lastAlertingTime:=OS.get_unix_time()
 
 
-const Actor:=preload("res://Game/BaseScripts/Actor.gd")
 const remains:=preload("res://Game/Items/PlayerRemains.tscn")
 var LifeGainEffect:=preload("res://Game/Effects/PlayerLifeGain.tscn").instance()
 var FoodGainEffect:=preload("res://Game/Effects/PlayerFoodGain.tscn").instance()
@@ -48,9 +50,6 @@ var explodeEffect:=preload("res://Game/Effects/PlayerDying.tscn").instance()
 var to_step_on_after_move
 
 func _ready():
-	init_camera()
-	_mask_light_on=get_parent().get_parent().get_node("MaskLayer/FixedMask")
-	_mask_light_off=get_parent().get_parent().get_node("MaskLayer/FixedMask_LightOff")
 	_torch=$Animation/AnimatedSprite/Torch
 
 func _physics_process(_delta):
@@ -59,32 +58,22 @@ func _physics_process(_delta):
 			_animator.trigger_anim("dying_no_energy")
 			return
 		manage_torch_visibility()
-# warning-ignore:integer_division
-# warning-ignore:integer_division
-		if energy<=max_energy/3 or life_points<=max_life_points/3:
-			if $Reminder.is_stopped():
-				var delay:=min(energy,life_points)/10
-				if $Reminder.is_connected("timeout",self,"hum"):
-					$Reminder.disconnect("timeout",self,"hum")
-				$Reminder.connect("timeout",self,"hum",[delay*-5])
-				$Reminder.start(3.0)
-
 
 func inventory()->Inventory:
 	return $Inventory as Inventory
 
-func init_camera():
-	var marge=10
-	$Camera2D.current=false
-	$Camera2D.limit_left=-marge*cell_size
-	$Camera2D.limit_top=-marge*cell_size
-	$Camera2D.limit_right=(GameData.world.level.size+marge)*cell_size
-	$Camera2D.limit_bottom=(GameData.world.level.size+marge)*cell_size
+#func init_camera():
+#	$Camera2D.current=false
+#	var marge=10
+#	$Camera2D.limit_left=-marge*cell_size
+#	$Camera2D.limit_top=-marge*cell_size
+#	$Camera2D.limit_right=(GameData.world.level.size+marge)*cell_size
+#	$Camera2D.limit_bottom=(GameData.world.level.size+marge)*cell_size
 
 func on_entering_level():
 	dbgmsg("entering level")
-	init_camera()
-	_mask_layer=GameData.world.get_node("MaskLayer")
+#	init_camera()
+	_mask_layer=get_viewport().find_node("MaskLayer",true,false)
 	_mask_layer.update()
 	self.connect("has_moved",_mask_layer,"update")
 	self.connect("light_changed",_mask_layer,"update")
@@ -111,11 +100,6 @@ func unfreeze():
 	$LoseEnergyTimer.start()
 	torch().unfreeze()
 
-func hum(db_volume:int=-40):
-	if !hum_occuring:
-		hum_occuring=true
-		Utils.play_sound($Voice,humhum,db_volume)
-		hum_occuring=false
 
 func hide_torch_temporarily(delay):
 	torch_is_temporarily_hidden=true
@@ -167,6 +151,7 @@ func hit(from:Node2D,amount:int=1)->bool:
 	if .hit(from,amount):
 		_animator.trigger_anim("hit")
 		Utils.play_effect_once(hitEffect,$FrontEffects,global_position)
+		alertPlayerIfDanger()
 		return true
 	else:
 		return false
@@ -176,21 +161,38 @@ func fliph(flip:bool):
 		#print_debug("{} flip_h is {}".format([name,flip],"{}"))
 		$Animation/AnimatedSprite.flip_h=flip
 		_torch.flip(flip)
+
+func timeElapsing():
+	loseEnergy(ENERGY_LOSED_ON_TIME)
+	
 	
 func loseEnergy(amount:int=ENERGY_LOSED_ON_TIME):
 # warning-ignore:narrowing_conversion
-	if is_alive():energy=max(energy-amount,0)		
+	if is_alive():
+		energy=max(energy-amount,0)
+		alertPlayerIfDanger()
+
+func alertPlayerIfDanger():
+	if OS.get_unix_time()<lastAlertingTime+5:return
+	if energy<=max_energy/3 or life_points<=max_life_points/3: 
+		Utils.play_sound($Voice,humhum)
+		lastAlertingTime=OS.get_unix_time()
 	
 func on_move(from,to)->bool:
 	if .on_move(from,to):
 		if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
 		_animator.trigger_anim("walk")
+		var step_sound=Utils.choose([step1,step2])
+		Utils.play_sound($SoundsEffects,step_sound)
 		return true
 	else:
 		return false
 
 func on_moved(from,to):
+	if next_dir==NONE:stop()
 	.on_moved(from,to)
+	var step_sound=Utils.choose([step1,step2])
+	Utils.play_sound($SoundsEffects,step_sound)	
 	var block=to_step_on_after_move
 	to_step_on_after_move=null
 	if is_instance_valid(block):
@@ -204,7 +206,7 @@ func on_moved(from,to):
 			dbgmsg("taking teleporter %s" % block.name)
 			position=snapped_pos()
 			block.teleport(self)
-	
+
 
 func teleportTo(pos:Vector2)->bool:
 	var objs=lvl.objects_at(pos)
@@ -219,7 +221,7 @@ func teleportTo(pos:Vector2)->bool:
 	return false
 		
 func explode():
-	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
+	Utils.play_sound($Voice,sproutch,20)
 	Utils.play_effect_once(explodeEffect,GameData.world.effects_node(),global_position)	
 	
 	
@@ -231,7 +233,7 @@ func collide_block(block:Node2D)->bool:
 		_animator.trigger_anim("chop")
 		Utils.timer(0.3).connect("timeout",block,"hit",[self,5])
 		loseEnergy(ENERGY_LOSED_ON_CHOP)
-		Utils.play_sound($SoundsEffects,pickhit)
+		Utils.play_sound($SoundsEffects,pickhit,-999,rand_range(0.75,1.25))
 		start_cool_down(0.5)
 		return true
 	if block.use_in_place(self):
@@ -252,38 +254,34 @@ func collide_item(item:Node2D)->bool:
 	return .collide_item(item)
 
 func can_be_hit_by(from)->bool:
+	if GameFuncs.is_actor(from,[GameEnums.ACTORS.MUMMY]) and !torch_should_be_visible: return false
 	return .can_be_hit_by(from) and !from.is_actor(GameEnums.ACTORS.ANY_PLAYER)
 
 func collide_actor(actor:Node2D)->bool:
-	if pushed_thing==actor:return false
+	if followed_actor==actor:return false
+		
 	if (!actor.is_actor(GameEnums.ACTORS.ANY_PLAYER) or is_amok) and actor.can_be_hit_by(self):
 		if !cool_down and GameFuncs.are_in_hit_distance(self,actor):
+			var chop_sound=Utils.choose([chop1,chop2])
+			Utils.play_sound($SoundsEffects,chop_sound)
 			_animator.trigger_anim("chop")
 			Utils.timer(0.3).connect("timeout",actor,"hit",[self,5])
-			loseEnergy(ENERGY_LOSED_ON_CHOP)
+			loseEnergy(ENERGY_LOSED_ON_ATTACK)
 			start_cool_down(0.5)
-		return true
+		return !(actor.current_dir==(next_dir if current_dir==NONE else current_dir))
 	if  ( actor.is_actor(GameEnums.ACTORS.ANY_RUNNER) ):
 		if actor.speed!=0:
 			return actor.current_dir!=current_dir
 		dbgmsg("try pushing %s"%actor.name)
 		if actor.push_to(self,current_dir):
+			loseEnergy(ENERGY_LOSED_ON_PUSH)
 			dbgmsg("pushing %s"%actor.name)
-			pushed_thing=actor
-			var pushspeed=actor.run_speed
-			if actor.walk_on_push:pushspeed=actor.walk_speed
-			var goto_args:=[position,current_dir]
-			if pushspeed<=run_speed:goto_args.push_back(pushspeed*0.95)
-			Utils.timer((run_speed/pushspeed)/8).connect("timeout",self,"goto",goto_args)
-			pushed_thing.connect("has_moved",self,"push_stopped")
+			follow(actor)
 			return false
 		return true
 	return false
 
-func push_stopped():
-	pushed_thing.disconnect("has_moved",self,"push_stopped")
-	pushed_thing=null
-	idle()
+
 
 func start_cool_down(delay):
 	cool_down=true
@@ -368,11 +366,9 @@ func goto(from:Vector2,dir:Vector2,fspeed:int=-1):
 		dbgmsg("asked to go %s from %s but position does not match actual one %s"%[dir,from,position])
 		return
 # warning-ignore:incompatible_ternary
-	var pushed_thing_pos=pushed_thing.position if is_instance_valid(pushed_thing) else null  
-	if pushed_thing_pos:
-		var calc_dir= GameFuncs.grid_pos(pushed_thing_pos)-GameFuncs.grid_pos(from)
-		if calc_dir!=dir: return
-	if fspeed>0:forced_speed=fspeed
+	if followed_actor:
+		dbgmsg("asked to go %s but following %s"%[dir,followed_actor.name])
+		return
 	.goto(from,dir)
 
 func idle():
@@ -383,3 +379,4 @@ func idle():
 
 func _on_RevertHidingTorchTimer_timeout() -> void:
 	torch_is_temporarily_hidden=false
+

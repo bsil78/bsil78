@@ -7,7 +7,7 @@ var current_player:Node2D=null
 var players:={}
 var players_slots:={"PlayerOne":1,"PlayerTwo":2}
 var players_saves:={}
-var world:Node2D=null
+var world=null
 
 const players_names:=["PlayerOne","PlayerTwo"]
 const MAX_HIT_DISTANCE=38
@@ -18,8 +18,6 @@ export(float,0.1,1,0.1) var ground_friction:=0.5
 export(int,8,64,8) var cell_size:=32
 export(int,1,10,1) var long_transition_delay:=7
 export(int,1,10,1) var short_transition_delay:=3
-
-
 
 
 func _ready() -> void:

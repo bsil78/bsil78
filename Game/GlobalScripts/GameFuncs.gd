@@ -4,11 +4,13 @@ var music=preload("res://Game/Effects/Music.tscn")
 var players_locker:Object=null
 var switch_of_player_disabled:=false
 var spawned_count:=0
+var music_node
 
 signal players_switched
 
 func _ready():
-	CommonUI.add_child(music.instance())
+	music_node=music.instance()
+	CommonUI.add_child(music_node)
 
 func _process(_delta):
 	if Input.action_press("ui_quit"):
@@ -19,13 +21,13 @@ func load_next_level():
 	GameData.current_level=GameData.current_level+1
 	transition()
 
-static func manage_debug_of(debug_node,obj):
+func manage_debug_of(obj):
 	if !DEBUG.active:return
-	for child in debug_node.get_children():
-		if child is Position2D and child.name.matchn("*debug*"):
-			if GameFuncs.grid_pos(child.position)==GameFuncs.grid_pos(obj.position):
-				obj.debug=true
-
+	var debug_nodes:Array=get_tree().get_nodes_in_group("DebugPointer")
+	for child in debug_nodes:
+		if GameFuncs.grid_pos(child.position)==GameFuncs.grid_pos(obj.position):
+			obj.debug=true
+				
 func init_new_game():
 	findout_levels_config()
 	GameData.current_player=null	
@@ -96,7 +98,7 @@ func is_item(obj:Node2D,types:Array=[])->bool:
 	return false
 
 func are_in_hit_distance(obj1,obj2)->bool:
-	return (obj1 as Node2D).global_position.distance_to((obj2 as Node2D).global_position)<GameData.MAX_HIT_DISTANCE
+	return (obj1 as Node2D).position.distance_to((obj2 as Node2D).position)<GameData.MAX_HIT_DISTANCE
 
 
 func grid_pos(position:Vector2)->Vector2:

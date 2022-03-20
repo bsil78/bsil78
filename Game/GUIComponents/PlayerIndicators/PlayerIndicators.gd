@@ -6,24 +6,25 @@ var world
 func _ready():
 	world=GameData.world
 	world.connect("player_gained_coin",self,"play_coin_gain_for")
-	world.connect("level_ready",$Backpack,"update_items")
+	world.connect("level_ready",$InventoryArea/Backpack,"update_items")
 	
 func disconnect_inventory(player):
-	print("%s's inventory disconnected from indicators"%player.name)
+	#print("%s's inventory disconnected from indicators"%player.name)
 	var inv=player.inventory()
-	inv.disconnect("inventory_changed",$Backpack,"update_items")
-	inv.disconnect("inventory_changed",$PlayerGodSign,"update_indicator")
+	inv.disconnect("inventory_changed",$InventoryArea/Backpack,"update_items")
+	inv.disconnect("inventory_changed",$InventoryArea/PlayerGodSign,"update_indicator")
 	
 func connect_inventory(player):
-	print("%s's inventory connected to indicators"%player.name)
+	#print("%s's inventory connected to indicators"%player.name)
 	var inv=player.inventory()
-	inv.connect("inventory_changed",$Backpack,"update_items")
-	inv.connect("inventory_changed",$PlayerGodSign,"update_indicator",[player])
+	inv.connect("inventory_changed",$InventoryArea/Backpack,"update_items")
+	inv.connect("inventory_changed",$InventoryArea/PlayerGodSign,"update_indicator",[player])
 	inv.update()
+	
 
 func update_indicators(the_world,player):
 	$GodSign.update_indicator(the_world)
-	$PlayerGodSign.update_indicator(player)
+	$InventoryArea/PlayerGodSign.update_indicator(player)
 	
 func play_coin_gain_for(player):
 	var new_coin=$Coin.duplicate()
@@ -33,7 +34,7 @@ func play_coin_gain_for(player):
 	new_coin.global_position =  player.get_global_transform_with_canvas().get_origin()
 	var tween:= Tween.new();
 	new_coin.add_child(tween)
-	tween.interpolate_property(new_coin,"global_position",new_coin.global_position,$PlayerGodSign.rect_global_position+$PlayerGodSign.rect_size/2,1.0,Tween.TRANS_CUBIC,Tween.EASE_IN_OUT)
+	tween.interpolate_property(new_coin,"global_position",new_coin.global_position,$InventoryArea/PlayerGodSign.rect_global_position+$InventoryArea/PlayerGodSign.rect_size/2,1.0,Tween.TRANS_CUBIC,Tween.EASE_IN_OUT)
 	new_coin.show()
 	tween.connect("tween_all_completed",self,"remove_coin",[new_coin])
 	tween.start()
@@ -42,3 +43,7 @@ func remove_coin(coin):
 	coin.hide()
 	remove_child(coin)
 	coin.queue_free()
+
+
+func update_indicator() -> void:
+	pass # Replace with function body.

@@ -13,69 +13,81 @@ func _ready():
 			fixed_dir=dir
 			break
 	idle()
-	waiting_timer.one_shot=true
+	waiting_timer.one_shot=false
+	waiting_timer.connect("timeout",self,"auto_move")
+	waiting_timer.start(0.2)
 
-func _physics_process(_delta):
-	#dbgmsg("wt : %s \nir : %s \ncd : %s" % [waiting_timer,is_running,current_dir])
+func move(delta):
+	.move(delta)
+	dbgmsg("was moving")
+
+func auto_move():
+#	dbgmsg("wt : %s \nir : %s \ncd : %s" % [waiting_timer,is_running,current_dir])
+	if has_detected_outerwall:
+		if waiting_timer.is_connected("timeout",self,"auto_move"):
+			dbgmsg("removing auto_move timer")
+			waiting_timer.stop()
+			waiting_timer.disconnect("timeout",self,"auto_move")
+		return
 	if can_move and current_dir==NONE:
 		if not is_running:
-			if waiting_timer.is_stopped():
-				if has_detected_outerwall:return
-				try_to_run()
-			else:
-				dbgmsg("not running and waiting")
-			return
-		else: #was running !
-			dbgmsg("is no more running !")
-			var pos_in_front=next_pos(last_dir)
-			dbgmsg("pos in dir %s is %s"%[last_dir,pos_in_front])
-			if was_stopped(pos_in_front):
-				dbgmsg("was stopped at %s, need to idle"%pos_in_front)
-				idle()
-			else:
-				run()
-		
-func run_if_free(right,left):
-	if !can_move: return
-	if is_blocked_by(right,GameFuncs.rotl(last_dir)): 
-		dbgmsg("blocked on right !")
-		return 
-	if is_blocked_by(left,GameFuncs.rotr(last_dir)):
-		dbgmsg("blocked on left !")
-		return 
-	run()
+			try_to_run()
+#			return
+#		else: #was running !
+#			dbgmsg("is no more running !")
+#			var pos_in_front=next_pos(last_dir)
+#			dbgmsg("pos in dir %s is %s"%[last_dir,pos_in_front])
+#			if was_stopped(pos_in_front):
+#				dbgmsg("was stopped at %s, need to idle"%pos_in_front)
+#				idle()
+#			else:
+#				run()
+#			run()
 
 func try_to_run():
-	#dbgmsg("try to run")
-	if waiting_timer.is_connected("timeout",self,"run_if_free"): 	waiting_timer.disconnect("timeout",self,"run_if_free")
 	var pos_in_front=next_pos(last_dir)
 	if not was_stopped(pos_in_front):
-		var next_pos_r=next_pos_from(pos_in_front,GameFuncs.rotr(last_dir))
-		var matcher={GameEnums.OBJECT_TYPE.ACTOR:[GameEnums.ACTORS.ANY_PLAYER]}
-		var objs_r=GameData.world.level.matching_objects_at(matcher,next_pos_r)
-		var player_on_frontright:Node2D=null if objs_r.empty() else objs_r[0]
-		var next_pos_l=next_pos_from(pos_in_front,GameFuncs.rotl(last_dir))
-		var objs_l=GameData.world.level.matching_objects_at(matcher,next_pos_l)
-		var player_on_frontleft:Node2D=null if objs_l.empty() else objs_l[0]
-		if player_on_frontleft or player_on_frontright:
-			if not ( (player_on_frontleft and player_on_frontleft.next_dir in [fixed_dir,fixed_dir*-1]) \
-			  		or \
-					 (player_on_frontright and player_on_frontright.next_dir in [fixed_dir,fixed_dir*-1]) ): 
-				if !waiting_timer.is_connected("timeout",self,"run_if_free"): 
-					var _err=waiting_timer.connect("timeout",self,"run_if_free",[player_on_frontright,player_on_frontleft],CONNECT_ONESHOT)
-				waiting_timer.start(0.1)
-				return
+		dbgmsg("tried to run and was not stopped (free in front)")
+#		if detect_actor_coming_in_front(pos_in_front):
+#			dbgmsg("waiting for player to move")
+#			idle()
+#		else:
+#			run()
 		run()
+	else:
+		idle()	
+#func detect_actor_coming_in_front(pos_in_front:Vector2):
+#	var next_pos_r=next_pos_from(pos_in_front,GameFuncs.rotr(last_dir))
+#	var matcher={GameEnums.OBJECT_TYPE.ACTOR:[GameEnums.ACTORS.ANY_ACTOR]}
+#	var objs_r=GameData.world.level.matching_objects_at(matcher,next_pos_r)
+#	var actor_on_frontright:Node2D=null if objs_r.empty() else objs_r[0]
+#	if actor_on_frontright: dbgmsg("detected actor on front right")
+#	var next_pos_l=next_pos_from(pos_in_front,GameFuncs.rotl(last_dir))
+#	var objs_l=GameData.world.level.matching_objects_at(matcher,next_pos_l)
+#	var actor_on_frontleft:Node2D=null if objs_l.empty() else objs_l[0]
+#	if actor_on_frontleft: dbgmsg("detected actor on front left")
+#	return test_actor_coming_in_front([actor_on_frontright,actor_on_frontleft])
+		
+func test_actor_coming_in_front(actors_in_front):
+	for anActor in actors_in_front:
+		if !anActor: continue
+		print("testing %s next dir"%anActor.name)
+		if not anActor.next_dir in [fixed_dir,fixed_dir*-1]:
+			var pnextpos=GameFuncs.grid_pos(anActor.target_pos)
+			var mynextpos=GameFuncs.grid_pos(position)+fixed_dir
+			print("pnextpos:%s , mynextpos:%s"%[pnextpos,mynextpos])
+			if pnextpos==mynextpos:return true
+	return false
+
 
 func run():
+	dbgmsg("running ! go ! go ! go !")		
 	speedup()
 	goto(position,last_dir)
 
 func is_blocked_by(player:Node2D,intersect_pdir:Vector2)->bool:
 	if not player : return false
-	var pdir = player.next_dir
-#	if intersect_pdir!=pdir or pdir in [ fixed_dir, fixed_dir*-1 ]: return false
-	if intersect_pdir!=pdir: return false
+	if intersect_pdir!=player.next_dir: return false
 	return true
 	
 func push_to(who:Node2D,dir:Vector2)->bool:
@@ -107,7 +119,7 @@ func on_moved(from,to):
 		if was_stopped(next_pos_from(to,current_dir)):
 			yield(Utils.timer(0.1),"timeout") 
 			if can_move: 
-				.idle()
+				idle()
 				return
 	.on_moved(from,to)
 	

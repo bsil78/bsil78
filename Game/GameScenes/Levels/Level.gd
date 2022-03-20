@@ -40,8 +40,6 @@ func has_thing_at(at,object,type_of_thing)->bool:
 	if !object: return true
 	return object==thing
 
-
-
 func _on_teleporter_actived(which_one,target,actor):
 	print_debug("Teleporter %s activated by %s with target %s"%[which_one.teleporter_id,actor.name,target])
 	for teleporter in teleporters:
@@ -79,7 +77,7 @@ func add_scanned_objects(level_node:Node2D):
 			add_scanned_objects(node)
 		else:
 			var type:int=GameFuncs.object_type_of(node)
-			if type!=GameEnums.OBJECT_TYPE.UNKNOWN:
+			if ! type in [GameEnums.OBJECT_TYPE.UNKNOWN,GameEnums.OBJECT_TYPE.ACTOR]:
 				add_object(node as Node2D)
 				
 

@@ -1,0 +1,27 @@
+[gd_scene load_steps=5 format=2]
+
+[ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=1]
+[ext_resource path="res://Game/Effects/BlockExploding.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Game/Effects/HitBlock.tscn" type="PackedScene" id=3]
+
+[sub_resource type="GDScript" id=1]
+script/source = "extends \"res://Game/Blocks/BreakableBlocks/GodSignBlock.gd\"
+
+func show_broken_block():
+	$Block.frame=22
+"
+
+[node name="GodSignBlockGood" type="Node2D"]
+script = SubResource( 1 )
+hitEffect = ExtResource( 3 )
+explodingEffect = ExtResource( 2 )
+max_hit_points = 25
+broken_limit = 15
+hit_points = 25
+
+[node name="Block" type="Sprite" parent="."]
+texture = ExtResource( 1 )
+vframes = 10
+hframes = 10
+frame = 21
+region_rect = Rect2( 128.501, 127.864, 0.499268, 0.136368 )

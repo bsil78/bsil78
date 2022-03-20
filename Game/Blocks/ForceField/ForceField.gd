@@ -47,7 +47,9 @@ func step_on(who:Node2D)->bool:
 		stepon_ok=who.position.x<(position.x-MARGE) or who.position.x>(position.x+MARGE)
 	else:
 		stepon_ok=who.position.y<(position.y-MARGE) or who.position.y>(position.y+MARGE)
-	if stepon_ok:disappear()
+	if stepon_ok:
+		Utils.play_sound($BatsSound)
+		Utils.timer(0.2).connect("timeout",self,"disappear")
 	return stepon_ok
 
 func is_allowed_to_stepon(who:Node2D)->bool:
@@ -56,8 +58,8 @@ func is_allowed_to_stepon(who:Node2D)->bool:
 								   GameEnums.ACTORS.BOMB])
 
 func disappear():
+	
 	Utils.play_effect_once(effect_as_node,GameData.world.effects_node(),global_position)
-	Utils.play_sound($BatsSound)
 	remove_from_world()
 
 func is_block(block:int=-1)->bool:

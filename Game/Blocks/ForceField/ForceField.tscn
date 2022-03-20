@@ -283,7 +283,7 @@ frame = 5
 [node name="BatPrototype" type="AnimatedSprite" parent="."]
 visible = false
 frames = SubResource( 11 )
-frame = 3
+frame = 6
 playing = true
 
 [node name="Arrows" type="Sprite" parent="."]
@@ -302,6 +302,7 @@ anims/anim = SubResource( 12 )
 stream = ExtResource( 5 )
 volume_db = -10.0
 mix_target = 1
+bus = "Effects"
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 layer = 27

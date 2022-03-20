@@ -316,3 +316,4 @@ frame = 16
 [node name="RockSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 2 )
 mix_target = 2
+bus = "Effects"

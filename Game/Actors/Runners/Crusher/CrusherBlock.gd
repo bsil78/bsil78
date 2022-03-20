@@ -11,12 +11,12 @@ func push_from_front(who:Node2D)->bool:
 	return false	
 	
 func collide_actor(actor:Node2D)->bool:
-	dbgmsg("CD : %s, fixed_dir : %s; alive : %s"%[current_dir,fixed_dir,actor.is_alive()])
+	#dbgmsg("CD : %s, fixed_dir : %s; alive : %s"%[current_dir,fixed_dir,actor.is_alive()])
 	if current_dir==fixed_dir or actor.current_dir in [fixed_dir,-1*fixed_dir]:
 		if actor.can_be_hit_by(self):
 			dbgmsg("hit %s"%actor.name)
 			actor.hit(self,GameData.KILLER_HIT)
-			return true	
+			return false	
 	return .collide_actor(actor)
 
 func explode():
