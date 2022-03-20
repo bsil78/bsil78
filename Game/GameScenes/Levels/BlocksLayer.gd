@@ -9,6 +9,8 @@ const green:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBl
 const red:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockRed.tscn")
 const purple:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockPurple.tscn")
 const blue:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockBlue.tscn")
+const blank:PackedScene=preload("res://Game/Blocks/ExplodableBlocks/ExplodableBlockBlank.tscn")
+const teleporter:PackedScene=preload("res://Game/Blocks/Teleporter/Teleporter.tscn")
 
 
 func _ready()->void:
@@ -19,8 +21,10 @@ func _ready()->void:
 		GameEnums.BLOCKS.GOD_SIGN_BLOCK_GOOD:"Good_GodSign",
 		GameEnums.BLOCKS.GOD_SIGN_BLOCK_BAD:"Bad_GodSign",
 		GameEnums.BLOCKS.ANY_EXPLODABLE:"Explodable_([^_]*)_?[A-Z]*",
+		GameEnums.BLOCKS.TELEPORTER:"Teleporter"
 	}
 	instantiate_objects(dic,get_parent().size)
+	
 
 
 func instantiate_object(id:int,args:Array,grid_pos:Vector2)->Node2D:
@@ -33,11 +37,14 @@ func instantiate_object(id:int,args:Array,grid_pos:Vector2)->Node2D:
 					if anExit[0]==grid_pos: 
 						node.needed_god_signs=anExit[1]
 						node.name=anExit[2]
-			var level=find_parent("Level*")
-			if level:
-				level.connect_exit(node)
-			else:
-				print_debug("Cannot find parent level node...")
+		GameEnums.BLOCKS.TELEPORTER:
+			node=teleporter.instance(1)
+			if has_property("params",tilemap()):
+				for aTeleporter in tilemap_params(GameEnums.BLOCKS.TELEPORTER):
+					if aTeleporter[0]==grid_pos: 
+						node.teleporter_id=aTeleporter[1]
+						node.teleporter_target=aTeleporter[2]
+						node.name="Teleporter%s"%node.teleporter_id
 		GameEnums.BLOCKS.FORCE_FIELD:
 			node=force_field.instance(1)
 			node.horizontal= (args[0]=="Horizontal")
@@ -49,6 +56,7 @@ func instantiate_object(id:int,args:Array,grid_pos:Vector2)->Node2D:
 			node=bad_gs.instance(1)
 		GameEnums.BLOCKS.ANY_EXPLODABLE:
 			match args[0]:
+				"Blank":node=blank.instance(1)
 				"Green":node=green.instance(1)
 				"Red":node=red.instance(1)
 				"Purple":node=purple.instance(1)

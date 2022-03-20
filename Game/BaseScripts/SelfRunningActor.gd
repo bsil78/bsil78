@@ -51,9 +51,12 @@ func try_to_run():
 	var pos_in_front=next_pos(last_dir)
 	if not was_stopped(pos_in_front):
 		var next_pos_r=next_pos_from(pos_in_front,GameFuncs.rotr(last_dir))
-		var player_on_frontright:Node2D=GameData.world.level.matching_object_at("Player*",next_pos_r)
+		var matcher={GameEnums.OBJECT_TYPE.ACTOR:[GameEnums.ACTORS.ANY_PLAYER]}
+		var objs_r=GameData.world.level.matching_objects_at(matcher,next_pos_r)
+		var player_on_frontright:Node2D=null if objs_r.empty() else objs_r[0]
 		var next_pos_l=next_pos_from(pos_in_front,GameFuncs.rotl(last_dir))
-		var player_on_frontleft:Node2D=GameData.world.level.matching_object_at("Player*",next_pos_l)
+		var objs_l=GameData.world.level.matching_objects_at(matcher,next_pos_l)
+		var player_on_frontleft:Node2D=null if objs_l.empty() else objs_l[0]
 		if player_on_frontleft or player_on_frontright:
 			if not ( (player_on_frontleft and player_on_frontleft.next_dir in [fixed_dir,fixed_dir*-1]) \
 			  		or \

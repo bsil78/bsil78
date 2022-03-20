@@ -17,7 +17,13 @@ static func released(event,action):
 	return false	
 
 func quit(exit_code:int=0):
-	get_tree().quit(exit_code)
+	Utils.get_tree().quit(exit_code)
+
+func quit_from(node,exit_code:int=0):
+	node.get_tree().quit(exit_code)
+
+func quit_pause_from(node):
+	node.get_tree().paused=false
 
 static func choose(choices:Array):
 	randomize()
@@ -32,10 +38,33 @@ static func chance(percent:int)->bool:
 	var roll = randi()  % 101
 	return roll<percent
 
+func init_ui_locale(control:Control,base_size,translation_key,args=null):
+	var text=tr(translation_key)
+	var title_font_path="custom_fonts/title_font"
+	var has_title=control.has_method("set_title")
+	var font_path=title_font_path if has_title else "custom_fonts/font"
+	if  has_title: 
+		control.set_title(text)
+	else:
+		control.text=text
+	if args:control.text=control.text%args
+	var locale=TranslationServer.get_locale()
+	var new_size=base_size
+	var font:DynamicFont=control.get(font_path)
+	if locale!="en":
+		TranslationServer.set_locale("en")
+		var text_in_en=tr(translation_key)
+		if args:text_in_en=text_in_en%args
+		TranslationServer.set_locale(locale)
+		new_size=(base_size*len(text_in_en))/(len(text)-1)
+	font.size=new_size
+	control.set(font_path,font)
 
-
-func timer(var delay:float)->SceneTreeTimer:
-	return get_tree().create_timer(delay)
+func timer(var delay:float,node=null)->SceneTreeTimer:
+	if node:
+		return node.get_tree().create_timer(delay)
+	else:
+		return Utils.get_tree().create_timer(delay)
 	
 func play_sound(channel,sounds=null,volume_db:int=-999,pitch_scale:int=-999):
 	if channel:
@@ -52,8 +81,8 @@ func play_sound(channel,sounds=null,volume_db:int=-999,pitch_scale:int=-999):
 			DEBUG.error("Sound is null : %s"%sounds)
 			new_channel.queue_free()
 		else:
-			if volume_db>0.0:new_channel.volume_db=volume_db
-			if pitch_scale>0.0:new_channel.pitch_scale=pitch_scale
+			if volume_db!=-999:new_channel.volume_db=volume_db
+			if pitch_scale!=-999:new_channel.pitch_scale=pitch_scale
 			new_channel.play()
 			new_channel.connect("finished",new_channel,"queue_free")
 			return new_channel

@@ -131,8 +131,8 @@ func _physics_process(delta):
 	if debug:update()
 	if !can_move or Thing.frozen or !is_alive(): return
 	if was_killed(): return
-	var has_moved=manage_movement(delta)
-	if has_moved:think_of_next_action()
+	var moved=manage_movement(delta)
+	if moved:think_of_next_action()
 
 func think_of_next_action():
 	if next_dir==NONE and current_dir==NONE and !is_idle:

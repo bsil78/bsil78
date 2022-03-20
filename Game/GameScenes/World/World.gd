@@ -5,18 +5,19 @@ signal player_gained_coin
 
 var level:Node2D
 
+
 func _init() -> void:
 	GameData.world=self
 
 func _ready():
 	if GameData.current_level<1:
 		printerr("Current level must be at least 1")
-		Utils.quit(1)
+		Utils.quit_from(self,1)
 	init_level()
 	place_players()
 	GameData.players_slots={}
 	GameData.players_saves.clear()
-	$InputButtons.connect_to_world(self)
+	$InputButtons.get_node("InputsHandler").connect_to_world(self)
 	GameFuncs.connect("players_switched",self,"update_indicators")
 	emit_signal("level_ready")
 	update_indicators()

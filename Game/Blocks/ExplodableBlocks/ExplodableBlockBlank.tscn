@@ -1,0 +1,104 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://Game/Blocks/ExplodableBlocks/ExplodableBlock.gd" type="Script" id=1]
+[ext_resource path="res://Game/Assets/Images/Environment/tilesmap.png" type="Texture" id=2]
+
+[sub_resource type="StreamTexture" id=3]
+load_path = "res://.import/tilesmap.png-086b7933bbdfbd81d4e68488313ab865.stex"
+
+[sub_resource type="Animation" id=1]
+resource_name = "anim"
+length = 10.0
+loop = true
+tracks/0/type = "value"
+tracks/0/path = NodePath("Block:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/imported = false
+tracks/0/enabled = false
+tracks/0/keys = {
+"times": PoolRealArray( 1.9, 2.4, 2.9 ),
+"transitions": PoolRealArray( 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 1 ), Color( 0.894118, 0.909804, 0.890196, 1 ), Color( 1, 1, 1, 1 ) ]
+}
+tracks/1/type = "value"
+tracks/1/path = NodePath("Block:offset")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/imported = false
+tracks/1/enabled = false
+tracks/1/keys = {
+"times": PoolRealArray( 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1, 1 ),
+"update": 1,
+"values": [ Vector2( 0, 0 ), Vector2( -1, 0 ), Vector2( 0, 0 ), Vector2( 1, 0 ), Vector2( 0, 0 ), Vector2( 0, 1 ), Vector2( 0, 0 ) ]
+}
+tracks/2/type = "value"
+tracks/2/path = NodePath("Block:rotation_degrees")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/imported = false
+tracks/2/enabled = false
+tracks/2/keys = {
+"times": PoolRealArray( 7.4, 7.6, 7.8, 8, 8.2 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ 0.0, -0.5, 0.5, -0.5, 0.0 ]
+}
+tracks/3/type = "value"
+tracks/3/path = NodePath("Block:scale")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/imported = false
+tracks/3/enabled = false
+tracks/3/keys = {
+"times": PoolRealArray( 2.1, 2.3, 2.5, 7.6, 7.8, 8 ),
+"transitions": PoolRealArray( 1, 5.09824, 1, 1, 5.09824, 1 ),
+"update": 0,
+"values": [ Vector2( 1, 1 ), Vector2( 1.1, 1.1 ), Vector2( 1, 1 ), Vector2( 1, 1 ), Vector2( 0.9, 0.9 ), Vector2( 1, 1 ) ]
+}
+tracks/4/type = "value"
+tracks/4/path = NodePath("Variation:modulate")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/keys = {
+"times": PoolRealArray( 0, 0.5, 1, 5.1, 5.6, 6.1 ),
+"transitions": PoolRealArray( 1, 1, 1, 1, 1, 1 ),
+"update": 0,
+"values": [ Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 0 ), Color( 1, 1, 1, 1 ), Color( 1, 1, 1, 0 ) ]
+}
+
+[sub_resource type="GDScript" id=2]
+script/source = "extends AnimationPlayer
+
+func _ready() -> void:
+	Utils.timer(randf()*10).connect(\"timeout\",self,\"play\",[\"anim\"])
+"
+
+[node name="ExplodableBlockBlank" type="Node2D"]
+script = ExtResource( 1 )
+variant_frames = PoolIntArray( 7, 8, 9, 17, 18, 19, 27, 28, 29 )
+
+[node name="Block" type="Sprite" parent="."]
+self_modulate = Color( 0.909804, 0.827451, 0.823529, 1 )
+texture = ExtResource( 2 )
+vframes = 10
+hframes = 10
+frame = 7
+region_rect = Rect2( 128.501, 127.864, 0.499268, 0.136368 )
+
+[node name="Variation" type="Sprite" parent="."]
+modulate = Color( 1, 1, 1, 0 )
+self_modulate = Color( 1, 1, 1, 0.235294 )
+texture = SubResource( 3 )
+vframes = 10
+hframes = 10
+frame = 20
+region_rect = Rect2( 128.501, 127.864, 0.499268, 0.136368 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+anims/anim = SubResource( 1 )
+script = SubResource( 2 )

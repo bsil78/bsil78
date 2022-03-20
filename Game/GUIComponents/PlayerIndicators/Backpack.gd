@@ -12,24 +12,40 @@ var is_open:=false
 
 enum ITEMS { NONE=-1,ANKH=1,TORCH,FOOD,JAR }
 
+var SCAN_CODE_ITEM={
+	"fr":{ 
+		ITEMS.ANKH:[KEY_A,KEY_1,KEY_KP_1,KEY_F1],
+		ITEMS.TORCH:[KEY_T,KEY_2,KEY_KP_2,KEY_F2],
+		ITEMS.FOOD:[KEY_M,KEY_R,KEY_3,KEY_KP_3,KEY_F3],
+		ITEMS.JAR:[KEY_J,KEY_B,KEY_4,KEY_KP_4,KEY_F4]
+	},
+	"en":{ 
+		ITEMS.ANKH:[KEY_A,KEY_1,KEY_KP_1,KEY_F1],
+		ITEMS.TORCH:[KEY_T,KEY_2,KEY_KP_2,KEY_F2],
+		ITEMS.FOOD:[KEY_E,KEY_M,KEY_3,KEY_KP_3,KEY_F3],
+		ITEMS.JAR:[KEY_J,KEY_D,KEY_4,KEY_KP_4,KEY_F4]
+	}
+
+}
+
 var help_text:Dictionary={ ITEMS.ANKH: 
 									{ 
-									true: "Il faut peut-être se soigner ? [M]/[1]", 
+									true: "Ankh [A][1][F1] : il faut peut-être se soigner ?", 
 									false:"Pas d'Ankh !"
 									},
 							ITEMS.TORCH:
 									{
-										true:"On n'aime pas être dans le noir ? [T]/[2]",
+										true:"Torch [T][2][F2] : on n'aime pas etre dans le noir ?",
 										false:"Pas de torche !"
 									},
 							ITEMS.FOOD:
 									{
-										true:"La faim est proche ? [E]/[3]",
+										true:"Repas [R][M][3][F3] : La faim est proche ? ",
 										false:"Pas de repas !"
 									},
 							ITEMS.JAR:
 									{
-										true:"On s'en jette un petit dans le gosier ? [D]/[4]",
+										true:"Jarre [J][B][4][F4] : on s'en jette un petit dans le gosier ? ",
 										false:"Pas de jarre !"
 									}	
 									
@@ -52,17 +68,20 @@ func _ready():
 	_labels[ITEMS.FOOD]=_bpviewport.get_node("Items/FoodCount")
 	_labels[ITEMS.JAR]=_bpviewport.get_node("Items/JarCount")
 	
-func _process(_delta):
-	
-	if Input.is_action_just_pressed("ui_inventory"):
-		if _bp_open.visible:
-			close()
-		else:
-			open()
-			
-	for i in range(1,5):
-		var action:="ui_use_item{}".format([i],"{}")
-		if Input.is_action_just_pressed(action):use_item(i)
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed:
+		var key_pressed=event.scancode
+		if key_pressed in [KEY_TAB,KEY_I]:
+			if _bp_open.visible:
+				close()
+			else:
+				open()
+			return
+		
+		for i in SCAN_CODE_ITEM[TranslationServer.get_locale()]:
+			if key_pressed in SCAN_CODE_ITEM[TranslationServer.get_locale()][i]:use_item(i)
+
+		
 
 	
 func open():
@@ -134,7 +153,7 @@ func update_items():
 
 func player_item_count(item):
 	if GameData.current_player:
-		var inv=GameData.current_player.get_node("Inventory")
+		var inv=GameData.current_player.inventory()
 		match item:
 			ITEMS.ANKH:return inv.ankh
 			ITEMS.TORCH:return inv.torch

@@ -13,7 +13,7 @@ func _ready():
 	$Block.frame=Utils.choose(variant_frames)
 	assert(explosion!=null)
 
-func destroy(from,remove_instantly:bool=false)->bool:
+func destroy(from,_remove_instantly:bool=false)->bool:
 	if explosion==null:return true
 	if .destroy(from,false):
 		.dead()

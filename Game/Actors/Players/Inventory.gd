@@ -57,7 +57,7 @@ func duplicate(flags:int=6):
 	new_inv.god_signs=god_signs
 	new_inv.maps=maps.duplicate(true)
 	return new_inv
-	
+
 
 
 func reset():
@@ -101,4 +101,4 @@ func update():
 	emit_signal("inventory_changed")
 		
 func backpack_sound():
-	if backpack:Utils.play_sound($SoundsEffects,backpack,-10)
+	if backpack:Utils.play_sound($SoundsEffects,backpack)

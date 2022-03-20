@@ -2,11 +2,10 @@ extends "res://Game/BaseScripts/Pickable.gd"
 
 func pickup(who)->bool:
 	if .pickup(who):
-		if who.life_points<50 and who.energy<50:
-			who.consume_jar()
-		else:
-			if(who.inventory().store(GameEnums.ITEMS.JAR,self)):
-				remove_from_world()
+		var would_consume=(who.life_points<50 and who.energy<50)
+		who.inventory().store(GameEnums.ITEMS.JAR,self,!would_consume)
+		remove_from_world()
+		if would_consume:who.consume_jar()
 		GameData.world.update_indicators()
 		return true
 	return false

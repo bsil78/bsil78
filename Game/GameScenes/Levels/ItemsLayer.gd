@@ -21,7 +21,7 @@ func _ready()->void:
 	}
 	instantiate_objects(dic,get_parent().size)
 
-func instantiate_object(id:int,args:Array,grid_pos:Vector2)->Node2D:
+func instantiate_object(id:int,args:Array,_grid_pos:Vector2)->Node2D:
 	var node:Node2D=null
 	match id:
 		GameEnums.ITEMS.ANKH:

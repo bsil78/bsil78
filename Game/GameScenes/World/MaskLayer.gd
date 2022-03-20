@@ -31,7 +31,7 @@ func update():
 				
 func show_active_fow(player:Node2D):
 	var torch=player.torch()
-	$FogOfWar/Viewport/Active_FoW.position=large_fow_half_size+offset+player_center_offset
+	$FogOfWar/Viewport/Active_FoW.position=large_fow_half_size+player_center_offset+offset
 	$FogOfWar/Viewport/Active_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.get_node(small_fow_subpath).visible=!torch.is_flammed()
 	$FogOfWar/Viewport/Active_FoW.show()
@@ -43,15 +43,13 @@ func show_inactive_fow(player:Node2D):
 	var torch=player.torch()
 	var active_pos=GameData.current_player.position
 	var delta_pos=player.position-active_pos
-#   var pos=default_pos+delta_pos
 	var active_fow_pos=large_fow_half_size + player_center_offset+offset
-#	$FogOfWar/Viewport/Inactive_FoW.position=  active_fow_pos -player.position +screen_center- camera_origin()
-	$FogOfWar/Viewport/Inactive_FoW.position=  active_fow_pos +delta_pos -(screen_center-active_pos-camera_origin())
+	$FogOfWar/Viewport/Inactive_FoW.position=  active_fow_pos +delta_pos 
 	$FogOfWar/Viewport/Inactive_FoW.get_node(large_fow_subpath).visible=torch.is_flammed()
 	$FogOfWar/Viewport/Inactive_FoW.show()
 
-func camera_origin()->Vector2:
-	return GameData.current_player.get_camera().get_viewport_transform().origin
+func camera_origin(player)->Vector2:
+	return player.get_camera().get_viewport_transform().origin
 
 func hide_inactive_fow():
 	$FogOfWar/Viewport/Inactive_FoW.hide()

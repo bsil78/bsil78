@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://Game/Blocks/FakeWallField/FakeWallField.gd" type="Script" id=1]
 [ext_resource path="res://Game/Assets/Images/Environment/tilesmap.png" type="Texture" id=2]
 [ext_resource path="res://Game/Assets/Audio/ogg/effects/distorsion.ogg" type="AudioStream" id=3]
+[ext_resource path="res://Game/Assets/Images/Explosion.png" type="Texture" id=4]
 
 [sub_resource type="Shader" id=1]
 code = "shader_type canvas_item;
@@ -136,6 +137,38 @@ shader_param/FLASH_OFFSET = 0.0
 [sub_resource type="CircleShape2D" id=3]
 radius = 13.4511
 
+[sub_resource type="Gradient" id=4]
+offsets = PoolRealArray( 0, 0.191943, 0.43128, 1 )
+colors = PoolColorArray( 0, 0, 0, 0, 0, 0, 0, 0.0352941, 0.27, 0.2025, 0, 0.0745098, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=5]
+gradient = SubResource( 4 )
+
+[sub_resource type="Curve" id=6]
+_data = [ Vector2( 0, 0.0090909 ), 0.0, 8.74532, 0, 0, Vector2( 1, 0 ), 0.0190823, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=7]
+curve = SubResource( 6 )
+
+[sub_resource type="ParticlesMaterial" id=8]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 4, 4, 1 )
+flag_disable_z = true
+direction = Vector3( 0, 1, 0 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 6.0
+initial_velocity_random = 0.6
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_curve = SubResource( 7 )
+color_ramp = SubResource( 5 )
+
 [node name="FakeWallField" type="Node2D"]
 script = ExtResource( 1 )
 
@@ -158,5 +191,16 @@ shape = SubResource( 3 )
 [node name="SoundWhenPlayerInto" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 3 )
 mix_target = 1
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 27
+follow_viewport_enable = true
+
+[node name="DarknessSmokingFog" type="Particles2D" parent="CanvasLayer"]
+amount = 50
+lifetime = 10.0
+randomness = 0.5
+process_material = SubResource( 8 )
+texture = ExtResource( 4 )
 [connection signal="body_entered" from="Area2D" to="." method="_on_Area2D_body_entered"]
 [connection signal="body_exited" from="Area2D" to="." method="_on_Area2D_body_exited"]

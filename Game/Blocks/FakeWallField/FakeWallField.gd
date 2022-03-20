@@ -13,6 +13,7 @@ func _ready() -> void:
 	$Wall.material.set_shader_param("SCALEI",rand_range(21.0,53))
 	$Wall.material.set_shader_param("FLASH_OFFSET",rand_range(0.0,500.0))
 	GameFuncs.connect("players_switched",self,"manage_volume")
+	Utils.timer(0.2).connect("timeout",self,"deal_with_position")
 
 func step_on(who:Node2D)->bool:
 	return who.is_actor(GameEnums.ACTORS.ANY_PLAYER)
@@ -66,4 +67,6 @@ func manage_volume():
 		current_distord_sound.volume_db=0
 		dbgmsg("raised sound vol for %s")
 		
+func deal_with_position() -> void:
+	$CanvasLayer/DarknessSmokingFog.global_position=global_position
 		

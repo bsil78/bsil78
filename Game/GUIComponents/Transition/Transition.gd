@@ -19,9 +19,9 @@ func _ready():
 		GameEnums.TRANSITION_STATUS.LEVEL_UP:
 			text.text_to_use = tr("ENTER_LEVEL") % GameData.current_level
 		GameEnums.TRANSITION_STATUS.DEAD_HUNGRY:
-			text.text_to_use = gameOverPattern % [ tr("OF_NO_ENERGY"), previous_level, pluralDays(previous_level)]
+			text.text_to_use = gameOverPattern % [ tr("OF_NO_ENERGY"), GameData.current_level, pluralDays(GameData.current_level)]
 		GameEnums.TRANSITION_STATUS.DEAD_TIRED:
-			text.text_to_use = gameOverPattern % [ tr("OF_NO_LIFE"), previous_level, pluralDays(previous_level)]
+			text.text_to_use = gameOverPattern % [ tr("OF_NO_LIFE"), GameData.current_level, pluralDays(GameData.current_level)]
 	text.center_text()
 	Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	change_scene()

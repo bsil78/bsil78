@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=2]
+[gd_scene load_steps=19 format=2]
 
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/LifeBar.gd" type="Script" id=1]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/FoodBar.gd" type="Script" id=2]
@@ -12,6 +12,7 @@
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/PlayerGodSignCounter.gd" type="Script" id=10]
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=11]
 [ext_resource path="res://Game/GUIComponents/PlayerIndicators/PlayerIndicators.gd" type="Script" id=12]
+[ext_resource path="res://Game/GUIComponents/PlayerIndicators/Minimap.gd" type="Script" id=13]
 
 [sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.180392, 0.490196, 0.466667, 1 )
@@ -213,6 +214,7 @@ __meta__ = {
 margin_left = 576.0
 margin_right = 640.0
 margin_bottom = 64.0
+mouse_filter = 2
 texture = ExtResource( 8 )
 script = ExtResource( 9 )
 __meta__ = {
@@ -274,3 +276,27 @@ texture = ExtResource( 11 )
 vframes = 10
 hframes = 10
 frame = 23
+
+[node name="Minimap" type="ColorRect" parent="."]
+grow_horizontal = 2
+grow_vertical = 2
+rect_pivot_offset = Vector2( 64, 64 )
+size_flags_horizontal = 2
+size_flags_vertical = 2
+color = Color( 0, 0, 0, 0 )
+script = ExtResource( 13 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+coin_col = Color( 0.74902, 0.8, 0.360784, 1 )
+mobile_col = Color( 0.321569, 0.309804, 0.290196, 1 )
+fix_col = Color( 0.0784314, 0.2, 0.054902, 1 )
+bad_col = Color( 0, 0.0588235, 0.388235, 1 )
+walls_col = Color( 0.211765, 0.172549, 0.0941176, 1 )
+bg_col = Color( 0.439216, 0.356863, 0.184314, 1 )
+enemies_col = Color( 0.419608, 0, 0, 1 )
+
+[node name="UpdateTimer" type="Timer" parent="Minimap"]
+wait_time = 0.25
+autostart = true
+[connection signal="timeout" from="Minimap/UpdateTimer" to="Minimap" method="update_minimap"]

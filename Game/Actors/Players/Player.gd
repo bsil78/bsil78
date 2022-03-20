@@ -45,7 +45,7 @@ var FoodGainEffect:=preload("res://Game/Effects/PlayerFoodGain.tscn").instance()
 var hitEffect:=preload("res://Game/Effects/PlayerHitBlood.tscn").instance()
 var explodeEffect:=preload("res://Game/Effects/PlayerDying.tscn").instance()
 
-
+var to_step_on_after_move
 
 func _ready():
 	init_camera()
@@ -74,7 +74,7 @@ func inventory()->Inventory:
 	return $Inventory as Inventory
 
 func init_camera():
-	var marge=9
+	var marge=10
 	$Camera2D.current=false
 	$Camera2D.limit_left=-marge*cell_size
 	$Camera2D.limit_top=-marge*cell_size
@@ -122,7 +122,7 @@ func hide_torch_temporarily(delay):
 	$RevertHidingTorchTimer.start(delay)
 
 func activate(first_for_level:=false):
-	if first_for_level: Utils.play_sound($Voice,letsgo,-20)
+	if first_for_level: Utils.timer(0.5).connect("timeout",Utils,"play_sound",[$Voice,letsgo,-15])
 	$Camera2D.make_current()
 	z_index=2
 	active=true
@@ -183,26 +183,46 @@ func loseEnergy(amount:int=ENERGY_LOSED_ON_TIME):
 	
 func on_move(from,to)->bool:
 	if .on_move(from,to):
-#		torch_should_be_visible=should_torch_be_visible_at(to)
 		if max_speed==run_speed:loseEnergy(ENERGY_LOSED_ON_RUN)
 		_animator.trigger_anim("walk")
 		return true
 	else:
 		return false
-		
-#func should_torch_be_visible_at(to):
-#	var things=detect_things(to)
-#	dbgmsg("detected %s"%GameFuncs.dump(things))
-#	var need_to_hide_torch=things.has(GameEnums.OBJECT_TYPE.BLOCK) and things[GameEnums.OBJECT_TYPE.BLOCK].is_block(GameEnums.BLOCKS.FAKE_WALL)
-#	return !need_to_hide_torch 
+
+func on_moved(from,to):
+	.on_moved(from,to)
+	var block=to_step_on_after_move
+	to_step_on_after_move=null
+	if is_instance_valid(block):
+		if block.is_block(GameEnums.BLOCKS.EXIT):
+			dbgmsg("taking exit %s" % block.name)
+			taken_exit=block.name
+			position=snapped_pos()
+			_animator.trigger_anim("exit_level")
+			Utils.play_sound($SoundsEffects,exit_sound)
+		if block.is_block(GameEnums.BLOCKS.TELEPORTER):
+			dbgmsg("taking teleporter %s" % block.name)
+			position=snapped_pos()
+			block.teleport(self)
+	
+
+func teleportTo(pos:Vector2)->bool:
+	var objs=lvl.objects_at(pos)
+	var block=objs.get(GameEnums.OBJECT_TYPE.BLOCK)
+	if block and block.is_block(GameEnums.BLOCKS.TELEPORTER):
+		var actor=objs.get(GameEnums.OBJECT_TYPE.ACTOR)
+		if !actor:
+			lvl.remove_object(self)
+			position=pos
+			lvl.add_object(self)
+			return true
+	return false
 		
 func explode():
 	Utils.play_sound($Voice as AudioStreamPlayer2D,sproutch,20)
 	Utils.play_effect_once(explodeEffect,GameData.world.effects_node(),global_position)	
 	
 	
-#func on_collision(others:Dictionary)->bool:
-#	return .on_collision(others)
 
 func collide_block(block:Node2D)->bool:
 	if cool_down: return true 
@@ -220,15 +240,7 @@ func collide_block(block:Node2D)->bool:
 		return true
 	if block.step_on(self):
 		dbgmsg("stepping on %s" % block.name)
-		if block.is_block(GameEnums.BLOCKS.FAKE_WALL):
-			pass
-#			torch_should_be_visible=false
-		elif block.is_block(GameEnums.BLOCKS.EXIT):
-			dbgmsg("taken exit %s" % block.name)
-			taken_exit=block.name
-			position=snapped_pos()
-			_animator.trigger_anim("exit_level")
-			Utils.play_sound($SoundsEffects,exit_sound)
+		to_step_on_after_move=block
 		return false	
 		
 	return .collide_block(block)
@@ -262,10 +274,16 @@ func collide_actor(actor:Node2D)->bool:
 			if actor.walk_on_push:pushspeed=actor.walk_speed
 			var goto_args:=[position,current_dir]
 			if pushspeed<=run_speed:goto_args.push_back(pushspeed*0.95)
-			Utils.timer(0.2).connect("timeout",self,"goto",goto_args)
+			Utils.timer((run_speed/pushspeed)/8).connect("timeout",self,"goto",goto_args)
+			pushed_thing.connect("has_moved",self,"push_stopped")
 			return false
 		return true
 	return false
+
+func push_stopped():
+	pushed_thing.disconnect("has_moved",self,"push_stopped")
+	pushed_thing=null
+	idle()
 
 func start_cool_down(delay):
 	cool_down=true
@@ -349,6 +367,7 @@ func goto(from:Vector2,dir:Vector2,fspeed:int=-1):
 	if GameFuncs.grid_pos(from)!=GameFuncs.grid_pos(position):
 		dbgmsg("asked to go %s from %s but position does not match actual one %s"%[dir,from,position])
 		return
+# warning-ignore:incompatible_ternary
 	var pushed_thing_pos=pushed_thing.position if is_instance_valid(pushed_thing) else null  
 	if pushed_thing_pos:
 		var calc_dir= GameFuncs.grid_pos(pushed_thing_pos)-GameFuncs.grid_pos(from)

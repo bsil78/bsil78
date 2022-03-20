@@ -11,28 +11,55 @@ var playergodsign:Node
 var players_last_dir:={}
 var world
 
-func _ready():
-	$TextureRect.hide()
-	walk={"up":[Vector2.UP,$WalkUpBtn],"right":[Vector2.RIGHT,$WalkRightBtn],"left":[Vector2.LEFT,$WalkLeftBtn],"down":[Vector2.DOWN,$WalkDownBtn]}
-	stopBtns={$WalkRightBtn:"button_up",$WalkLeftBtn:"button_up",$WalkUpBtn:"button_up",$WalkDownBtn:"button_up"}
+var runBtn
+var rightBtn
+var leftBtn
+var upBtn
+var downBtn
+var design_bkgd
+var mouseIsInto=true
+
+var ready:=false
+
+func _ready() -> void:
+	get_parent().connect("ready",self,"connect_input_and_gui")	
+			
+func connect_input_and_gui():
+	var ui_buttons_root="../Game_UI_Buttons/%s"
+	runBtn=get_node(ui_buttons_root%"Run")
+	rightBtn=get_node(ui_buttons_root%"WalkRightBtn")
+	leftBtn=get_node(ui_buttons_root%"WalkLeftBtn")
+	upBtn=get_node(ui_buttons_root%"WalkUpBtn")
+	downBtn=get_node(ui_buttons_root%"WalkDownBtn")
+	design_bkgd=get_node(ui_buttons_root%"TextureRect")
+	design_bkgd.hide()
+	walk={"up":[Vector2.UP,upBtn],"right":[Vector2.RIGHT,rightBtn],"left":[Vector2.LEFT,leftBtn],"down":[Vector2.DOWN,downBtn]}
+	stopBtns={upBtn:"button_up",rightBtn:"button_up",leftBtn:"button_up",downBtn:"button_up"}
 	Input.set_use_accumulated_input(false)
-	
-	
+	ready=true
 			
 func _physics_process(_delta):
-	if  last_time_mouve_moved+5<OS.get_unix_time() :
-		Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
-#	capture_active_player()
+	if !ready:return
+	hide_mouse_if_still()
 	manage_input_of_connected_player()
+
+func hide_mouse_if_still():
+	if last_time_mouve_moved+5<OS.get_unix_time() :
+		last_time_mouve_moved=OS.get_unix_time()
+		if mouseIsInto:
+			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
+			Input.warp_mouse_position(Vector2(50,50))
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_HIDDEN)
 	
 func connect_to_world(the_world):
-	print("connecting input to world..")
+	#print("connecting input to world...")
 	self.world=the_world
 	GameFuncs.connect("players_switched",self,"capture_active_player")
 	the_world.connect("ready",self,"capture_active_player")
 	
 func capture_active_player():
-	print("capturing active player")
+	#print("capturing active player")
 	var active_player=GameData.current_player	
 	if !active_player:
 		connected_player=null
@@ -48,7 +75,7 @@ func capture_active_player():
 		connect_stop()
 		connect_walk()
 		connect_inventory()
-		adjust_speed($Run.pressed)
+		adjust_speed(runBtn.pressed)
 			
 		
 			
@@ -131,17 +158,19 @@ func stop():
 
 func _input(event):
 	if event is InputEventMouseMotion:
-		if (event as InputEventMouseMotion).speed>Vector2.ZERO:
+		if (event as InputEventMouseMotion).speed.length()>4:
 			last_time_mouve_moved=OS.get_unix_time()
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			#print("setting mouse into")
+			mouseIsInto=true
 		return
 	
 	if Utils.pressed(event,"ui_speedup"):
-		adjust_speed(!$Run.pressed)
+		adjust_speed(!runBtn.pressed)
 		return
 	
 	if Utils.released(event,"ui_speedup"):
-		adjust_speed($Run.pressed)
+		adjust_speed(runBtn.pressed)
 		return
 		
 	if Utils.pressed(event,"ui_switch"):
@@ -163,9 +192,8 @@ func run_toggled(button_pressed):
 func direction(dir:Vector2):
 	players_last_dir[connected_player]=dir
 
-func torch_toggled(button_pressed):
-	if button_pressed:
-		GameData.current_player.use_torch()
-	else:
-		GameData.current_player.lose_torch()
 
+
+func _on_MouseTimer_timeout() -> void:
+	#print("setting mouse out")
+	mouseIsInto=false

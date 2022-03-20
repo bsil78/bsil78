@@ -15,7 +15,7 @@ func _ready():
 	effect_as_node=effect.instance()
 	var nbbats=2+randi()%3
 	bats={}
-	for b in range(0,nbbats):
+	for _b in range(0,nbbats):
 		var dir=Vector2(-1+randf()*2,-1+randf()*2)
 		var bat=$BatPrototype.duplicate()
 		bats[bat]=dir
@@ -23,8 +23,9 @@ func _ready():
 		bat.position=Vector2(randi()%17-8,randi()%17-8)
 		$BatsPlaceHolder.add_child(bat)
 		bat.show()
+	Utils.timer(0.2).connect("timeout",self,"deal_with_position")
 
-func _physics_process(_delta: float) -> void:	
+func update_bats():
 	for bat in bats:
 		var dir=bats[bat]
 		var new_pos=bat.position+dir
@@ -36,7 +37,7 @@ func _physics_process(_delta: float) -> void:
 			dir=dir*Vector2(1,-1)
 		bats[bat]=dir
 		bat.flip_h=dir.x<0
-		bat.position=new_pos
+		bat.position=new_pos	
 
 		
 func step_on(who:Node2D)->bool:
@@ -85,3 +86,7 @@ func update_visual():
 	else:
 		$Background.rotation_degrees=0
 		$Arrows.rotation_degrees=0
+
+
+func deal_with_position() -> void:
+	$CanvasLayer/BatsSmokingFog.global_position=global_position

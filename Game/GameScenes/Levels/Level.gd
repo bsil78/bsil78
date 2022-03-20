@@ -2,18 +2,28 @@ extends Node2D
 
 export(int,10,40,1) var size:=40
 
+export(NodePath) var innerwalls_path
+
+var innerwalls:TileMap
+
 var objects:={}
 var grid_lock:=Mutex.new()
 var exits:=[]
+var teleporters:=[]
 
 
 func _ready():
+	innerwalls=get_node(innerwalls_path)
 	$ContextOfLevels.fill(size)
 	scan_objects()
 
 func connect_exit(exit:Node2D):
-	exit.connect("exit_fullfilled",self,"check_exits")
+	exit.connect("exit_fullfilled",self,"_on_exit_fullfilled")
 	exits.append(exit)
+	
+func connect_teleporter(teleporter:Node2D):
+	teleporter.connect("teleporter_activated",self,"_on_teleporter_actived")
+	teleporters.append(teleporter)
 
 func has_actor_at(at,object=null)->bool:
 	return has_thing_at(at,object,GameEnums.OBJECT_TYPE.ACTOR)
@@ -30,7 +40,18 @@ func has_thing_at(at,object,type_of_thing)->bool:
 	if !object: return true
 	return object==thing
 
-func check_exits():
+
+
+func _on_teleporter_actived(which_one,target,actor):
+	print_debug("Teleporter %s activated by %s with target %s"%[which_one.teleporter_id,actor.name,target])
+	for teleporter in teleporters:
+		if teleporter.teleporter_id==target:
+			teleporter.receive(which_one,actor)
+			return
+	print_debug("Target teleporter not found")
+	which_one.throw_back(actor)
+
+func _on_exit_fullfilled():
 	# if one has not been fullfilled : cannot exit yet
 	for exit in exits:
 		if !exit.is_fullfilled():return
@@ -73,15 +94,14 @@ func add_object_at(object:Node2D,pos:Vector2)->bool:
 	lock_grid()
 	var grid_pos=GameFuncs.grid_pos(pos)
 	var result=true
-	if objects.has(grid_pos):
-		var dic:Dictionary=objects[grid_pos]
-		if dic.has(type):
-			#DEBUG.error("%s has already object %s cannot add %s"%[grid_pos,(dic[type] as Node2D).name,object.name])
-			result=false
-		else:
-			dic[type]=object
-	else:
+	var dic=objects.get(grid_pos)
+	if !dic:
 		objects[grid_pos]={type:object}
+	elif !dic.has(type):
+		dic[type]=object
+	else:
+		#DEBUG.error("%s has already object %s cannot add %s"%[grid_pos,(dic[type] as Node2D).name,object.name])
+		result=false
 	unlock_grid()
 	return result
 	
@@ -107,11 +127,10 @@ func remove_type_at(pos:Vector2,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->
 	lock_grid()
 	var done:=false
 	var grid_pos=GameFuncs.grid_pos(pos)
-	if objects.has(grid_pos):
-		var dic:=(objects[grid_pos] as Dictionary)
-		if dic.has(object_type):
-			done=dic.erase(object_type)
-			if len(dic)==0:objects.erase(grid_pos)
+	var dic=objects.get(grid_pos)
+	if dic and dic.has(object_type):
+		done=dic.erase(object_type)
+		if len(dic)==0:objects.erase(grid_pos)
 	unlock_grid()
 	return done
 	
@@ -119,35 +138,15 @@ func remove_object_at(pos:Vector2,object)->bool:
 	lock_grid()
 	var done:=false
 	var grid_pos=GameFuncs.grid_pos(pos)
-	if objects.has(grid_pos):
-		var dic:=(objects[grid_pos] as Dictionary)
-		if dic.values().has(object):
-			var key_to_erase=-1
-			for key in dic:
-				if dic[key]==object: key_to_erase=key
-			done=(key_to_erase!=-1) and dic.erase(key_to_erase)
-			if len(dic)==0:objects.erase(grid_pos)
+	var dic=objects.get(grid_pos)
+	if dic and dic.values().has(object):
+		var key_to_erase=-1
+		for key in dic:
+			if dic[key]==object: key_to_erase=key
+		done=(key_to_erase!=-1) and dic.erase(key_to_erase)
+		if len(dic)==0:objects.erase(grid_pos)
 	unlock_grid()
 	return done	
-
-#func ifmatch_remove_object(mask:String,object_type:int=GameEnums.OBJECT_TYPE.UNKNOWN)->Vector2:
-#	var found_pos:Vector2
-#	if object_type!=GameEnums.OBJECT_TYPE.UNKNOWN: 
-#		lock_grid()
-#		var pos_to_remove:Vector2
-#		var done:=false
-#		for grid_pos in objects:
-#			var dic:Dictionary=objects[grid_pos] as Dictionary
-#			var types_to_remove:=[]
-#			if not dic.has(object_type):continue
-#			var object:=dic[object_type] as Node2D
-#			if object and object.name.matchn(mask):
-#				done=dic.erase(object_type)
-#				if len(dic)==0:pos_to_remove=grid_pos
-#				found_pos=grid_pos as Vector2
-#		if pos_to_remove:objects.erase(pos_to_remove)
-#		unlock_grid()
-#	return found_pos
 	
 func remove_object(object:Node2D)->bool:
 	lock_grid()
@@ -205,18 +204,16 @@ func blocks_node():
 func objects_at(at:Vector2)->Dictionary:
 	lock_grid()
 	var grid_pos=GameFuncs.grid_pos(at)
-	var found={}
-	if objects.has(grid_pos):
-		found=objects[grid_pos]
+	var found=objects.get(grid_pos)
 	unlock_grid()
-	
-	return found
+	return found if found!=null else {}
 
-func matching_object_at(mask:String,at:Vector2)->Node2D:
+func matching_objects_at(matcher:Dictionary,at:Vector2)->Array:
 	var all_objects:=objects_at(at)
-	for obj in all_objects.values():
-		if obj.name.matchn(mask):
-			return obj
-	return null
+	var matching:=[]
+	for obj_type in matcher:
+		var obj=all_objects.get(obj_type)
+		if obj and GameFuncs.is_one(obj_type,obj,matcher[obj_type]): matching.append(obj)
+	return matching
 
 

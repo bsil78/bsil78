@@ -32,7 +32,7 @@ func explode():
 	explosion.connect("sides_exploding",self,"explode_things",[to_hit_dirs])
 	play_explosion()
 
-func destroy(from:Node2D,remove_instantly:bool=true)->bool:
+func destroy(_from:Node2D,_remove_instantly:bool=true)->bool:
 	if is_alive():explode()
 	return true
 	

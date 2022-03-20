@@ -30,7 +30,8 @@ enum BLOCKS {
 				FORCE_FIELD,
 				FAKE_WALL,
 				ANY_EXPLODABLE,
-				ANY_SOLID_BLOCK
+				ANY_SOLID_BLOCK,
+				TELEPORTER
 			 }
 
 enum ACTORS {	

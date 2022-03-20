@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=2]
+[gd_scene load_steps=25 format=2]
 
 [ext_resource path="res://Game/Blocks/ForceField/ForceField.gd" type="Script" id=1]
 [ext_resource path="res://Game/Assets/Images/Items/items.png" type="Texture" id=2]
@@ -224,6 +224,42 @@ tracks/2/keys = {
 "values": [ true, false ]
 }
 
+[sub_resource type="Gradient" id=13]
+offsets = PoolRealArray( 0, 0.319905, 0.665877, 0.99763 )
+colors = PoolColorArray( 0, 0, 0, 0, 0, 0, 0, 1, 0.313726, 0.478431, 0.294118, 0.929412, 0, 0, 0, 0 )
+
+[sub_resource type="GradientTexture" id=14]
+gradient = SubResource( 13 )
+
+[sub_resource type="Curve" id=15]
+_data = [ Vector2( 0, 0.0090909 ), 0.0, 5.51383, 0, 0, Vector2( 1, 0 ), -3.11483, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=16]
+curve = SubResource( 15 )
+
+[sub_resource type="ParticlesMaterial" id=17]
+lifetime_randomness = 0.31
+trail_divisor = 3
+emission_shape = 2
+emission_box_extents = Vector3( 4, 4, 1 )
+flag_disable_z = true
+direction = Vector3( 0, 1, 0 )
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 4.0
+initial_velocity_random = 0.6
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+angle = 18.0
+angle_random = 1.0
+scale = 3.0
+scale_curve = SubResource( 16 )
+color_ramp = SubResource( 14 )
+
+[sub_resource type="StreamTexture" id=18]
+flags = 4
+load_path = "res://.import/Explosion.png-e80f1b69e1dcc758041f0eea244d5f31.stex"
+
 [node name="ForceField" type="Node2D"]
 script = ExtResource( 1 )
 effect = ExtResource( 3 )
@@ -247,7 +283,7 @@ frame = 5
 [node name="BatPrototype" type="AnimatedSprite" parent="."]
 visible = false
 frames = SubResource( 11 )
-frame = 4
+frame = 3
 playing = true
 
 [node name="Arrows" type="Sprite" parent="."]
@@ -264,4 +300,23 @@ anims/anim = SubResource( 12 )
 
 [node name="BatsSound" type="AudioStreamPlayer" parent="."]
 stream = ExtResource( 5 )
+volume_db = -10.0
 mix_target = 1
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+layer = 27
+follow_viewport_enable = true
+
+[node name="BatsSmokingFog" type="Particles2D" parent="CanvasLayer"]
+modulate = Color( 0.129412, 1, 0.521569, 0.0392157 )
+amount = 40
+lifetime = 5.0
+preprocess = 40.48
+randomness = 1.0
+process_material = SubResource( 17 )
+texture = SubResource( 18 )
+
+[node name="UpdateBatsTimer" type="Timer" parent="."]
+wait_time = 0.25
+autostart = true
+[connection signal="timeout" from="UpdateBatsTimer" to="." method="update_bats"]

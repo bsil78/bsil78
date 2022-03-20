@@ -12,12 +12,19 @@ func _ready():
 
 func _process(_delta):
 	if Input.action_press("ui_quit"):
-		Utils.quit(0)
+		Utils.quit_from(self)
 	
 func load_next_level():
 	GameData.transition_state=GameEnums.TRANSITION_STATUS.LEVEL_UP
 	GameData.current_level=GameData.current_level+1
 	transition()
+
+static func manage_debug_of(debug_node,obj):
+	if !DEBUG.active:return
+	for child in debug_node.get_children():
+		if child is Position2D and child.name.matchn("*debug*"):
+			if GameFuncs.grid_pos(child.position)==GameFuncs.grid_pos(obj.position):
+				obj.debug=true
 
 func init_new_game():
 	findout_levels_config()
@@ -55,6 +62,17 @@ func object_type_of(obj:Node2D):
 	if is_actor(obj): return GameEnums.OBJECT_TYPE.ACTOR
 	if is_item(obj): return GameEnums.OBJECT_TYPE.ITEM
 	return GameEnums.OBJECT_TYPE.UNKNOWN
+
+func is_one(obj_type:int,obj:Node2D,types:Array=[])->bool:
+	match obj_type:
+		GameEnums.OBJECT_TYPE.ACTOR:
+			return GameFuncs.is_actor(obj,types)
+		GameEnums.OBJECT_TYPE.ITEM:
+			return GameFuncs.is_item(obj,types)
+		GameEnums.OBJECT_TYPE.BLOCK:
+			return GameFuncs.is_block(obj,types)
+		_:
+			return false
 
 func is_block(obj:Node2D,types:Array=[])->bool:
 	if obj.has_method("is_block"):
@@ -106,7 +124,7 @@ func change_active_player()->bool:
 	var changed:=false
 	if next_player:
 		DEBUG.push("Next player : %s"%next_player.name)
-		GameData.current_player.desactivate()
+		if GameData.current_player: GameData.current_player.desactivate()
 		GameData.current_player=next_player
 		next_player.activate()
 		changed=true

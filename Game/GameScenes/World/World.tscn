@@ -1,7 +1,8 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://Game/GameScenes/World/World.gd" type="Script" id=1]
-[ext_resource path="res://Game/GUIComponents/InputButtons/InputButtons.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Game/GUIComponents/GameControls/GameControls.tscn" type="PackedScene" id=2]
+[ext_resource path="res://Game/GUIComponents/PauseMenu/PauseMenu.tscn" type="PackedScene" id=3]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits.png" type="Texture" id=4]
 [ext_resource path="res://Game/Assets/Images/wind-rose-letters.png" type="Texture" id=5]
 [ext_resource path="res://Game/Assets/Images/Mask-8bits-LightOff.png" type="Texture" id=6]
@@ -54,6 +55,7 @@ light_mask = 0
 position = Vector2( -1, 0 )
 
 [node name="MaskLayer" type="CanvasLayer" parent="."]
+layer = 125
 script = ExtResource( 11 )
 
 [node name="FogOfWar" type="ViewportContainer" parent="MaskLayer"]
@@ -94,6 +96,7 @@ light_mask = 0
 margin_right = 256.0
 margin_bottom = 256.0
 texture = ExtResource( 8 )
+stretch_mode = 3
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -114,7 +117,6 @@ light_mask = 0
 position = Vector2( 248, 248 )
 
 [node name="Large_FoWHole" type="TextureRect" parent="MaskLayer/FogOfWar/Viewport/Inactive_FoW"]
-visible = false
 light_mask = 0
 margin_right = 256.0
 margin_bottom = 256.0
@@ -125,6 +127,7 @@ __meta__ = {
 }
 
 [node name="FieldOfView" type="TextureRect" parent="MaskLayer"]
+visible = false
 light_mask = 0
 material = SubResource( 2 )
 margin_left = -128.0
@@ -154,9 +157,11 @@ visible = false
 position = Vector2( 320, 320.56 )
 texture = ExtResource( 5 )
 
+[node name="PlayerIndicators" parent="." instance=ExtResource( 7 )]
+
 [node name="InputButtons" parent="." instance=ExtResource( 2 )]
 
-[node name="PlayerIndicators" parent="." instance=ExtResource( 7 )]
+[node name="PauseMenu" parent="." instance=ExtResource( 3 )]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 visible = false
