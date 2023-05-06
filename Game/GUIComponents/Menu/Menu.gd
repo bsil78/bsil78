@@ -8,11 +8,11 @@ onready var kd:Timer=$KeyDelay
 onready var gd:WindowDialog=$Panel/GamesDialog
 onready var cd:WindowDialog=$Panel/CreditsDialog
 onready var dd:WindowDialog=$Panel/DebugDialog
-onready var od:WindowDialog=$Panel/OptionsDialog
+onready var od:PopupPanel=$Panel/OptionsDialog
 onready	var games:ItemList=$Panel/GamesDialog/Control/Games
 onready var game_name_popup:PopupDialog=$Panel/GamesDialog/Control/GameNamePopup
-onready var game_name_edit:PopupDialog=$Panel/GamesDialog/Control/GameNamePopup/LineEdit
-onready var languageLabel:PopupMenu=$Panel/OptionsDialog/Container/Language
+onready var game_name_edit:LineEdit=$Panel/GamesDialog/Control/GameNamePopup/LineEdit
+onready var languageLabel:Label=$Panel/OptionsDialog/Container/Language
 onready var languagePopupMenu:PopupMenu=$Panel/OptionsDialog/Container/Language/PopupMenu
 
 const game_edit_validation_key=[ KEY_ENTER, KEY_KP_ENTER, KEY_ESCAPE ]
