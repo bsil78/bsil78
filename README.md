@@ -1,5 +1,5 @@
-- 👋 Hi, I’m @bsil78, professional software architect, who is programming as a daily basis (as hobbyist game dev for example ) 
-- 👀 I’m interested in art (mostly painting, drawing, poetry) , programming (which is also art) 
-- 🌱 I’m constantly trying to improve my knowledges in art, Godot, Angular, CSS, Java
-- 💞️ I’m looking to collaborate on Godot 4 beta
-- 📫 message me here, or catch me on twitch/discord of Babadesbois
+- 👋 Hi, I’m @bsil78, aka Ben, somewhat analyst-programer, somewhat project manager, somewhat software architect, and now (software) designer, who is programming (as hobbyist game dev for example ) or designing things (mostly softwares or games) as a daily basis
+- 👀 I’m interested in art (mostly painting, drawing, poetry) , programming (which is also art IMHO) 
+- 🌱 I’m constantly trying to improve my knowledges in various domains like art, Godot, Angular, CSS, Java, speaking, thinking,
+- 💞️ I’m looking to collaborate on Godot improvement,
+- 📫 message me here, or catch me on twitch/discord of BabaDesBois
